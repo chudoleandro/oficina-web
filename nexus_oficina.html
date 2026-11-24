@@ -1,0 +1,3843 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Nexus Oficina PRO — Gestão Automotiva</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #070b14;
+      --sidebar: #0d1322;
+      --panel: #11192c;
+      --card: #17223b;
+      --input-bg: #0b1220;
+      --border: #243354;
+      --border-soft: #1b2742;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --dim: #64748b;
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --primary-glow: rgba(59, 130, 246, 0.18);
+      --success: #10b981;
+      --success-dark: #059669;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --danger-dark: #dc2626;
+      --sidebar-w: 270px;
+      --sidebar-mini-w: 76px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      max-width: 100%;
+      min-height: 100dvh;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    body {
+      display: flex;
+    }
+
+    /* ==================== MENU LATERAL ==================== */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      transition: width 0.22s ease, transform 0.24s ease;
+      position: sticky;
+      top: 0;
+      height: 100dvh;
+      z-index: 60;
+      flex-shrink: 0;
+    }
+
+    .sidebar.collapsed {
+      width: var(--sidebar-mini-w);
+    }
+
+    .sidebar-header {
+      min-height: 68px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-soft);
+      gap: 8px;
+    }
+
+    .brand-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .brand-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .brand-texts {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .brand-texts strong {
+      display: block;
+      font-size: 14.5px;
+      font-weight: 800;
+      color: #fff;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-texts span {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .sidebar.collapsed .brand-texts,
+    .sidebar.collapsed .nav-label,
+    .sidebar.collapsed .nav-badge,
+    .sidebar.collapsed .nav-group-title,
+    .sidebar.collapsed .sidebar-footer-info {
+      display: none;
+    }
+
+    .sidebar.collapsed .nav-btn {
+      justify-content: center;
+      padding: 11px;
+    }
+
+    .toggle-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .toggle-btn:hover {
+      color: #fff;
+      background: var(--card);
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .nav-group-title {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.85px;
+      color: var(--dim);
+      padding: 12px 12px 5px;
+    }
+
+    .nav-btn {
+      width: 100%;
+      background: transparent;
+      border: 1px solid transparent;
+      color: #cbd5e1;
+      border-radius: 10px;
+      padding: 11px 12px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: left;
+      min-height: 42px;
+    }
+
+    .nav-btn-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .nav-label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .nav-btn svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.9;
+    }
+
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.04);
+      color: #fff;
+    }
+
+    .nav-btn.active {
+      background: var(--primary-glow);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .nav-badge {
+      background: var(--card);
+      color: #e2e8f0;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .nav-btn.active .nav-badge {
+      background: var(--primary);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .sidebar-footer {
+      border-top: 1px solid var(--border-soft);
+      padding: 12px 14px;
+      font-size: 11.5px;
+      color: var(--muted);
+    }
+
+    .dot-online {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      margin-right: 6px;
+    }
+
+    /* ==================== ÁREA PRINCIPAL ==================== */
+    .main-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      width: 100%;
+    }
+
+    .topbar {
+      min-height: 68px;
+      background: rgba(13, 19, 34, 0.94);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      flex-wrap: wrap;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      flex: 1 1 220px;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: #fff;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .page-title {
+      font-size: 18px;
+      font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .content {
+      padding: 20px 24px 40px;
+      max-width: 1320px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* ==================== KPI CARDS (SOMENTE NA ABA PÁTIO) ==================== */
+    .kpi-grid {
+      display: none;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .kpi-grid.visible {
+      display: grid;
+    }
+
+    .kpi-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      min-width: 0;
+    }
+
+    .kpi-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .kpi-value {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+      word-break: break-word;
+    }
+
+    .kpi-value.green { color: #34d399; }
+    .kpi-value.blue { color: var(--primary); }
+    .kpi-value.amber { color: #fbbf24; }
+
+    /* ==================== TELAS E SUBMENUS DE CONFIGURAÇÕES ==================== */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .config-submenu {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .sub-btn {
+      background: var(--card);
+      color: #cbd5e1;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      min-height: 38px;
+    }
+
+    .sub-btn:hover {
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .sub-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .sub-section { display: none; }
+    .sub-section.active { display: block; }
+
+    .sub-box {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 18px;
+      min-width: 0;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .panel-header h3 {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .os-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+
+    .os-detail-grid {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 8px 14px;
+      padding: 10px 12px;
+      background: var(--input-bg);
+      border: 1px solid var(--border-soft);
+      border-radius: 9px;
+      font-size: 13px;
+      color: #cbd5e1;
+      word-break: break-word;
+    }
+
+    .os-detail-list {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: var(--input-bg);
+      border: 1px solid var(--border-soft);
+      border-radius: 9px;
+      font-size: 13px;
+      color: #cbd5e1;
+      line-height: 1.55;
+      word-break: break-word;
+    }
+
+    .garantia-item-box {
+      margin-top: 8px;
+      padding: 10px 12px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .obs-aviso-box {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 9px;
+      font-size: 13px;
+      color: #fde68a;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .os-main-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      word-break: break-word;
+    }
+
+    .tag {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--primary-glow);
+      color: #e2e8f0;
+      border: 1px solid var(--primary);
+      display: inline-block;
+    }
+
+    .tag.green {
+      background: rgba(16, 185, 129, 0.15);
+      color: #6ee7b7;
+      border-color: rgba(16, 185, 129, 0.35);
+    }
+
+    .tag.amber {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fcd34d;
+      border-color: rgba(245, 158, 11, 0.35);
+    }
+
+    .tag.red {
+      background: rgba(239, 68, 68, 0.16);
+      color: #fca5a5;
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+
+    .os-meta {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .os-meta b { color: #e2e8f0; }
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* ==================== FORMULÁRIOS E BOTÕES ==================== */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .grid-item-add {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) 95px 150px;
+      gap: 10px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .field label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #cbd5e1;
+    }
+
+    .field-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .inline-select {
+      padding: 6px 8px;
+      font-size: 12px;
+      border-radius: 7px;
+      max-width: 230px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      background: var(--input-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 10px 12px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+    }
+
+    textarea {
+      min-height: 86px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    .btn {
+      border: 1px solid transparent;
+      border-radius: 9px;
+      padding: 10px 15px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      color: #fff;
+      background: var(--primary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 40px;
+      white-space: nowrap;
+    }
+
+    .btn:hover { filter: brightness(0.92); }
+    .btn-success { background: var(--success); }
+    .btn-success:hover { background: var(--success-dark); }
+    .btn-secondary { background: #1e293b; border-color: var(--border); color: #e2e8f0; }
+    .btn-secondary:hover { background: #273549; }
+    .btn-danger { background: var(--danger); }
+    .btn-danger:hover { background: var(--danger-dark); }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .items-box {
+      margin-top: 12px;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: #cbd5e1;
+      word-break: break-word;
+    }
+
+    .calc-summary-box {
+      margin-top: 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .calc-item-label {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .calc-item-val {
+      font-size: 17px;
+      font-weight: 800;
+      color: #fff;
+      word-break: break-word;
+    }
+
+    .calc-item-val.green { color: #34d399; }
+
+    .item-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-soft);
+      flex-wrap: wrap;
+    }
+
+    .item-line:last-child { border-bottom: none; }
+
+    .logo-preview-box {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--input-bg);
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+
+    .logo-preview-img {
+      width: 64px;
+      height: 64px;
+      border-radius: 10px;
+      object-fit: contain;
+      background: var(--card);
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .color-swatches {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .swatch-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 40px;
+    }
+
+    .swatch-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      flex-shrink: 0;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 32px 18px;
+      color: var(--muted);
+      background: var(--panel);
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      line-height: 1.6;
+    }
+
+    /* ==================== MODAL / TELA DE EDIÇÃO ==================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.84);
+      backdrop-filter: blur(3px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      z-index: 100;
+    }
+
+    .modal-backdrop.open { display: flex; }
+
+    .modal-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 720px;
+      padding: 20px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+      max-height: 92dvh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .modal-card h3 {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .modal-sub {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+
+    .modal-total {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 800;
+      color: #34d399;
+      margin-bottom: 16px;
+    }
+
+    .drawer-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.7);
+      z-index: 50;
+    }
+
+    .drawer-backdrop.open { display: block; }
+
+    #print-area {
+      display: none;
+      background: #fff;
+      color: #111;
+      padding: 28px;
+    }
+
+    @media print {
+      body > *:not(#print-area) { display: none !important; }
+      #print-area { display: block !important; }
+    }
+
+    @media (max-width: 900px) {
+      .kpi-grid, .calc-summary-box, .grid-2, .grid-3, .grid-item-add {
+        grid-template-columns: 1fr;
+      }
+      .content {
+        padding: 16px 14px 36px;
+      }
+      .panel {
+        padding: 16px 14px;
+      }
+    }
+
+    @media (max-width: 780px) {
+      .mobile-menu-btn { display: inline-flex; }
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100dvh;
+        width: min(290px, 85vw);
+        transform: translateX(-100%);
+        box-shadow: 12px 0 36px rgba(0, 0, 0, 0.55);
+      }
+      .sidebar.mobile-open { transform: translateX(0); }
+      .toggle-btn { display: none; }
+      .topbar {
+        padding: 10px 14px;
+      }
+      .page-title {
+        font-size: 16px;
+      }
+      .topbar-actions {
+        width: 100%;
+        justify-content: stretch;
+      }
+      .topbar-actions .btn {
+        flex: 1;
+        padding: 9px 10px;
+        font-size: 12.5px;
+      }
+      .os-card {
+        padding: 14px;
+      }
+      .card-actions {
+        width: 100%;
+      }
+      .card-actions .btn {
+        flex: 1 1 auto;
+      }
+      .btn {
+        white-space: normal;
+        text-align: center;
+      }
+      .inline-select {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="drawer-backdrop" class="drawer-backdrop" onclick="fecharDrawerMobile()"></div>
+
+  <!-- MENU LATERAL -->
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-box">
+        <div class="brand-logo" id="sidebar-logo-box">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </div>
+        <div class="brand-texts">
+          <strong id="sidebar-oficina-nome">NEXUS OFICINA</strong>
+          <span>ERP Automotivo PRO</span>
+        </div>
+      </div>
+
+      <button class="toggle-btn" title="Recolher/Expandir menu" onclick="alternarSidebar()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-group-title">Operação</div>
+
+      <button class="nav-btn active" data-screen="patio" onclick="navegar('patio')">
+        <span class="nav-btn-left">
+          <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="10" rx="2"></rect><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle></svg>
+          <span class="nav-label">Pátio e Baixa</span>
+        </span>
+        <span id="badge-patio" class="nav-badge">0</span>
+      </button>
+
+      <button class="nav-btn" data-screen="nova_os" onclick="navegar('nova_os')">
+        <span class="nav-btn-left">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>
+          <span class="nav-label">Nova OS / Entrada</span>
+        </span>
+      </button>
+
+      <button class="nav-btn" data-screen="orcamentos" onclick="navegar('orcamentos')">
+        <span class="nav-btn-left">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          <span class="nav-label">Orçamentos</span>
+        </span>
+        <span id="badge-orcamentos" class="nav-badge">0</span>
+      </button>
+
+      <button class="nav-btn" data-screen="preventivas" onclick="navegar('preventivas')">
+        <span class="nav-btn-left">
+          <svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="9"></circle></svg>
+          <span class="nav-label">Preventivas</span>
+        </span>
+        <span id="badge-preventivas" class="nav-badge">0</span>
+      </button>
+
+      <div class="nav-group-title">Cadastros e Sistema</div>
+
+      <button class="nav-btn" data-screen="clientes" onclick="navegar('clientes')">
+        <span class="nav-btn-left">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+          <span class="nav-label">Clientes e Veículos</span>
+        </span>
+      </button>
+
+      <button class="nav-btn" data-screen="historico" onclick="navegar('historico')">
+        <span class="nav-btn-left">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+          <span class="nav-label">Histórico</span>
+        </span>
+        <span id="badge-historico" class="nav-badge">0</span>
+      </button>
+
+      <button class="nav-btn" data-screen="config" onclick="navegar('config')">
+        <span class="nav-btn-left">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span class="nav-label">Configurações</span>
+        </span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-info">
+        <span class="dot-online"></span>Sistema Local Ativo
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <div class="main-wrapper">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="mobile-menu-btn" onclick="abrirDrawerMobile()" aria-label="Abrir menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+        <h2 id="page-title" class="page-title">Pátio de Veículos — Saída e Baixa</h2>
+      </div>
+
+      <div class="topbar-actions">
+        <button class="btn btn-secondary" onclick="criarOsTeste()">OS de Teste</button>
+        <button class="btn" onclick="atualizarPainel()">Atualizar</button>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- KPIs: EXIBIDOS SOMENTE NA ABA PÁTIO E BAIXA -->
+      <section id="kpi-section" class="kpi-grid visible">
+        <div class="kpi-card">
+          <div class="kpi-title">Veículos no Pátio</div>
+          <div id="kpi-qtd-patio" class="kpi-value blue">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Previsão no Pátio</div>
+          <div id="kpi-valor-patio" class="kpi-value amber">R$ 0,00</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Total Recebido</div>
+          <div id="kpi-total-saidas" class="kpi-value green">R$ 0,00</div>
+        </div>
+      </section>
+
+      <!-- 1. PÁTIO E BAIXA -->
+      <section id="screen-patio" class="screen active">
+        <div class="panel">
+          <div class="toolbar">
+            <span id="status-patio" class="os-meta">Carregando veículos...</span>
+            <input type="text" id="busca-patio" placeholder="Buscar por placa, veículo, ano ou cliente..." oninput="renderizarPatio()" style="width:320px;max-width:100%;" />
+          </div>
+          <div id="lista-patio"></div>
+        </div>
+      </section>
+
+      <!-- 2. NOVA OS / ENTRADA -->
+      <section id="screen-nova_os" class="screen">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Entrada de Veículo / Nova Ordem de Serviço</h3>
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <div class="field-label-row">
+                <label for="os-cliente">Nome do Cliente *</label>
+                <select id="atalho-cliente-os" class="inline-select" onchange="aplicarClienteSalvoOS()">
+                  <option value="">Selecionar cliente salvo...</option>
+                </select>
+              </div>
+              <input type="text" id="os-cliente" list="lista-clientes-salvos" placeholder="Digite ou selecione um cliente salvo" oninput="sincronizarClienteDigitado()" />
+              <datalist id="lista-clientes-salvos"></datalist>
+            </div>
+            <div class="field">
+              <label>WhatsApp</label>
+              <input type="text" id="os-whatsapp" placeholder="Ex.: (19) 99999-9999" />
+            </div>
+            <div class="field">
+              <label>Veículo / Modelo *</label>
+              <input type="text" id="os-modelo" placeholder="Ex.: Renault Clio 1.0 16V" />
+            </div>
+            <div class="field">
+              <label>Ano do Veículo</label>
+              <input type="text" id="os-ano" placeholder="Ex.: 2016" />
+            </div>
+            <div class="field">
+              <label>Placa *</label>
+              <input type="text" id="os-placa" placeholder="Ex.: ABC1D23" />
+            </div>
+            <div class="field">
+              <label>KM Atual</label>
+              <input type="text" id="os-km" placeholder="Ex.: 85400" />
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:14px;">
+            <label>Observação do Mecânico (Aviso ao Cliente — se viu algo para trocar ou observação)</label>
+            <textarea id="os-obs-mecanico" placeholder="Ex.: Vi que as pastilhas dianteiras estão finas e precisam ser trocadas em breve."></textarea>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Serviços e Peças da OS</h3>
+            <select id="atalho-servico-os" onchange="aplicarAtalhoServicoOS()" style="min-width:220px;max-width:100%;">
+              <option value="">Puxar serviço cadastrado...</option>
+            </select>
+          </div>
+          <div class="grid-item-add">
+            <input type="text" id="serv-nome" placeholder="Serviço ou Peça" />
+            <input type="number" id="serv-qtd" value="1" min="1" />
+            <input type="text" id="serv-valor" placeholder="Valor Peça (R$)" />
+          </div>
+          <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;align-items:center;">
+            <input type="number" id="serv-garantia-dias" value="90" min="0" placeholder="Garantia (dias)" title="Dias de garantia deste serviço/peça" style="width:160px;max-width:100%;" />
+            <input type="text" id="serv-obs" placeholder="Observações / Detalhes da Garantia" style="flex:1;min-width:200px;" />
+            <button type="button" class="btn" onclick="adicionarServicoTemp()">+ Adicionar Item</button>
+          </div>
+
+          <div id="lista-servicos-temp" class="items-box">Nenhum item adicionado ainda.</div>
+
+          <div class="field" style="margin-top:14px;">
+            <label>Mão de Obra (R$)</label>
+            <input type="text" id="os-mo" placeholder="Ex.: 90.00" oninput="atualizarCalculoTelaOS()" />
+          </div>
+
+          <div class="calc-summary-box">
+            <div>
+              <div class="calc-item-label">Total Peças / Itens</div>
+              <div id="os-calc-pecas" class="calc-item-val">R$ 0,00</div>
+            </div>
+            <div>
+              <div class="calc-item-label">Mão de Obra</div>
+              <div id="os-calc-mo" class="calc-item-val">R$ 0,00</div>
+            </div>
+            <div>
+              <div class="calc-item-label">Valor Total da OS</div>
+              <div id="os-calc-total" class="calc-item-val green">R$ 0,00</div>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn btn-secondary" onclick="limparFormOS()">Limpar Campos</button>
+            <button type="button" class="btn" onclick="gerarOrcamentoDaOS()">Gerar Orçamento</button>
+            <button type="button" class="btn btn-success" onclick="salvarOSNoPatio()" style="flex:1;">Enviar Veículo para o Pátio</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. MENU DE ORÇAMENTOS (APENAS ORÇAMENTOS GERADOS) -->
+      <section id="screen-orcamentos" class="screen">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Orçamentos Gerados</h3>
+            <span id="status-orcamentos" class="os-meta">0 orçamento(s) gerado(s)</span>
+          </div>
+          <div id="lista-orcamentos-gerados"></div>
+        </div>
+      </section>
+
+      <!-- 4. PREVENTIVAS EM MONITORAMENTO -->
+      <section id="screen-preventivas" class="screen">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Veículos em Monitoramento de Preventivas</h3>
+            <span id="status-preventivas-monitor" class="os-meta">0 veículo(s) em monitoramento</span>
+          </div>
+          <p class="os-meta" style="margin-bottom:14px;">
+            Quando o mecânico dá entrada em um veículo com serviço que tenha preventiva, ele entra automaticamente aqui com o controle em <b>KM</b> e em <b>Dias</b>.
+          </p>
+          <div class="toolbar">
+            <input type="text" id="busca-preventivas" placeholder="Buscar por placa, veículo, cliente ou serviço preventivo..." oninput="renderizarMonitoramentoPreventivas()" style="width:360px;max-width:100%;" />
+          </div>
+          <div id="lista-preventivas-monitor"></div>
+        </div>
+      </section>
+
+      <!-- 5. CLIENTES E VEÍCULOS (CADASTRO COMPLETO) -->
+      <section id="screen-clientes" class="screen">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Cadastro Completo de Clientes e Veículos</h3>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label>Nome Completo do Cliente *</label>
+              <input type="text" id="cad-cliente" placeholder="Ex.: João da Silva" />
+            </div>
+            <div class="field">
+              <label>WhatsApp / Telefone</label>
+              <input type="text" id="cad-wa" placeholder="Ex.: (19) 99999-9999" />
+            </div>
+            <div class="field">
+              <label>CPF / CNPJ</label>
+              <input type="text" id="cad-cpf" placeholder="Ex.: 000.000.000-00" />
+            </div>
+            <div class="field">
+              <label>E-mail</label>
+              <input type="email" id="cad-email" placeholder="Ex.: cliente@email.com" />
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:12px;">
+            <label>Endereço Completo</label>
+            <input type="text" id="cad-endereco" placeholder="Rua, número, bairro, cidade" />
+          </div>
+
+          <div class="grid-2" style="margin-top:12px;">
+            <div class="field">
+              <label>Veículo / Modelo *</label>
+              <input type="text" id="cad-modelo" placeholder="Ex.: Renault Clio 1.0 16V" />
+            </div>
+            <div class="field">
+              <label>Placa *</label>
+              <input type="text" id="cad-placa" placeholder="Ex.: ABC1D23" />
+            </div>
+          </div>
+
+          <div class="grid-3" style="margin-top:12px;">
+            <div class="field">
+              <label>Ano</label>
+              <input type="text" id="cad-ano" placeholder="Ex.: 2016" />
+            </div>
+            <div class="field">
+              <label>Cor do Veículo</label>
+              <input type="text" id="cad-cor" placeholder="Ex.: Prata" />
+            </div>
+            <div class="field">
+              <label>KM Atual</label>
+              <input type="text" id="cad-km" placeholder="Ex.: 85400" />
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:12px;">
+            <label>Observações do Cliente / Veículo</label>
+            <textarea id="cad-obs" placeholder="Ex.: Preferência por óleo sintético, histórico ou observações gerais."></textarea>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn btn-secondary" onclick="limparFormCliente()">Limpar</button>
+            <button type="button" class="btn btn-success" onclick="salvarClienteManual()">Salvar Cliente e Veículo</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Clientes e Veículos Cadastrados</h3>
+            <span id="status-clientes" class="os-meta">0 cadastrado(s)</span>
+          </div>
+          <div class="field" style="margin-bottom:14px;">
+            <input type="text" id="busca-clientes" placeholder="Pesquisar por cliente, placa, modelo, CPF ou WhatsApp..." oninput="renderizarClientes()" />
+          </div>
+          <div id="lista-clientes"></div>
+        </div>
+      </section>
+
+      <!-- 6. HISTÓRICO COMPLETO (PASSAGENS, DATAS, SERVIÇOS, PREVENTIVAS E GARANTIA) -->
+      <section id="screen-historico" class="screen">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Histórico Completo — Clientes, Datas, Serviços, Preventivas e Garantias</h3>
+            <span id="resumo-historico" class="os-meta">0 registro(s)</span>
+          </div>
+          <p class="os-meta" style="margin-bottom:14px;">
+            Todo cliente/veículo que passar pelo sistema fica registrado aqui com <b>datas completas</b>, <b>serviços e peças</b>, <b>preventivas (KM e Dias)</b> e verificação imediata se <b>ESTÁ NA GARANTIA</b> ou se <b>PASSOU DA GARANTIA</b>.
+          </p>
+          <div class="toolbar" style="justify-content:flex-start;">
+            <input type="text" id="busca-historico" placeholder="Buscar cliente, placa, veículo ou serviço para conferir garantia, datas e preventivas..." oninput="renderizarHistorico()" style="flex:1;min-width:240px;" />
+            <select id="filtro-garantia-historico" onchange="renderizarHistorico()" style="min-width:220px;max-width:100%;">
+              <option value="todos">Todas as Garantias</option>
+              <option value="na_garantia">Somente NA GARANTIA</option>
+              <option value="fora_garantia">Somente FORA / PASSOU DA GARANTIA</option>
+            </select>
+          </div>
+          <div id="lista-historico"></div>
+        </div>
+      </section>
+
+      <!-- 7. CONFIGURAÇÕES COM SUBMENUS -->
+      <section id="screen-config" class="screen">
+        <div class="panel">
+          <div class="config-submenu">
+            <button type="button" class="sub-btn active" data-sub="oficina" onclick="abrirSubmenuConfig('oficina')">Dados da Oficina</button>
+            <button type="button" class="sub-btn" data-sub="servicos" onclick="abrirSubmenuConfig('servicos')">Serviços</button>
+            <button type="button" class="sub-btn" data-sub="preventivas" onclick="abrirSubmenuConfig('preventivas')">Preventivas</button>
+            <button type="button" class="sub-btn" data-sub="cor" onclick="abrirSubmenuConfig('cor')">Cor do Sistema</button>
+            <button type="button" class="sub-btn" data-sub="pagamento" onclick="abrirSubmenuConfig('pagamento')">Pagamento</button>
+            <button type="button" class="sub-btn" data-sub="resetar" onclick="abrirSubmenuConfig('resetar')">Resetar Dados</button>
+          </div>
+
+          <!-- SUBMENU 1: DADOS DA OFICINA -->
+          <div id="sub-oficina" class="sub-section active">
+            <div class="panel-header">
+              <h3>Dados da Oficina</h3>
+              <button type="button" class="btn" onclick="abrirTelaEdicao('oficina')">Editar Dados</button>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label>Nome da Oficina</label>
+                <input type="text" id="cfg-nome" placeholder="Ex.: Nexus Oficina" />
+              </div>
+              <div class="field">
+                <label>Telefone / WhatsApp</label>
+                <input type="text" id="cfg-fone" placeholder="Ex.: (19) 99999-9999" />
+              </div>
+            </div>
+
+            <div class="field" style="margin-top:12px;">
+              <label>Endereço da Oficina</label>
+              <input type="text" id="cfg-endereco" placeholder="Rua, número, bairro, cidade" />
+            </div>
+
+            <div class="field" style="margin-top:14px;">
+              <label>Logo da Oficina (Upload do aparelho — sem link de imagem)</label>
+              <input type="file" id="cfg-logo-file" accept="image/*" onchange="processarUploadLogo(event)" />
+              <div class="logo-preview-box">
+                <img id="cfg-logo-preview" class="logo-preview-img" src="" alt="Prévia da logo" style="display:none;" />
+                <span id="cfg-logo-status" class="os-meta">Nenhuma logo enviada.</span>
+                <button type="button" class="btn btn-secondary" onclick="removerLogo()" style="margin-left:auto;">Remover Logo</button>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" class="btn btn-success" onclick="salvarConfiguracoesOficina()">Salvar Configurações</button>
+            </div>
+
+            <div class="sub-box">
+              <div class="panel-header">
+                <h3>Clientes e Veículos</h3>
+              </div>
+              <div id="lista-editar-dados"></div>
+            </div>
+          </div>
+
+          <!-- SUBMENU 2: SERVIÇOS -->
+          <div id="sub-servicos" class="sub-section">
+            <div class="panel-header">
+              <h3>Serviços (Sem Preço)</h3>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+              <input type="text" id="input-nome-servico" placeholder="Nome do serviço (ex.: Troca de Óleo, Revisão de Freios)" style="flex:1;min-width:220px;" />
+              <button type="button" id="btn-marcar-preventiva-novo" class="btn btn-secondary" aria-pressed="false" onclick="alternarMarcarPreventivaNovoServico()">
+                ☐ Precisa de Preventiva
+              </button>
+              <button type="button" class="btn btn-success" onclick="salvarNovoServico()">Salvar Serviço</button>
+            </div>
+            <div id="lista-servicos-cad" style="margin-top:16px;"></div>
+          </div>
+
+          <!-- SUBMENU 3: PREVENTIVAS -->
+          <div id="sub-preventivas" class="sub-section">
+            <div class="panel-header">
+              <h3>Preventivas (Salva em KMs e Dias)</h3>
+            </div>
+            <p class="os-meta" style="margin-bottom:14px;">
+              Configure quanto cada preventiva precisa em <b>KMs</b> e em <b>Dias</b> para o mecânico ver na hora.
+            </p>
+            <div id="lista-preventivas"></div>
+          </div>
+
+          <!-- SUBMENU 4: COR DO SISTEMA -->
+          <div id="sub-cor" class="sub-section">
+            <div class="panel-header">
+              <h3>Cor do Sistema</h3>
+              <button type="button" class="btn" onclick="abrirTelaEdicao('cor')">Editar Dados</button>
+            </div>
+            <p class="os-meta">Escolha uma cor rápida ou clique em <b>Editar Dados</b> para abrir a tela de edição de cor:</p>
+            <div class="color-swatches">
+              <button type="button" class="swatch-btn" onclick="aplicarCor('#3b82f6')"><span class="swatch-dot" style="background:#3b82f6;"></span>Azul</button>
+              <button type="button" class="swatch-btn" onclick="aplicarCor('#10b981')"><span class="swatch-dot" style="background:#10b981;"></span>Esmeralda</button>
+              <button type="button" class="swatch-btn" onclick="aplicarCor('#f59e0b')"><span class="swatch-dot" style="background:#f59e0b;"></span>Âmbar</button>
+              <button type="button" class="swatch-btn" onclick="aplicarCor('#8b5cf6')"><span class="swatch-dot" style="background:#8b5cf6;"></span>Roxo</button>
+              <button type="button" class="swatch-btn" onclick="aplicarCor('#ef4444')"><span class="swatch-dot" style="background:#ef4444;"></span>Vermelho</button>
+              <button type="button" class="swatch-btn" onclick="aplicarCor('#06b6d4')"><span class="swatch-dot" style="background:#06b6d4;"></span>Ciano</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;margin-top:18px;flex-wrap:wrap;">
+              <span class="os-meta"><b>Cor atual:</b></span>
+              <span id="cor-atual-texto" class="tag">#3b82f6</span>
+            </div>
+          </div>
+
+          <!-- SUBMENU 5: PAGAMENTO -->
+          <div id="sub-pagamento" class="sub-section">
+            <div class="panel-header">
+              <h3>Formas de Pagamento (Ativar / Desativar)</h3>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
+              <input type="text" id="nova-forma-pagamento" placeholder="Adicionar forma de pagamento (ex.: PIX, Dinheiro, Cartão)" style="flex:1;min-width:220px;" />
+              <button type="button" class="btn" onclick="adicionarFormaPagamento()">+ Adicionar</button>
+            </div>
+            <div id="lista-pagamentos"></div>
+          </div>
+
+          <!-- SUBMENU 6: RESETAR DADOS -->
+          <div id="sub-resetar" class="sub-section">
+            <div class="panel-header">
+              <h3>Resetar Dados</h3>
+            </div>
+            <p class="os-meta" style="margin-bottom:14px;">
+              Apaga todos os dados salvos localmente (pátio, orçamentos, histórico, preventivas, clientes, serviços, pagamentos e configurações).
+            </p>
+            <button type="button" class="btn btn-danger" onclick="resetarTodosDados()">Resetar Dados</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- TELA DE EDIÇÃO DEDICADA (MODAL) -->
+  <div id="modal-editar" class="modal-backdrop">
+    <div class="modal-card">
+      <h3 id="edit-modal-titulo">Editar Dados</h3>
+      <p id="edit-modal-desc" class="modal-sub">Altere os campos abaixo e clique em Salvar.</p>
+      <div id="edit-modal-campos"></div>
+      <div class="btn-row" style="justify-content:flex-end;">
+        <button type="button" class="btn btn-secondary" onclick="fecharTelaEdicao()">Cancelar</button>
+        <button type="button" class="btn btn-success" onclick="salvarTelaEdicao()">Salvar Alterações</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL BAIXA -->
+  <div id="modal-baixa" class="modal-backdrop">
+    <div class="modal-card">
+      <h3 style="text-align:center;">Confirmar Baixa do Veículo</h3>
+      <div id="modal-info" class="modal-sub" style="text-align:center;"></div>
+      <div id="modal-total" class="modal-total">R$ 0,00</div>
+      <div class="field" style="margin-bottom:16px;">
+        <label>Forma de Pagamento</label>
+        <select id="modal-pagamento"></select>
+      </div>
+      <p class="os-meta" style="margin-bottom:14px;">
+        Destino do PDF: <b>C:\Users\15121\Desktop\PROJETO MECANICA\SAIDAS</b>.<br/>
+        Ao confirmar, o sistema gera o <b>PDF completo</b> e abre o <b>WhatsApp</b> com a mensagem pronta para o cliente.
+      </p>
+      <div class="btn-row" style="justify-content:flex-end;">
+        <button type="button" class="btn btn-secondary" onclick="fecharModalBaixa()">Cancelar</button>
+        <button type="button" class="btn btn-success" onclick="confirmarBaixa()">Confirmar e Comprovante</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="print-area"></div>
+
+  <script>
+    const STORAGE_KEY = "nexus_oficina_pro_v19";
+    const PASTA_SAIDAS_ALVO = "C:\\Users\\15121\\Desktop\\PROJETO MECANICA\\SAIDAS";
+    const IDB_NAME = "nexus_oficina_fs_db";
+    const IDB_STORE = "handles";
+    const IDB_KEY = "pasta_saidas_handle";
+
+    let state = loadState();
+    let servicosTemp = [];
+    let novoServicoPrecisaPreventiva = false;
+    let editContext = null;
+    let editItensTemp = [];
+    let baixaCtx = null;
+
+    function defaultState() {
+      return {
+        patio: [],
+        orcamentos: [],
+        historico: [],
+        preventivasMonitoramento: [],
+        clientes: [],
+        servicos: [
+          { nome: "Troca de Óleo e Filtro", preventiva: true, intervaloKm: 10000, intervaloDias: 180 },
+          { nome: "Revisão de Freios", preventiva: true, intervaloKm: 20000, intervaloDias: 365 },
+          { nome: "Alinhamento e Balanceamento", preventiva: true, intervaloKm: 10000, intervaloDias: 180 },
+          { nome: "Diagnóstico / Scanner", preventiva: false, intervaloKm: 0, intervaloDias: 0 }
+        ],
+        pagamentos: [
+          { nome: "PIX", ativo: true },
+          { nome: "Dinheiro", ativo: true },
+          { nome: "Cartão de Crédito", ativo: true },
+          { nome: "Cartão de Débito", ativo: true },
+          { nome: "Boleto / A Prazo", ativo: false }
+        ],
+        corSistema: "#3b82f6",
+        config: {
+          oficinaNome: "NEXUS OFICINA",
+          oficinaFone: "",
+          oficinaEndereco: "",
+          logoDataUrl: "",
+          pastaSaidas: PASTA_SAIDAS_ALVO
+        }
+      };
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return defaultState();
+        const p = JSON.parse(raw);
+        const def = defaultState();
+        const servicosNorm = Array.isArray(p.servicos)
+          ? p.servicos.map(s => ({
+              nome: s.nome || "Serviço",
+              preventiva: Boolean(s.preventiva),
+              intervaloKm: Math.max(0, parseInt(s.intervaloKm ?? 10000, 10) || 0),
+              intervaloDias: Math.max(0, parseInt(s.intervaloDias ?? 180, 10) || 0)
+            }))
+          : def.servicos;
+        return {
+          ...def,
+          ...p,
+          orcamentos: Array.isArray(p.orcamentos) ? p.orcamentos : [],
+          preventivasMonitoramento: Array.isArray(p.preventivasMonitoramento) ? p.preventivasMonitoramento : [],
+          servicos: servicosNorm,
+          pagamentos: Array.isArray(p.pagamentos) && p.pagamentos.length ? p.pagamentos : def.pagamentos,
+          config: { ...def.config, ...(p.config || {}), pastaSaidas: PASTA_SAIDAS_ALVO }
+        };
+      } catch {
+        return defaultState();
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      aplicarIdentidadeVisual();
+      atualizarKPIs();
+    }
+
+    function abrirIdb() {
+      return new Promise((resolve, reject) => {
+        if (!("indexedDB" in window)) return resolve(null);
+        const req = indexedDB.open(IDB_NAME, 1);
+        req.onupgradeneeded = () => {
+          if (!req.result.objectStoreNames.contains(IDB_STORE)) {
+            req.result.createObjectStore(IDB_STORE);
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function salvarHandlePasta(handle) {
+      try {
+        const db = await abrirIdb();
+        if (!db) return;
+        const tx = db.transaction(IDB_STORE, "readwrite");
+        tx.objectStore(IDB_STORE).put(handle, IDB_KEY);
+        await new Promise((res, rej) => {
+          tx.oncomplete = res;
+          tx.onerror = () => rej(tx.error);
+        });
+      } catch {}
+    }
+
+    async function lerHandlePasta() {
+      try {
+        const db = await abrirIdb();
+        if (!db) return null;
+        const tx = db.transaction(IDB_STORE, "readonly");
+        const req = tx.objectStore(IDB_STORE).get(IDB_KEY);
+        return await new Promise((res, rej) => {
+          req.onsuccess = () => res(req.result || null);
+          req.onerror = () => rej(req.error);
+        });
+      } catch {
+        return null;
+      }
+    }
+
+    async function obterPastaSaidasHandle() {
+      if (!window.showDirectoryPicker) return null;
+      if (!(window.isSecureContext || location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
+        return null;
+      }
+      try {
+        let dir = await lerHandlePasta();
+        if (dir) {
+          const perm = await dir.queryPermission({ mode: "readwrite" });
+          if (perm !== "granted") {
+            const reqPerm = await dir.requestPermission({ mode: "readwrite" });
+            if (reqPerm !== "granted") dir = null;
+          }
+        }
+        if (!dir) {
+          const escolhida = await window.showDirectoryPicker({ mode: "readwrite" });
+          if (escolhida.name && escolhida.name.toUpperCase() === "SAIDAS") {
+            dir = escolhida;
+          } else {
+            dir = await escolhida.getDirectoryHandle("SAIDAS", { create: true });
+          }
+          await salvarHandlePasta(dir);
+        }
+        return dir;
+      } catch {
+        return null;
+      }
+    }
+
+    function aplicarCor(hex) {
+      if (!hex) return;
+      state.corSistema = hex;
+      document.documentElement.style.setProperty("--primary", hex);
+      const elCor = document.getElementById("cor-atual-texto");
+      if (elCor) elCor.textContent = hex;
+      saveState();
+    }
+
+    function aplicarIdentidadeVisual() {
+      document.documentElement.style.setProperty("--primary", state.corSistema || "#3b82f6");
+      const nome = state.config.oficinaNome || "NEXUS OFICINA";
+      document.getElementById("sidebar-oficina-nome").textContent = nome;
+      document.title = `${nome} — Gestão Automotiva`;
+
+      const logoBox = document.getElementById("sidebar-logo-box");
+      if (state.config.logoDataUrl) {
+        logoBox.innerHTML = `<img src="${state.config.logoDataUrl}" alt="Logo" />`;
+      }
+    }
+
+    function fmtBRL(val) {
+      return Number(val || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    }
+
+    function parseBRL(v) {
+      if (typeof v === "number") return Number.isFinite(v) ? v : 0;
+      if (!v) return 0;
+      let s = String(v).trim().replace("R$", "").replace(/\s+/g, "");
+      if (s.includes(",") && s.includes(".")) s = s.replace(/\./g, "").replace(",", ".");
+      else if (s.includes(",")) s = s.replace(",", ".");
+      const n = parseFloat(s);
+      return Number.isNaN(n) ? 0 : n;
+    }
+
+    function parseKmNum(kmStr) {
+      if (!kmStr) return 0;
+      const digits = String(kmStr).replace(/\D/g, "");
+      return digits ? parseInt(digits, 10) : 0;
+    }
+
+    function hojeISO() {
+      const d = new Date();
+      d.setHours(0, 0, 0, 0);
+      return d.toISOString().slice(0, 10);
+    }
+
+    function dataBrParaISO(brStr) {
+      if (!brStr) return "";
+      const partes = String(brStr).trim().split("/");
+      if (partes.length !== 3) return "";
+      const dia = partes[0].padStart(2, "0");
+      const mes = partes[1].padStart(2, "0");
+      const ano = partes[2];
+      if (ano.length !== 4) return "";
+      return `${ano}-${mes}-${dia}`;
+    }
+
+    function adicionarDiasAISO(isoBase, dias) {
+      const base = isoBase || hojeISO();
+      const partes = base.split("-");
+      if (partes.length !== 3) return "";
+      const d = new Date(Number(partes[0]), Number(partes[1]) - 1, Number(partes[2]));
+      d.setDate(d.getDate() + Math.max(0, parseInt(dias || 0, 10) || 0));
+      return d.toISOString().slice(0, 10);
+    }
+
+    function adicionarDiasISO(dias) {
+      return adicionarDiasAISO(hojeISO(), dias);
+    }
+
+    function fmtDataISO(isoStr) {
+      if (!isoStr) return "-";
+      const partes = String(isoStr).split("-");
+      if (partes.length !== 3) return isoStr;
+      return `${partes[2]}/${partes[1]}/${partes[0]}`;
+    }
+
+    function diasRestantesISO(isoStr) {
+      if (!isoStr) return null;
+      const partes = String(isoStr).split("-");
+      if (partes.length !== 3) return null;
+      const alvo = new Date(Number(partes[0]), Number(partes[1]) - 1, Number(partes[2]));
+      const hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
+      alvo.setHours(0, 0, 0, 0);
+      return Math.round((alvo - hoje) / (1000 * 60 * 60 * 24));
+    }
+
+    function avaliarGarantiaItem(item, registro) {
+      const diasGarantia = Math.max(0, parseInt(item.garantiaDias ?? 90, 10) || 0);
+      const isoBase =
+        item.dataBaseGarantiaISO ||
+        dataBrParaISO(registro.dataConclusao) ||
+        dataBrParaISO(registro.dataEntrada) ||
+        dataBrParaISO(registro.dataGeracao) ||
+        hojeISO();
+
+      if (diasGarantia <= 0) {
+        return {
+          diasGarantia: 0,
+          dataBaseISO: isoBase,
+          validadeISO: "",
+          diasRestantes: null,
+          status: "sem_garantia",
+          label: "Sem Garantia Definida",
+          tagClass: "tag"
+        };
+      }
+
+      const validadeISO = adicionarDiasAISO(isoBase, diasGarantia);
+      const diasRestantes = diasRestantesISO(validadeISO);
+      const naGarantia = diasRestantes !== null && diasRestantes >= 0;
+
+      return {
+        diasGarantia,
+        dataBaseISO: isoBase,
+        validadeISO,
+        diasRestantes,
+        status: naGarantia ? "na_garantia" : "fora_garantia",
+        label: naGarantia
+          ? `NA GARANTIA (${diasRestantes === 0 ? "vence hoje" : diasRestantes + " dia(s) restante(s)"})`
+          : `PASSOU DA GARANTIA (vencida há ${Math.abs(diasRestantes)} dia(s))`,
+        tagClass: naGarantia ? "tag green" : "tag red"
+      };
+    }
+
+    function calcTotais(item) {
+      const lista = Array.isArray(item.servicosAtuais) ? item.servicosAtuais : [];
+      let somaPecas = 0;
+      for (const s of lista) {
+        const qtd = Math.max(1, parseInt(s.qtdPeca || 1, 10) || 1);
+        somaPecas += qtd * parseBRL(s.valorPeca);
+      }
+      const mo = parseBRL(item.maoDeObraGeral);
+      const total = item.total !== undefined && item.total !== null && String(item.total).trim() !== ""
+        ? parseBRL(item.total)
+        : somaPecas + mo;
+      return { somaPecas, mo, total };
+    }
+
+    function fmtVeiculo(item) {
+      const m = (item.modelo || "Veículo").trim();
+      const a = (item.ano || "").trim();
+      return a ? `${m} (${a})` : m;
+    }
+
+    function atualizarKPIs() {
+      const totalPatio = state.patio.reduce((acc, x) => acc + calcTotais(x).total, 0);
+      const totalSaidas = state.historico.reduce((acc, x) => acc + parseBRL(x.total), 0);
+      document.getElementById("badge-patio").textContent = String(state.patio.length);
+      document.getElementById("badge-orcamentos").textContent = String(state.orcamentos.length);
+      const badgePrev = document.getElementById("badge-preventivas");
+      if (badgePrev) badgePrev.textContent = String(state.preventivasMonitoramento.length);
+      document.getElementById("badge-historico").textContent = String(state.historico.length);
+      document.getElementById("kpi-qtd-patio").textContent = String(state.patio.length);
+      document.getElementById("kpi-valor-patio").textContent = fmtBRL(totalPatio);
+      document.getElementById("kpi-total-saidas").textContent = fmtBRL(totalSaidas);
+    }
+
+    const TITULOS = {
+      patio: "Pátio de Veículos — Saída e Baixa",
+      nova_os: "Entrada de Veículo / Nova OS",
+      orcamentos: "Orçamentos Gerados",
+      preventivas: "Preventivas — Veículos em Monitoramento",
+      clientes: "Clientes e Veículos",
+      historico: "Histórico Completo — Garantias, Preventivas e Datas",
+      config: "Configurações"
+    };
+
+    function navegar(tela) {
+      document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.screen === tela));
+      document.querySelectorAll(".screen").forEach(s => s.classList.toggle("active", s.id === `screen-${tela}`));
+      document.getElementById("page-title").textContent = TITULOS[tela] || "Nexus Oficina";
+      document.getElementById("kpi-section").classList.toggle("visible", tela === "patio");
+      fecharDrawerMobile();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      if (tela === "patio") renderizarPatio();
+      if (tela === "nova_os") {
+        preencherClientesSalvosOS();
+        preencherAtalhoServicosOS();
+        atualizarCalculoTelaOS();
+      }
+      if (tela === "orcamentos") renderizarOrcamentosGerados();
+      if (tela === "preventivas") renderizarMonitoramentoPreventivas();
+      if (tela === "clientes") renderizarClientes();
+      if (tela === "historico") renderizarHistorico();
+      if (tela === "config") {
+        preencherConfigForm();
+        renderizarEditarDados();
+        renderizarServicos();
+        renderizarPagamentos();
+        renderizarPreventivas();
+        aplicarCor(state.corSistema || "#3b82f6");
+      }
+    }
+
+    function alternarSidebar() {
+      document.getElementById("sidebar").classList.toggle("collapsed");
+    }
+
+    function abrirDrawerMobile() {
+      document.getElementById("sidebar").classList.add("mobile-open");
+      document.getElementById("drawer-backdrop").classList.add("open");
+    }
+
+    function fecharDrawerMobile() {
+      document.getElementById("sidebar").classList.remove("mobile-open");
+      document.getElementById("drawer-backdrop").classList.remove("open");
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        fecharDrawerMobile();
+        fecharTelaEdicao();
+        fecharModalBaixa();
+      }
+    });
+
+    function atualizarPainel() {
+      renderizarPatio();
+      renderizarOrcamentosGerados();
+      renderizarMonitoramentoPreventivas();
+      renderizarHistorico();
+      renderizarClientes();
+      renderizarEditarDados();
+      renderizarServicos();
+      renderizarPagamentos();
+      renderizarPreventivas();
+      preencherClientesSalvosOS();
+      atualizarCalculoTelaOS();
+      atualizarKPIs();
+    }
+
+    /* ==================== HISTÓRICO GERAL DE PASSAGENS ==================== */
+    function sincronizarPassagemHistorico(dados, origemEvento = "PASSAGEM") {
+      if (!dados) return;
+      const clienteLimpo = (dados.cliente || "").trim();
+      const modeloLimpo = (dados.modelo || "").trim();
+      const placaLimpa = (dados.placa || "").trim().toUpperCase();
+      const temItens = Array.isArray(dados.servicosAtuais) && dados.servicosAtuais.length > 0;
+
+      if (!clienteLimpo && !modeloLimpo && !placaLimpa && !temItens) return;
+
+      const agora = new Date();
+      const dataHojeBr = agora.toLocaleDateString("pt-BR");
+      const horaHojeBr = agora.toLocaleTimeString("pt-BR");
+      const dataEntradaBr = dados.dataEntrada || dataHojeBr;
+      const horaEntradaBr = dados.horaEntrada || horaHojeBr;
+
+      const itensNormalizados = (Array.isArray(dados.servicosAtuais) ? dados.servicosAtuais : []).map(s => ({
+        nome: s.nome || "Serviço",
+        qtdPeca: Math.max(1, parseInt(s.qtdPeca || 1, 10) || 1),
+        valorPeca: parseBRL(s.valorPeca),
+        garantiaDias: Math.max(0, parseInt(s.garantiaDias ?? 90, 10) || 0),
+        dataBaseGarantiaISO: s.dataBaseGarantiaISO || dataBrParaISO(dados.dataConclusao || dataEntradaBr) || hojeISO(),
+        detalhes: s.detalhes || ""
+      }));
+
+      const preventivasVinculadas = encontrarServicosPreventivosNaOS({ ...dados, servicosAtuais: itensNormalizados }).map(det => {
+        const kmBase = parseKmNum(dados.km);
+        const intKm = Math.max(0, parseInt(det.intervaloKm || 0, 10) || 0);
+        const intDias = Math.max(0, parseInt(det.intervaloDias || 0, 10) || 0);
+        return {
+          servico: det.servicoNome,
+          intervaloKm: intKm,
+          proximoKm: intKm > 0 ? kmBase + intKm : 0,
+          intervaloDias: intDias,
+          proximaDataISO: intDias > 0 ? adicionarDiasISO(intDias) : ""
+        };
+      });
+
+      const idxExistente = state.historico.findIndex(h =>
+        (dados.id && h.id === dados.id) ||
+        (dados.historicoRefId && h.id === dados.historicoRefId) ||
+        (placaLimpa && (h.placa || "").toUpperCase() === placaLimpa && (h.dataEntrada || "") === dataEntradaBr && (h.horaEntrada || "") === horaEntradaBr)
+      );
+
+      const anterior = idxExistente >= 0 ? state.historico[idxExistente] : {};
+
+      const registroHistorico = {
+        ...anterior,
+        id: dados.historicoRefId || anterior.id || dados.id || ("HIST_" + agora.getTime() + "_" + Math.random().toString(36).slice(2, 6)),
+        origemEvento: dados.status === "CONCLUIDA" ? "Saída / Baixa Concluída" : (origemEvento || anterior.origemEvento || "Passagem no Sistema"),
+        status: dados.status || anterior.status || "REGISTRADA",
+        cliente: clienteLimpo || anterior.cliente || "Cliente",
+        whatsapp: dados.whatsapp || anterior.whatsapp || "",
+        modelo: modeloLimpo || anterior.modelo || "Veículo",
+        ano: dados.ano || anterior.ano || "",
+        placa: placaLimpa || anterior.placa || "-",
+        km: dados.km || anterior.km || "-",
+        dataEntrada: dataEntradaBr,
+        horaEntrada: horaEntradaBr,
+        dataGeracao: dados.dataGeracao || anterior.dataGeracao || "",
+        horaGeracao: dados.horaGeracao || anterior.horaGeracao || "",
+        dataConclusao: dados.dataConclusao || anterior.dataConclusao || "",
+        horaBaixa: dados.horaBaixa || anterior.horaBaixa || "",
+        formaPagamento: dados.formaPagamento || dados.pagamento || anterior.formaPagamento || "",
+        obsMecanico: dados.obsMecanico !== undefined ? dados.obsMecanico : (anterior.obsMecanico || ""),
+        maoDeObraGeral: dados.maoDeObraGeral !== undefined ? parseBRL(dados.maoDeObraGeral) : parseBRL(anterior.maoDeObraGeral),
+        servicosAtuais: itensNormalizados.length ? itensNormalizados : (anterior.servicosAtuais || []),
+        preventivasSnapshot: preventivasVinculadas.length ? preventivasVinculadas : (anterior.preventivasSnapshot || []),
+        total: dados.total !== undefined ? parseBRL(dados.total) : calcTotais({ ...dados, servicosAtuais: itensNormalizados }).total,
+        arquivoPdfSaidas: dados.arquivoPdfSaidas || anterior.arquivoPdfSaidas || ""
+      };
+
+      if (dados.id && !dados.historicoRefId) {
+        dados.historicoRefId = registroHistorico.id;
+      }
+
+      if (idxExistente >= 0) {
+        state.historico[idxExistente] = registroHistorico;
+      } else {
+        state.historico.unshift(registroHistorico);
+      }
+    }
+
+    /* ==================== MONITORAMENTO DE PREVENTIVAS (KM E DIAS) ==================== */
+    function encontrarServicosPreventivosNaOS(dadosOS) {
+      const itens = Array.isArray(dadosOS.servicosAtuais) ? dadosOS.servicosAtuais : [];
+      const servicosPrevAtivos = state.servicos.filter(s => s.preventiva);
+      const encontrados = [];
+
+      for (const item of itens) {
+        const nomeItem = (item.nome || "").trim();
+        if (!nomeItem) continue;
+        const lowerItem = nomeItem.toLowerCase();
+
+        const matchConfig = servicosPrevAtivos.find(sp => {
+          const spLower = (sp.nome || "").trim().toLowerCase();
+          return spLower && (lowerItem.includes(spLower) || spLower.includes(lowerItem));
+        });
+
+        if (matchConfig) {
+          encontrados.push({
+            servicoNome: nomeItem,
+            servicoConfig: matchConfig.nome,
+            intervaloKm: Math.max(0, parseInt(matchConfig.intervaloKm ?? 10000, 10) || 0),
+            intervaloDias: Math.max(0, parseInt(matchConfig.intervaloDias ?? 180, 10) || 0)
+          });
+        }
+      }
+      return encontrados;
+    }
+
+    function registrarMonitoramentoPreventivo(dadosOS) {
+      const detectados = encontrarServicosPreventivosNaOS(dadosOS);
+      if (!detectados.length) return false;
+
+      const kmBase = parseKmNum(dadosOS.km);
+      const placaNorm = (dadosOS.placa || "").trim().toUpperCase();
+      const agoraStr = new Date().toLocaleDateString("pt-BR");
+
+      for (const det of detectados) {
+        const intKm = Math.max(0, parseInt(det.intervaloKm || 0, 10) || 0);
+        const intDias = Math.max(0, parseInt(det.intervaloDias || 0, 10) || 0);
+        const proximoKm = intKm > 0 ? kmBase + intKm : 0;
+        const proximaDataISO = intDias > 0 ? adicionarDiasISO(intDias) : "";
+
+        const idxExistente = state.preventivasMonitoramento.findIndex(m =>
+          (placaNorm && (m.placa || "").toUpperCase() === placaNorm && (m.servico || "").toLowerCase() === det.servicoNome.toLowerCase()) ||
+          ((m.cliente || "").toLowerCase() === (dadosOS.cliente || "").toLowerCase() && (m.modelo || "").toLowerCase() === (dadosOS.modelo || "").toLowerCase() && (m.servico || "").toLowerCase() === det.servicoNome.toLowerCase())
+        );
+
+        const registro = {
+          id: idxExistente >= 0 ? state.preventivasMonitoramento[idxExistente].id : ("PREV_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6)),
+          cliente: dadosOS.cliente || "Cliente",
+          whatsapp: dadosOS.whatsapp || "",
+          modelo: dadosOS.modelo || "Veículo",
+          ano: dadosOS.ano || "",
+          placa: placaNorm || "-",
+          kmEntrada: kmBase,
+          kmAtual: kmBase,
+          intervaloKm: intKm,
+          proximoKm: proximoKm,
+          intervaloDias: intDias,
+          proximaDataISO: proximaDataISO,
+          servico: det.servicoNome,
+          servicoConfig: det.servicoConfig,
+          dataEntrada: agoraStr,
+          status: "Em Monitoramento"
+        };
+
+        if (idxExistente >= 0) {
+          state.preventivasMonitoramento[idxExistente] = registro;
+        } else {
+          state.preventivasMonitoramento.unshift(registro);
+        }
+      }
+      return true;
+    }
+
+    function atualizarKmMonitoramento(idx) {
+      const reg = state.preventivasMonitoramento[idx];
+      if (!reg) return;
+      const proxKmTxt = Number(reg.proximoKm || 0) > 0 ? `${Number(reg.proximoKm).toLocaleString("pt-BR")} km` : "Não definido";
+      const proxDataTxt = reg.proximaDataISO ? fmtDataISO(reg.proximaDataISO) : "Não definida";
+      const novoKmStr = prompt(
+        `Atualizar KM do veículo ${fmtVeiculo(reg)} (${reg.placa})\nPróxima preventiva: ${proxKmTxt} ou ${proxDataTxt}:`,
+        String(reg.kmAtual || reg.kmEntrada || 0)
+      );
+      if (novoKmStr === null) return;
+      reg.kmAtual = parseKmNum(novoKmStr);
+      saveState();
+      renderizarMonitoramentoPreventivas();
+    }
+
+    function concluirPreventivaMonitoramento(idx) {
+      const reg = state.preventivasMonitoramento[idx];
+      if (!reg) return;
+      const baseKm = Number(reg.kmAtual || reg.proximoKm || reg.kmEntrada || 0);
+      const intKm = Math.max(0, parseInt(reg.intervaloKm || 0, 10) || 0);
+      const intDias = Math.max(0, parseInt(reg.intervaloDias || 0, 10) || 0);
+
+      reg.kmEntrada = baseKm;
+      reg.kmAtual = baseKm;
+      reg.proximoKm = intKm > 0 ? baseKm + intKm : 0;
+      reg.proximaDataISO = intDias > 0 ? adicionarDiasISO(intDias) : "";
+      reg.dataEntrada = new Date().toLocaleDateString("pt-BR");
+      reg.status = "Em Monitoramento";
+      saveState();
+      renderizarMonitoramentoPreventivas();
+
+      const resumo = [
+        intKm > 0 ? `Próximo KM: ${reg.proximoKm.toLocaleString("pt-BR")} km` : "",
+        intDias > 0 ? `Próxima Data: ${fmtDataISO(reg.proximaDataISO)} (${intDias} dias)` : ""
+      ].filter(Boolean).join(" • ") || "Preventiva renovada.";
+      alert(`Preventiva renovada! ${resumo}`);
+    }
+
+    function avisarClientePreventivaWhatsApp(idx) {
+      const reg = state.preventivasMonitoramento[idx];
+      if (!reg) return;
+      const digitos = String(reg.whatsapp || "").replace(/\D/g, "");
+      const numero = digitos.length >= 10 ? (digitos.startsWith("55") ? digitos : "55" + digitos) : "";
+      const linhas = [
+        `*${state.config.oficinaNome || "NEXUS OFICINA"} — Aviso de Preventiva*`,
+        `Olá, *${reg.cliente || "Cliente"}*! Seu veículo *${fmtVeiculo(reg)}* (Placa *${reg.placa}*) está em monitoramento para *${reg.servico}*.`,
+        `KM acompanhado: *${Number(reg.kmAtual || reg.kmEntrada || 0).toLocaleString("pt-BR")} km*`
+      ];
+      if (Number(reg.proximoKm || 0) > 0) {
+        linhas.push(`Próxima preventiva por KM: *${Number(reg.proximoKm).toLocaleString("pt-BR")} km*`);
+      }
+      if (reg.proximaDataISO) {
+        linhas.push(`Próxima preventiva por prazo: *${fmtDataISO(reg.proximaDataISO)}* (${Number(reg.intervaloDias || 0)} dias)`);
+      }
+      const msg = linhas.join("\n");
+      const url = numero
+        ? `https://wa.me/${numero}?text=${encodeURIComponent(msg)}`
+        : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+
+    function removerMonitoramentoPreventivo(idx) {
+      if (!confirm("Remover este veículo do monitoramento de preventivas?")) return;
+      state.preventivasMonitoramento.splice(idx, 1);
+      saveState();
+      renderizarMonitoramentoPreventivas();
+    }
+
+    function renderizarMonitoramentoPreventivas() {
+      const box = document.getElementById("lista-preventivas-monitor");
+      const statusEl = document.getElementById("status-preventivas-monitor");
+      if (!box || !statusEl) return;
+
+      const q = (document.getElementById("busca-preventivas")?.value || "").trim().toLowerCase();
+      const lista = state.preventivasMonitoramento
+        .map((m, idx) => ({ m, idx }))
+        .filter(({ m }) => {
+          const txt = `${m.cliente || ""} ${m.modelo || ""} ${m.ano || ""} ${m.placa || ""} ${m.servico || ""} ${m.status || ""}`.toLowerCase();
+          return !q || txt.includes(q);
+        });
+
+      statusEl.textContent = `${lista.length} de ${state.preventivasMonitoramento.length} veículo(s) em monitoramento`;
+
+      if (!lista.length) {
+        box.innerHTML = `<div class="empty-state">Nenhum veículo em monitoramento no momento.<br/>Quando o mecânico der entrada em um carro com serviço que tenha preventiva em <b>Nova OS / Entrada</b>, ele aparecerá aqui automaticamente.</div>`;
+        return;
+      }
+
+      box.innerHTML = lista.map(({ m, idx }) => {
+        const kmEnt = Number(m.kmEntrada || 0);
+        const kmAt = Number(m.kmAtual || kmEnt);
+        const intKm = Number(m.intervaloKm || 0);
+        const proxKm = Number(m.proximoKm || 0);
+        const intDias = Number(m.intervaloDias || 0);
+        const diasRest = diasRestantesISO(m.proximaDataISO);
+
+        const alertaKm = proxKm > 0 && kmAt >= proxKm;
+        const alertaDias = diasRest !== null && diasRest <= 0;
+        const alerta = alertaKm || alertaDias;
+
+        const tagClass = alerta ? "tag amber" : "tag green";
+        let statusTexto = m.status || "Em Monitoramento";
+        if (alertaKm && alertaDias) statusTexto = "Atenção — Vencida por KM e Dias";
+        else if (alertaKm) statusTexto = "Atenção — Próximo / Vencido por KM";
+        else if (alertaDias) statusTexto = "Atenção — Prazo em Dias Vencido";
+
+        const proxKmTxt = proxKm > 0 ? `<b>${proxKm.toLocaleString("pt-BR")} km</b>` : "Não configurado";
+        const proxDataTxt = m.proximaDataISO
+          ? `<b>${fmtDataISO(m.proximaDataISO)}</b>${diasRest !== null ? ` (${diasRest >= 0 ? diasRest + " dias" : Math.abs(diasRest) + "d venc."})` : ""}`
+          : "Não configurado";
+
+        return `
+          <div class="os-card">
+            <div style="flex:1;min-width:260px;">
+              <div class="os-main-title">
+                <span>${fmtVeiculo(m)}</span>
+                <span class="tag">${(m.placa || "-").toUpperCase()}</span>
+                <span class="${tagClass}">${statusTexto}</span>
+              </div>
+              <div class="os-detail-grid">
+                <div><b>Cliente:</b> ${m.cliente || "-"}</div>
+                <div><b>WhatsApp:</b> ${m.whatsapp || "-"}</div>
+                <div><b>Serviço Preventivo:</b> ${m.servico || "-"}</div>
+                <div><b>Configuração:</b> ${intKm > 0 ? intKm.toLocaleString("pt-BR") + " km" : "0 km"} • ${intDias > 0 ? intDias + " dias" : "0 dias"}</div>
+                <div><b>KM Atual / Entrada:</b> ${kmAt.toLocaleString("pt-BR")} km / ${kmEnt.toLocaleString("pt-BR")} km</div>
+                <div><b>Próxima Preventiva (KM):</b> ${proxKmTxt}</div>
+                <div><b>Próxima Preventiva (Data):</b> ${proxDataTxt}</div>
+                <div><b>Data Base:</b> ${m.dataEntrada || "-"}</div>
+              </div>
+            </div>
+            <div class="card-actions">
+              <button type="button" class="btn btn-secondary" onclick="atualizarKmMonitoramento(${idx})">Atualizar KM</button>
+              <button type="button" class="btn btn-success" onclick="concluirPreventivaMonitoramento(${idx})">Renovar Preventiva</button>
+              <button type="button" class="btn" onclick="avisarClientePreventivaWhatsApp(${idx})">WhatsApp</button>
+              <button type="button" class="btn btn-danger" onclick="removerMonitoramentoPreventivo(${idx})">Remover</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    /* TELA DE EDIÇÃO DEDICADA */
+    function montarFormEdicaoOS(registro, tituloTexto, descTexto) {
+      const dataBasePadrao = dataBrParaISO(registro.dataConclusao || registro.dataEntrada || registro.dataGeracao) || hojeISO();
+      editItensTemp = Array.isArray(registro.servicosAtuais)
+        ? registro.servicosAtuais.map(s => ({
+            nome: s.nome || "",
+            qtdPeca: Math.max(1, parseInt(s.qtdPeca || 1, 10) || 1),
+            valorPeca: parseBRL(s.valorPeca),
+            garantiaDias: Math.max(0, parseInt(s.garantiaDias ?? 90, 10) || 0),
+            dataBaseGarantiaISO: s.dataBaseGarantiaISO || dataBasePadrao,
+            detalhes: s.detalhes || ""
+          }))
+        : [];
+
+      const opcoesServ = state.servicos
+        .map(s => `<option value="${encodeURIComponent(s.nome)}">${s.nome}</option>`)
+        .join("");
+
+      document.getElementById("edit-modal-titulo").textContent = tituloTexto;
+      document.getElementById("edit-modal-desc").textContent = descTexto;
+      document.getElementById("edit-modal-campos").innerHTML = `
+        <div class="grid-2" style="margin-bottom:12px;">
+          <div class="field">
+            <label>Cliente</label>
+            <input type="text" id="edit-orc-cliente" value="${(registro.cliente || "").replace(/"/g, "&quot;")}" />
+          </div>
+          <div class="field">
+            <label>WhatsApp</label>
+            <input type="text" id="edit-orc-wa" value="${(registro.whatsapp || "").replace(/"/g, "&quot;")}" />
+          </div>
+          <div class="field">
+            <label>Veículo / Modelo</label>
+            <input type="text" id="edit-orc-modelo" value="${(registro.modelo || "").replace(/"/g, "&quot;")}" />
+          </div>
+          <div class="field">
+            <label>Ano</label>
+            <input type="text" id="edit-orc-ano" value="${(registro.ano || "").replace(/"/g, "&quot;")}" />
+          </div>
+          <div class="field">
+            <label>Placa</label>
+            <input type="text" id="edit-orc-placa" value="${(registro.placa || "").replace(/"/g, "&quot;")}" />
+          </div>
+          <div class="field">
+            <label>KM Atual</label>
+            <input type="text" id="edit-orc-km" value="${(registro.km || "").replace(/"/g, "&quot;")}" />
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom:14px;">
+          <label>Observação do Mecânico (Aviso ao Cliente — algo que precisa ser trocado / obs)</label>
+          <textarea id="edit-obs-mecanico" placeholder="Ex.: Mecânico identificou folga na bieleta e recomendou troca ao cliente.">${(registro.obsMecanico || "").replace(/</g, "&lt;")}</textarea>
+        </div>
+
+        <div class="sub-box">
+          <div class="panel-header" style="margin-bottom:8px;">
+            <h3>Adicionar Serviço / Peça</h3>
+            <select id="edit-orc-atalho" onchange="aplicarAtalhoEditOrc()" style="min-width:190px;max-width:100%;">
+              <option value="">Puxar serviço cadastrado...</option>
+              ${opcoesServ}
+            </select>
+          </div>
+          <div class="grid-item-add">
+            <input type="text" id="edit-orc-novo-nome" placeholder="Serviço ou peça" />
+            <input type="number" id="edit-orc-novo-qtd" value="1" min="1" />
+            <input type="text" id="edit-orc-novo-valor" placeholder="Valor (R$)" />
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center;">
+            <input type="number" id="edit-orc-novo-garantia" value="90" min="0" placeholder="Garantia (dias)" title="Dias de garantia" style="width:140px;max-width:100%;" />
+            <input type="text" id="edit-orc-novo-obs" placeholder="Observação / garantia" style="flex:1;min-width:160px;" />
+            <button type="button" class="btn" onclick="adicionarItemEditOrc()">+ Adicionar</button>
+          </div>
+
+          <div id="edit-orc-itens-lista" class="items-box"></div>
+        </div>
+
+        <div class="grid-2" style="margin-top:14px;">
+          <div class="field">
+            <label>Mão de Obra (R$)</label>
+            <input type="text" id="edit-orc-mo" value="${parseBRL(registro.maoDeObraGeral).toFixed(2)}" oninput="recalcularTotalEditOrc()" />
+          </div>
+          <div class="field">
+            <label>Total (R$)</label>
+            <input type="text" id="edit-orc-total" value="${calcTotais(registro).total.toFixed(2)}" />
+          </div>
+        </div>
+      `;
+      renderizarItensEditOrc();
+    }
+
+    function abrirTelaEdicao(tipo, idx = null) {
+      editContext = { tipo, idx };
+      const titulo = document.getElementById("edit-modal-titulo");
+      const desc = document.getElementById("edit-modal-desc");
+      const campos = document.getElementById("edit-modal-campos");
+
+      if (tipo === "oficina") {
+        titulo.textContent = "Tela de Edição — Dados da Oficina";
+        desc.textContent = "Edite nome, telefone, endereço ou logo da oficina.";
+        campos.innerHTML = `
+          <div class="field" style="margin-bottom:12px;">
+            <label>Nome da Oficina</label>
+            <input type="text" id="edit-oficina-nome" value="${(state.config.oficinaNome || "").replace(/"/g, "&quot;")}" />
+          </div>
+          <div class="field" style="margin-bottom:12px;">
+            <label>Telefone / WhatsApp</label>
+            <input type="text" id="edit-oficina-fone" value="${(state.config.oficinaFone || "").replace(/"/g, "&quot;")}" />
+          </div>
+          <div class="field" style="margin-bottom:12px;">
+            <label>Endereço</label>
+            <input type="text" id="edit-oficina-end" value="${(state.config.oficinaEndereco || "").replace(/"/g, "&quot;")}" />
+          </div>
+          <div class="field">
+            <label>Logo da Oficina (Upload do aparelho)</label>
+            <input type="file" id="edit-oficina-logo" accept="image/*" />
+          </div>
+        `;
+      } else if (tipo === "cliente") {
+        const c = state.clientes[idx];
+        if (!c) return;
+        titulo.textContent = "Tela de Edição — Cliente e Veículo";
+        desc.textContent = "Altere os dados completos do cliente e veículo.";
+        campos.innerHTML = `
+          <div class="grid-2" style="margin-bottom:12px;">
+            <div class="field">
+              <label>Nome Completo do Cliente</label>
+              <input type="text" id="edit-cli-nome" value="${(c.cliente || "").replace(/"/g, "&quot;")}" />
+            </div>
+            <div class="field">
+              <label>WhatsApp / Telefone</label>
+              <input type="text" id="edit-cli-wa" value="${(c.whatsapp || "").replace(/"/g, "&quot;")}" />
+            </div>
+            <div class="field">
+              <label>CPF / CNPJ</label>
+              <input type="text" id="edit-cli-cpf" value="${(c.cpf || "").replace(/"/g, "&quot;")}" />
+            </div>
+            <div class="field">
+              <label>E-mail</label>
+              <input type="text" id="edit-cli-email" value="${(c.email || "").replace(/"/g, "&quot;")}" />
+            </div>
+          </div>
+          <div class="field" style="margin-bottom:12px;">
+            <label>Endereço Completo</label>
+            <input type="text" id="edit-cli-endereco" value="${(c.endereco || "").replace(/"/g, "&quot;")}" />
+          </div>
+          <div class="grid-2" style="margin-bottom:12px;">
+            <div class="field">
+              <label>Veículo / Modelo</label>
+              <input type="text" id="edit-cli-modelo" value="${(c.modelo || "").replace(/"/g, "&quot;")}" />
+            </div>
+            <div class="field">
+              <label>Placa</label>
+              <input type="text" id="edit-cli-placa" value="${(c.placa || "").replace(/"/g, "&quot;")}" />
+            </div>
+          </div>
+          <div class="grid-3" style="margin-bottom:12px;">
+            <div class="field">
+              <label>Ano</label>
+              <input type="text" id="edit-cli-ano" value="${(c.ano || "").replace(/"/g, "&quot;")}" />
+            </div>
+            <div class="field">
+              <label>Cor</label>
+              <input type="text" id="edit-cli-cor" value="${(c.cor || "").replace(/"/g, "&quot;")}" />
+            </div>
+            <div class="field">
+              <label>KM Atual</label>
+              <input type="text" id="edit-cli-km" value="${(c.km || "").replace(/"/g, "&quot;")}" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Observações</label>
+            <textarea id="edit-cli-obs">${(c.obs || "").replace(/</g, "&lt;")}</textarea>
+          </div>
+        `;
+      } else if (tipo === "servico") {
+        const s = state.servicos[idx];
+        if (!s) return;
+        titulo.textContent = "Tela de Edição — Serviço";
+        desc.textContent = "Altere o nome do serviço (sem preço) ou se precisa de preventiva.";
+        campos.innerHTML = `
+          <div class="field" style="margin-bottom:12px;">
+            <label>Nome do Serviço</label>
+            <input type="text" id="edit-serv-nome" value="${(s.nome || "").replace(/"/g, "&quot;")}" />
+          </div>
+          <div class="field">
+            <label>Precisa de Preventiva?</label>
+            <select id="edit-serv-prev">
+              <option value="true" ${s.preventiva ? "selected" : ""}>Sim — Lançar em Preventivas</option>
+              <option value="false" ${!s.preventiva ? "selected" : ""}>Não</option>
+            </select>
+          </div>
+        `;
+      } else if (tipo === "preventiva") {
+        const s = state.servicos[idx];
+        if (!s) return;
+        titulo.textContent = `Tela de Edição — Preventiva (${s.nome})`;
+        desc.textContent = "Salve quanto a preventiva precisa em KMs e em Dias.";
+        campos.innerHTML = `
+          <div class="field" style="margin-bottom:12px;">
+            <label>Precisa de Preventiva?</label>
+            <select id="edit-prev-status">
+              <option value="true" ${s.preventiva ? "selected" : ""}>Sim — Precisa de Preventiva</option>
+              <option value="false" ${!s.preventiva ? "selected" : ""}>Não — Sem Preventiva</option>
+            </select>
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label>Intervalo em KMs</label>
+              <input type="number" id="edit-prev-km" value="${s.intervaloKm ?? 10000}" min="0" />
+            </div>
+            <div class="field">
+              <label>Intervalo em Dias</label>
+              <input type="number" id="edit-prev-dias" value="${s.intervaloDias ?? 180}" min="0" />
+            </div>
+          </div>
+        `;
+      } else if (tipo === "cor") {
+        titulo.textContent = "Tela de Edição — Cor do Sistema";
+        desc.textContent = "Escolha ou digite a cor principal do sistema.";
+        campos.innerHTML = `
+          <div class="field" style="margin-bottom:12px;">
+            <label>Selecionar Cor</label>
+            <input type="color" id="edit-cor-picker" value="${state.corSistema || "#3b82f6"}" style="width:80px;height:46px;padding:2px;cursor:pointer;" />
+          </div>
+          <div class="field">
+            <label>Código da Cor (HEX)</label>
+            <input type="text" id="edit-cor-hex" value="${state.corSistema || "#3b82f6"}" />
+          </div>
+        `;
+        setTimeout(() => {
+          const pk = document.getElementById("edit-cor-picker");
+          const hx = document.getElementById("edit-cor-hex");
+          pk?.addEventListener("input", () => { if (hx) hx.value = pk.value; });
+          hx?.addEventListener("input", () => { if (pk && /^#[0-9a-fA-F]{6}$/.test(hx.value)) pk.value = hx.value; });
+        }, 0);
+      } else if (tipo === "orcamento") {
+        const orc = state.orcamentos[idx];
+        if (!orc) return;
+        montarFormEdicaoOS(orc, "Editar Orçamento", "Altere dados, garantias, valores/quantidades ou adicione novos serviços e peças.");
+      } else if (tipo === "patio") {
+        const item = state.patio[idx];
+        if (!item) return;
+        montarFormEdicaoOS(item, "Editar Veículo / OS no Pátio", "Adicione serviços/peças, altere garantias/valores ou registre aviso para o cliente.");
+      } else if (tipo === "historico") {
+        const reg = state.historico[idx];
+        if (!reg) return;
+        montarFormEdicaoOS(reg, "Editar Registro do Histórico / Garantias", "Atualize serviços, dias de garantia, data base ou observações do atendimento.");
+      }
+
+      document.getElementById("modal-editar").classList.add("open");
+    }
+
+    function aplicarAtalhoEditOrc() {
+      const sel = document.getElementById("edit-orc-atalho");
+      if (!sel || !sel.value) return;
+      document.getElementById("edit-orc-novo-nome").value = decodeURIComponent(sel.value);
+      sel.value = "";
+    }
+
+    function adicionarItemEditOrc() {
+      const nome = document.getElementById("edit-orc-novo-nome").value.trim();
+      if (!nome) return alert("Informe o nome do serviço ou peça.");
+      const qtdPeca = Math.max(1, parseInt(document.getElementById("edit-orc-novo-qtd").value || "1", 10) || 1);
+      const valorPeca = parseBRL(document.getElementById("edit-orc-novo-valor").value);
+      const garantiaDias = Math.max(0, parseInt(document.getElementById("edit-orc-novo-garantia")?.value || "90", 10) || 0);
+      const detalhes = document.getElementById("edit-orc-novo-obs").value.trim();
+
+      editItensTemp.push({ nome, qtdPeca, valorPeca, garantiaDias, dataBaseGarantiaISO: hojeISO(), detalhes });
+      document.getElementById("edit-orc-novo-nome").value = "";
+      document.getElementById("edit-orc-novo-qtd").value = "1";
+      document.getElementById("edit-orc-novo-valor").value = "";
+      if (document.getElementById("edit-orc-novo-garantia")) document.getElementById("edit-orc-novo-garantia").value = "90";
+      document.getElementById("edit-orc-novo-obs").value = "";
+      renderizarItensEditOrc();
+      recalcularTotalEditOrc();
+    }
+
+    function atualizarItemEditOrc(i, campo, valor) {
+      if (!editItensTemp[i]) return;
+      if (campo === "nome" || campo === "detalhes" || campo === "dataBaseGarantiaISO") editItensTemp[i][campo] = valor;
+      if (campo === "qtdPeca") editItensTemp[i].qtdPeca = Math.max(1, parseInt(valor || "1", 10) || 1);
+      if (campo === "valorPeca") editItensTemp[i].valorPeca = parseBRL(valor);
+      if (campo === "garantiaDias") editItensTemp[i].garantiaDias = Math.max(0, parseInt(valor || "0", 10) || 0);
+      recalcularTotalEditOrc();
+    }
+
+    function removerItemEditOrc(i) {
+      editItensTemp.splice(i, 1);
+      renderizarItensEditOrc();
+      recalcularTotalEditOrc();
+    }
+
+    function recalcularTotalEditOrc() {
+      const soma = editItensTemp.reduce((acc, s) => acc + (Math.max(1, parseInt(s.qtdPeca || 1, 10) || 1) * parseBRL(s.valorPeca)), 0);
+      const mo = parseBRL(document.getElementById("edit-orc-mo")?.value);
+      const elTotal = document.getElementById("edit-orc-total");
+      if (elTotal) elTotal.value = (soma + mo).toFixed(2);
+    }
+
+    function renderizarItensEditOrc() {
+      const box = document.getElementById("edit-orc-itens-lista");
+      if (!box) return;
+      if (!editItensTemp.length) {
+        box.textContent = "Nenhum serviço ou peça adicionado.";
+        return;
+      }
+      box.innerHTML = editItensTemp.map((s, i) => `
+        <div class="item-line">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;flex:1;align-items:center;min-width:0;">
+            <input type="text" value="${(s.nome || "").replace(/"/g, "&quot;")}" onchange="atualizarItemEditOrc(${i}, 'nome', this.value)" style="flex:1;min-width:130px;padding:7px 8px;" />
+            <input type="number" min="1" value="${s.qtdPeca || 1}" onchange="atualizarItemEditOrc(${i}, 'qtdPeca', this.value)" style="width:74px;padding:7px 8px;" title="Quantidade" />
+            <input type="text" value="${parseBRL(s.valorPeca).toFixed(2)}" onchange="atualizarItemEditOrc(${i}, 'valorPeca', this.value)" style="width:94px;padding:7px 8px;" title="Valor unitário" />
+            <input type="number" min="0" value="${s.garantiaDias ?? 90}" onchange="atualizarItemEditOrc(${i}, 'garantiaDias', this.value)" style="width:90px;padding:7px 8px;" title="Dias de garantia" />
+            <input type="date" value="${s.dataBaseGarantiaISO || hojeISO()}" onchange="atualizarItemEditOrc(${i}, 'dataBaseGarantiaISO', this.value)" style="width:146px;max-width:100%;padding:7px 6px;" title="Data início da garantia" />
+            <input type="text" value="${(s.detalhes || "").replace(/"/g, "&quot;")}" placeholder="Obs" onchange="atualizarItemEditOrc(${i}, 'detalhes', this.value)" style="flex:1;min-width:110px;padding:7px 8px;" />
+          </div>
+          <button type="button" class="btn btn-danger" style="padding:6px 10px;" onclick="removerItemEditOrc(${i})">Remover</button>
+        </div>
+      `).join("");
+    }
+
+    function fecharTelaEdicao() {
+      editContext = null;
+      editItensTemp = [];
+      document.getElementById("modal-editar").classList.remove("open");
+    }
+
+    function coletarDadosEditOS(base) {
+      const mo = parseBRL(document.getElementById("edit-orc-mo").value);
+      const totalInput = document.getElementById("edit-orc-total").value;
+      const somaItens = editItensTemp.reduce((acc, s) => acc + s.qtdPeca * parseBRL(s.valorPeca), 0);
+      const totalFinal = String(totalInput).trim() !== "" ? parseBRL(totalInput) : (somaItens + mo);
+      return {
+        ...base,
+        cliente: document.getElementById("edit-orc-cliente").value.trim() || "Cliente",
+        whatsapp: document.getElementById("edit-orc-wa").value.trim(),
+        modelo: document.getElementById("edit-orc-modelo").value.trim() || "Veículo",
+        ano: document.getElementById("edit-orc-ano").value.trim(),
+        placa: document.getElementById("edit-orc-placa").value.trim().toUpperCase(),
+        km: document.getElementById("edit-orc-km").value.trim(),
+        obsMecanico: document.getElementById("edit-obs-mecanico").value.trim(),
+        maoDeObraGeral: mo,
+        servicosAtuais: editItensTemp.map(s => ({
+          ...s,
+          valorPeca: parseBRL(s.valorPeca),
+          garantiaDias: Math.max(0, parseInt(s.garantiaDias ?? 90, 10) || 0),
+          dataBaseGarantiaISO: s.dataBaseGarantiaISO || hojeISO()
+        })),
+        total: totalFinal
+      };
+    }
+
+    function salvarTelaEdicao() {
+      if (!editContext) return;
+      const { tipo, idx } = editContext;
+
+      if (tipo === "oficina") {
+        const nome = document.getElementById("edit-oficina-nome").value.trim() || "NEXUS OFICINA";
+        const fone = document.getElementById("edit-oficina-fone").value.trim();
+        const end = document.getElementById("edit-oficina-end").value.trim();
+        const fileInput = document.getElementById("edit-oficina-logo");
+        const file = fileInput && fileInput.files && fileInput.files[0];
+
+        const concluir = () => {
+          state.config.oficinaNome = nome;
+          state.config.oficinaFone = fone;
+          state.config.oficinaEndereco = end;
+          saveState();
+          preencherConfigForm();
+          fecharTelaEdicao();
+        };
+
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            state.config.logoDataUrl = e.target.result;
+            concluir();
+          };
+          reader.readAsDataURL(file);
+        } else {
+          concluir();
+        }
+      } else if (tipo === "cliente") {
+        const c = state.clientes[idx];
+        if (!c) return;
+        state.clientes[idx] = {
+          ...c,
+          cliente: document.getElementById("edit-cli-nome").value.trim() || "-",
+          whatsapp: document.getElementById("edit-cli-wa").value.trim() || "-",
+          cpf: document.getElementById("edit-cli-cpf").value.trim(),
+          email: document.getElementById("edit-cli-email").value.trim(),
+          endereco: document.getElementById("edit-cli-endereco").value.trim(),
+          modelo: document.getElementById("edit-cli-modelo").value.trim() || "-",
+          placa: document.getElementById("edit-cli-placa").value.trim().toUpperCase() || "-",
+          ano: document.getElementById("edit-cli-ano").value.trim(),
+          cor: document.getElementById("edit-cli-cor").value.trim(),
+          km: document.getElementById("edit-cli-km").value.trim(),
+          obs: document.getElementById("edit-cli-obs").value.trim()
+        };
+        saveState();
+        renderizarEditarDados();
+        renderizarClientes();
+        preencherClientesSalvosOS();
+        fecharTelaEdicao();
+      } else if (tipo === "servico") {
+        const nome = document.getElementById("edit-serv-nome").value.trim();
+        if (!nome) return alert("Informe o nome do serviço.");
+        const precisaPrev = document.getElementById("edit-serv-prev").value === "true";
+        state.servicos[idx].nome = nome;
+        state.servicos[idx].preventiva = precisaPrev;
+        if (precisaPrev && !state.servicos[idx].intervaloKm) state.servicos[idx].intervaloKm = 10000;
+        if (precisaPrev && !state.servicos[idx].intervaloDias) state.servicos[idx].intervaloDias = 180;
+        saveState();
+        renderizarServicos();
+        renderizarPreventivas();
+        fecharTelaEdicao();
+      } else if (tipo === "preventiva") {
+        const precisa = document.getElementById("edit-prev-status").value === "true";
+        const km = Math.max(0, parseInt(document.getElementById("edit-prev-km").value || "0", 10) || 0);
+        const dias = Math.max(0, parseInt(document.getElementById("edit-prev-dias").value || "0", 10) || 0);
+        state.servicos[idx].preventiva = precisa;
+        state.servicos[idx].intervaloKm = km;
+        state.servicos[idx].intervaloDias = dias;
+        saveState();
+        renderizarPreventivas();
+        fecharTelaEdicao();
+      } else if (tipo === "cor") {
+        const hex = (document.getElementById("edit-cor-hex").value || document.getElementById("edit-cor-picker").value || "#3b82f6").trim();
+        aplicarCor(hex);
+        fecharTelaEdicao();
+      } else if (tipo === "orcamento") {
+        const orc = state.orcamentos[idx];
+        if (!orc) return;
+        const atualizado = coletarDadosEditOS(orc);
+        state.orcamentos[idx] = atualizado;
+        sincronizarPassagemHistorico(atualizado, "Orçamento Atualizado");
+        saveState();
+        renderizarOrcamentosGerados();
+        renderizarHistorico();
+        fecharTelaEdicao();
+      } else if (tipo === "patio") {
+        const item = state.patio[idx];
+        if (!item) return;
+        const atualizado = coletarDadosEditOS(item);
+        state.patio[idx] = atualizado;
+        upsertCliente(atualizado);
+        registrarMonitoramentoPreventivo(atualizado);
+        sincronizarPassagemHistorico(atualizado, "OS Atualizada no Pátio");
+        saveState();
+        renderizarPatio();
+        renderizarMonitoramentoPreventivas();
+        renderizarHistorico();
+        fecharTelaEdicao();
+      } else if (tipo === "historico") {
+        const reg = state.historico[idx];
+        if (!reg) return;
+        state.historico[idx] = coletarDadosEditOS(reg);
+        saveState();
+        renderizarHistorico();
+        fecharTelaEdicao();
+      }
+    }
+
+    /* PÁTIO DETALHADO */
+    function renderizarPatio() {
+      const q = (document.getElementById("busca-patio").value || "").trim().toLowerCase();
+      const box = document.getElementById("lista-patio");
+      const filtrados = state.patio
+        .map((item, idx) => ({ item, idx }))
+        .filter(({ item }) => {
+          const txt = `${item.cliente || ""} ${item.modelo || ""} ${item.ano || ""} ${item.placa || ""} ${item.obsMecanico || ""}`.toLowerCase();
+          return !q || txt.includes(q);
+        });
+
+      document.getElementById("status-patio").textContent =
+        `Exibindo ${filtrados.length} de ${state.patio.length} veículo(s) no pátio`;
+
+      if (!filtrados.length) {
+        box.innerHTML = `<div class="empty-state">Nenhum veículo encontrado no pátio.</div>`;
+        return;
+      }
+
+      box.innerHTML = filtrados.map(({ item, idx }) => {
+        const t = calcTotais(item);
+        const itens = Array.isArray(item.servicosAtuais) ? item.servicosAtuais : [];
+        const itensHtml = itens.length
+          ? itens.map((s, i) => {
+              const qtd = Math.max(1, parseInt(s.qtdPeca || 1, 10) || 1);
+              const val = parseBRL(s.valorPeca);
+              const diasGar = Math.max(0, parseInt(s.garantiaDias ?? 90, 10) || 0);
+              return `<div>• <b>${i + 1}. ${s.nome || "Serviço"}</b> — Qtd: <b>${qtd}</b> • Unitário: <b>${fmtBRL(val)}</b> • Subtotal: <b>${fmtBRL(qtd * val)}</b>${diasGar > 0 ? ` • Garantia: <b>${diasGar} dias</b>` : ""}${s.detalhes ? ` • Obs: <i>${s.detalhes}</i>` : ""}</div>`;
+            }).join("")
+          : `<div>• Nenhum serviço ou peça adicionado ainda</div>`;
+
+        const obsHtml = item.obsMecanico
+          ? `<div class="obs-aviso-box"><b>Aviso do Mecânico ao Cliente:</b> ${item.obsMecanico}</div>`
+          : `<div class="os-detail-list" style="color:var(--muted);"><b>Observação do Mecânico (Aviso ao Cliente):</b> Nenhuma observação registrada.</div>`;
+
+        return `
+          <div class="os-card">
+            <div style="flex:1;min-width:260px;">
+              <div class="os-main-title">
+                <span>${item.modelo || "Veículo"}</span>
+                ${item.ano ? `<span class="tag">Ano ${item.ano}</span>` : ""}
+                ${item.placa ? `<span class="tag">Placa ${item.placa.toUpperCase()}</span>` : ""}
+                <span class="tag green">Total: ${fmtBRL(t.total)}</span>
+              </div>
+              <div class="os-detail-grid">
+                <div><b>Cliente:</b> ${item.cliente || "-"}</div>
+                <div><b>WhatsApp:</b> ${item.whatsapp || "-"}</div>
+                <div><b>KM Atual:</b> ${item.km || "-"}</div>
+                <div><b>Entrada:</b> ${item.dataEntrada || "-"} ${item.horaEntrada || ""}</div>
+              </div>
+              <div class="os-detail-list">
+                <div style="margin-bottom:4px;"><b>Serviços e Peças:</b></div>
+                ${itensHtml}
+                <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border-soft);display:flex;gap:18px;flex-wrap:wrap;">
+                  <span>Peças/Itens: <b>${fmtBRL(t.somaPecas)}</b></span>
+                  <span>Mão de Obra: <b>${fmtBRL(t.mo)}</b></span>
+                  <span>Valor Total: <b>${fmtBRL(t.total)}</b></span>
+                </div>
+              </div>
+              ${obsHtml}
+            </div>
+            <div class="card-actions">
+              <button type="button" class="btn btn-secondary" onclick="abrirTelaEdicao('patio', ${idx})">Editar OS / Pátio</button>
+              <button type="button" class="btn btn-success" onclick="abrirModalBaixa(${idx})">Dar Baixa</button>
+              <button type="button" class="btn btn-danger" onclick="excluirDoPatio(${idx})">Excluir</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function excluirDoPatio(idx) {
+      if (!confirm("Remover este veículo do pátio?")) return;
+      state.patio.splice(idx, 1);
+      saveState();
+      renderizarPatio();
+    }
+
+    /* NOVA OS — CLIENTES SALVOS E SERVIÇOS */
+    function preencherClientesSalvosOS() {
+      const dl = document.getElementById("lista-clientes-salvos");
+      const sel = document.getElementById("atalho-cliente-os");
+      const lista = Array.isArray(state.clientes) ? state.clientes : [];
+
+      if (dl) {
+        dl.innerHTML = lista
+          .filter(c => c.cliente && c.cliente !== "-")
+          .map(c => `<option value="${(c.cliente || "").replace(/"/g, "&quot;")}">${c.cliente} • ${c.modelo || ""} (${(c.placa || "").toUpperCase()})</option>`)
+          .join("");
+      }
+
+      if (sel) {
+        const atual = sel.value;
+        sel.innerHTML = `<option value="">Selecionar cliente salvo...</option>` +
+          lista
+            .filter(c => c.cliente && c.cliente !== "-")
+            .map((c, idx) => `<option value="${idx}">${c.cliente}${c.modelo && c.modelo !== "-" ? " — " + c.modelo : ""}${c.placa && c.placa !== "-" ? " [" + c.placa.toUpperCase() + "]" : ""}</option>`)
+            .join("");
+        if (atual && lista[Number(atual)]) sel.value = atual;
+      }
+    }
+
+    function preencherCamposComCliente(c) {
+      if (!c) return;
+      if (c.cliente && c.cliente !== "-") document.getElementById("os-cliente").value = c.cliente;
+      if (c.whatsapp && c.whatsapp !== "-") document.getElementById("os-whatsapp").value = c.whatsapp;
+      if (c.modelo && c.modelo !== "-") document.getElementById("os-modelo").value = c.modelo;
+      if (c.ano) document.getElementById("os-ano").value = c.ano;
+      if (c.placa && c.placa !== "-") document.getElementById("os-placa").value = c.placa.toUpperCase();
+      if (c.km) document.getElementById("os-km").value = c.km;
+    }
+
+    function usarClienteNaNovaOS(idx) {
+      const c = state.clientes[idx];
+      if (!c) return;
+      navegar("nova_os");
+      preencherCamposComCliente(c);
+    }
+
+    function aplicarClienteSalvoOS() {
+      const sel = document.getElementById("atalho-cliente-os");
+      if (!sel || sel.value === "") return;
+      const c = state.clientes[Number(sel.value)];
+      if (c) preencherCamposComCliente(c);
+    }
+
+    function sincronizarClienteDigitado() {
+      const val = (document.getElementById("os-cliente").value || "").trim().toLowerCase();
+      if (!val) return;
+      const match = state.clientes.find(c => (c.cliente || "").trim().toLowerCase() === val);
+      if (match) {
+        if (!document.getElementById("os-whatsapp").value.trim() && match.whatsapp && match.whatsapp !== "-") {
+          document.getElementById("os-whatsapp").value = match.whatsapp;
+        }
+        if (!document.getElementById("os-modelo").value.trim() && match.modelo && match.modelo !== "-") {
+          document.getElementById("os-modelo").value = match.modelo;
+        }
+        if (!document.getElementById("os-ano").value.trim() && match.ano) {
+          document.getElementById("os-ano").value = match.ano;
+        }
+        if (!document.getElementById("os-placa").value.trim() && match.placa && match.placa !== "-") {
+          document.getElementById("os-placa").value = match.placa.toUpperCase();
+        }
+        if (!document.getElementById("os-km").value.trim() && match.km) {
+          document.getElementById("os-km").value = match.km;
+        }
+      }
+    }
+
+    function preencherAtalhoServicosOS() {
+      const sel = document.getElementById("atalho-servico-os");
+      sel.innerHTML = `<option value="">Puxar serviço cadastrado...</option>` +
+        state.servicos.map(s => `<option value="${encodeURIComponent(s.nome)}">${s.nome}</option>`).join("");
+    }
+
+    function aplicarAtalhoServicoOS() {
+      const sel = document.getElementById("atalho-servico-os");
+      if (!sel.value) return;
+      document.getElementById("serv-nome").value = decodeURIComponent(sel.value);
+      sel.value = "";
+    }
+
+    function atualizarCalculoTelaOS() {
+      const somaPecas = servicosTemp.reduce((a, s) => a + (Math.max(1, parseInt(s.qtdPeca || 1, 10) || 1) * parseBRL(s.valorPeca)), 0);
+      const mo = parseBRL(document.getElementById("os-mo")?.value);
+      const total = somaPecas + mo;
+
+      const elPecas = document.getElementById("os-calc-pecas");
+      const elMo = document.getElementById("os-calc-mo");
+      const elTotal = document.getElementById("os-calc-total");
+
+      if (elPecas) elPecas.textContent = fmtBRL(somaPecas);
+      if (elMo) elMo.textContent = fmtBRL(mo);
+      if (elTotal) elTotal.textContent = fmtBRL(total);
+    }
+
+    function adicionarServicoTemp() {
+      const nome = document.getElementById("serv-nome").value.trim();
+      if (!nome) return alert("Informe o nome do serviço ou peça.");
+      const qtd = Math.max(1, parseInt(document.getElementById("serv-qtd").value || "1", 10) || 1);
+      const valor = parseBRL(document.getElementById("serv-valor").value);
+      const garantiaDias = Math.max(0, parseInt(document.getElementById("serv-garantia-dias")?.value || "90", 10) || 0);
+      const detalhes = document.getElementById("serv-obs").value.trim();
+
+      servicosTemp.push({ nome, qtdPeca: qtd, valorPeca: valor, garantiaDias, dataBaseGarantiaISO: hojeISO(), detalhes });
+      document.getElementById("serv-nome").value = "";
+      document.getElementById("serv-qtd").value = "1";
+      document.getElementById("serv-valor").value = "";
+      if (document.getElementById("serv-garantia-dias")) document.getElementById("serv-garantia-dias").value = "90";
+      document.getElementById("serv-obs").value = "";
+      renderServicosTemp();
+    }
+
+    function removerServicoTemp(i) {
+      servicosTemp.splice(i, 1);
+      renderServicosTemp();
+    }
+
+    function renderServicosTemp() {
+      const box = document.getElementById("lista-servicos-temp");
+      if (!servicosTemp.length) {
+        box.textContent = "Nenhum item adicionado ainda.";
+      } else {
+        box.innerHTML = servicosTemp.map((s, i) => `
+          <div class="item-line">
+            <span>${i + 1}. <b>${s.nome}</b> (${s.qtdPeca}x ${fmtBRL(s.valorPeca)} = <b>${fmtBRL(s.qtdPeca * s.valorPeca)}</b>) • Garantia: <b>${s.garantiaDias ?? 90} dias</b>${s.detalhes ? " — " + s.detalhes : ""}</span>
+            <button type="button" class="btn btn-danger" style="padding:5px 10px;" onclick="removerServicoTemp(${i})">Remover</button>
+          </div>
+        `).join("");
+      }
+      atualizarCalculoTelaOS();
+    }
+
+    function coletarOS() {
+      const mo = parseBRL(document.getElementById("os-mo").value);
+      const somaPecas = servicosTemp.reduce((a, s) => a + s.qtdPeca * s.valorPeca, 0);
+      return {
+        cliente: document.getElementById("os-cliente").value.trim(),
+        whatsapp: document.getElementById("os-whatsapp").value.trim(),
+        modelo: document.getElementById("os-modelo").value.trim(),
+        ano: document.getElementById("os-ano").value.trim(),
+        placa: document.getElementById("os-placa").value.trim().toUpperCase(),
+        km: document.getElementById("os-km").value.trim(),
+        obsMecanico: document.getElementById("os-obs-mecanico").value.trim(),
+        maoDeObraGeral: mo,
+        servicosAtuais: [...servicosTemp],
+        total: somaPecas + mo
+      };
+    }
+
+    function limparFormOS() {
+      ["os-cliente", "os-whatsapp", "os-modelo", "os-ano", "os-placa", "os-km", "os-mo", "os-obs-mecanico", "serv-nome", "serv-valor", "serv-obs"]
+        .forEach(id => document.getElementById(id).value = "");
+      const selCli = document.getElementById("atalho-cliente-os");
+      if (selCli) selCli.value = "";
+      if (document.getElementById("serv-garantia-dias")) document.getElementById("serv-garantia-dias").value = "90";
+      document.getElementById("serv-qtd").value = "1";
+      servicosTemp = [];
+      renderServicosTemp();
+    }
+
+    function upsertCliente(dados) {
+      if (!dados.cliente && !dados.placa) return;
+      const p = (dados.placa || "").toUpperCase();
+      const idx = state.clientes.findIndex(c =>
+        (p && (c.placa || "").toUpperCase() === p) ||
+        (dados.cliente && (c.cliente || "").toLowerCase() === dados.cliente.toLowerCase() && (c.modelo || "").toLowerCase() === (dados.modelo || "").toLowerCase())
+      );
+      const anterior = idx >= 0 ? state.clientes[idx] : {};
+      const rec = {
+        ...anterior,
+        cliente: dados.cliente || anterior.cliente || "-",
+        whatsapp: dados.whatsapp || anterior.whatsapp || "-",
+        cpf: dados.cpf !== undefined ? dados.cpf : (anterior.cpf || ""),
+        email: dados.email !== undefined ? dados.email : (anterior.email || ""),
+        endereco: dados.endereco !== undefined ? dados.endereco : (anterior.endereco || ""),
+        modelo: dados.modelo || anterior.modelo || "-",
+        ano: dados.ano !== undefined ? dados.ano : (anterior.ano || ""),
+        cor: dados.cor !== undefined ? dados.cor : (anterior.cor || ""),
+        km: dados.km !== undefined ? dados.km : (anterior.km || ""),
+        obs: dados.obs !== undefined ? dados.obs : (anterior.obs || ""),
+        placa: p || anterior.placa || "-",
+        ultimaVisita: new Date().toLocaleDateString("pt-BR")
+      };
+      if (idx >= 0) state.clientes[idx] = rec;
+      else state.clientes.push(rec);
+      preencherClientesSalvosOS();
+    }
+
+    function salvarOSNoPatio() {
+      const d = coletarOS();
+      if (!d.cliente || !d.modelo || !d.placa) {
+        return alert("Preencha pelo menos Cliente, Veículo/Modelo e Placa.");
+      }
+      const agora = new Date();
+      const osItem = {
+        ...d,
+        id: "OS_" + agora.getTime(),
+        status: "NO_PATIO",
+        dataEntrada: agora.toLocaleDateString("pt-BR"),
+        horaEntrada: agora.toLocaleTimeString("pt-BR")
+      };
+      state.patio.push(osItem);
+      upsertCliente(osItem);
+      registrarMonitoramentoPreventivo(osItem);
+      sincronizarPassagemHistorico(osItem, "Entrada no Pátio / OS");
+      saveState();
+      limparFormOS();
+      navegar("patio");
+    }
+
+    /* ORÇAMENTOS GERADOS */
+    function gerarOrcamentoDaOS() {
+      const d = coletarOS();
+      if (!d.cliente && !d.modelo && !d.placa && !d.servicosAtuais.length && d.total <= 0) {
+        return alert("Preencha os dados da OS ou adicione itens antes de gerar o orçamento.");
+      }
+      const agora = new Date();
+      const orcItem = {
+        ...d,
+        id: "ORC_" + agora.getTime(),
+        status: "ORCAMENTO",
+        dataGeracao: agora.toLocaleDateString("pt-BR"),
+        horaGeracao: agora.toLocaleTimeString("pt-BR")
+      };
+      state.orcamentos.unshift(orcItem);
+      upsertCliente(orcItem);
+      sincronizarPassagemHistorico(orcItem, "Orçamento Gerado");
+      saveState();
+      limparFormOS();
+      navegar("orcamentos");
+    }
+
+    function enviarOrcamentoParaPatio(idx) {
+      const orc = state.orcamentos[idx];
+      if (!orc) return;
+      const agora = new Date();
+      const osItem = {
+        cliente: orc.cliente || "Cliente",
+        whatsapp: orc.whatsapp || "",
+        modelo: orc.modelo || "Veículo",
+        ano: orc.ano || "",
+        placa: (orc.placa || "").toUpperCase(),
+        km: orc.km || "",
+        obsMecanico: orc.obsMecanico || "",
+        maoDeObraGeral: parseBRL(orc.maoDeObraGeral),
+        servicosAtuais: Array.isArray(orc.servicosAtuais) ? [...orc.servicosAtuais] : [],
+        total: calcTotais(orc).total,
+        id: "OS_" + agora.getTime(),
+        historicoRefId: orc.historicoRefId || "",
+        status: "NO_PATIO",
+        dataEntrada: agora.toLocaleDateString("pt-BR"),
+        horaEntrada: agora.toLocaleTimeString("pt-BR"),
+        dataGeracao: orc.dataGeracao || "",
+        horaGeracao: orc.horaGeracao || ""
+      };
+
+      state.patio.push(osItem);
+      upsertCliente(osItem);
+      registrarMonitoramentoPreventivo(osItem);
+      sincronizarPassagemHistorico(osItem, "Orçamento Enviado para o Pátio");
+      state.orcamentos.splice(idx, 1);
+      saveState();
+      navegar("patio");
+    }
+
+    function excluirOrcamento(idx) {
+      if (!confirm("Excluir este orçamento?")) return;
+      state.orcamentos.splice(idx, 1);
+      saveState();
+      renderizarOrcamentosGerados();
+    }
+
+    function renderizarOrcamentosGerados() {
+      const box = document.getElementById("lista-orcamentos-gerados");
+      const status = document.getElementById("status-orcamentos");
+      if (!box || !status) return;
+
+      status.textContent = `${state.orcamentos.length} orçamento(s) gerado(s)`;
+
+      if (!state.orcamentos.length) {
+        box.innerHTML = `<div class="empty-state">Nenhum orçamento gerado ainda. Abra uma OS em <b>Nova OS / Entrada</b> e clique em <b>Gerar Orçamento</b>.</div>`;
+        return;
+      }
+
+      box.innerHTML = state.orcamentos.map((orc, idx) => {
+        const t = calcTotais(orc);
+        const itens = Array.isArray(orc.servicosAtuais) ? orc.servicosAtuais : [];
+        const itensHtml = itens.length
+          ? itens.map((s, i) => {
+              const qtd = Math.max(1, parseInt(s.qtdPeca || 1, 10) || 1);
+              const val = parseBRL(s.valorPeca);
+              const diasGar = Math.max(0, parseInt(s.garantiaDias ?? 90, 10) || 0);
+              return `<div>• <b>${i + 1}. ${s.nome || "Serviço"}</b> — Qtd: <b>${qtd}</b> • Unitário: <b>${fmtBRL(val)}</b> • Subtotal: <b>${fmtBRL(qtd * val)}</b>${diasGar > 0 ? ` • Garantia: <b>${diasGar} dias</b>` : ""}${s.detalhes ? ` • Obs: <i>${s.detalhes}</i>` : ""}</div>`;
+            }).join("")
+          : `<div>• Nenhum item ou peça discriminado</div>`;
+
+        const obsHtml = orc.obsMecanico
+          ? `<div class="obs-aviso-box"><b>Aviso do Mecânico ao Cliente:</b> ${orc.obsMecanico}</div>`
+          : "";
+
+        return `
+          <div class="os-card">
+            <div style="flex:1;min-width:260px;">
+              <div class="os-main-title">
+                <span>${orc.modelo || "Veículo"}</span>
+                ${orc.ano ? `<span class="tag">Ano ${orc.ano}</span>` : ""}
+                ${orc.placa ? `<span class="tag">Placa ${orc.placa.toUpperCase()}</span>` : ""}
+                <span class="tag green">Total: ${fmtBRL(t.total)}</span>
+              </div>
+              <div class="os-detail-grid">
+                <div><b>Cliente:</b> ${orc.cliente || "-"}</div>
+                <div><b>WhatsApp:</b> ${orc.whatsapp || "-"}</div>
+                <div><b>KM Atual:</b> ${orc.km || "-"}</div>
+                <div><b>Data / Hora:</b> ${orc.dataGeracao || "-"} ${orc.horaGeracao || ""}</div>
+              </div>
+              <div class="os-detail-list">
+                <div style="margin-bottom:4px;"><b>Serviços e Peças:</b></div>
+                ${itensHtml}
+                <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border-soft);display:flex;gap:18px;flex-wrap:wrap;">
+                  <span>Peças/Itens: <b>${fmtBRL(t.somaPecas)}</b></span>
+                  <span>Mão de Obra: <b>${fmtBRL(t.mo)}</b></span>
+                  <span>Valor Total: <b>${fmtBRL(t.total)}</b></span>
+                </div>
+              </div>
+              ${obsHtml}
+            </div>
+            <div class="card-actions">
+              <button type="button" class="btn btn-secondary" onclick="abrirTelaEdicao('orcamento', ${idx})">Editar Orçamento</button>
+              <button type="button" class="btn btn-success" onclick="enviarOrcamentoParaPatio(${idx})">Enviar para o Pátio</button>
+              <button type="button" class="btn btn-danger" onclick="excluirOrcamento(${idx})">Excluir Orçamento</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    /* CLIENTES E VEÍCULOS (CADASTRO COMPLETO) */
+    function limparFormCliente() {
+      ["cad-cliente", "cad-wa", "cad-cpf", "cad-email", "cad-endereco", "cad-modelo", "cad-placa", "cad-ano", "cad-cor", "cad-km", "cad-obs"]
+        .forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.value = "";
+        });
+    }
+
+    function salvarClienteManual() {
+      const cliente = document.getElementById("cad-cliente").value.trim();
+      const modelo = document.getElementById("cad-modelo").value.trim();
+      const placa = document.getElementById("cad-placa").value.trim().toUpperCase();
+      if (!cliente || !modelo || !placa) {
+        return alert("Preencha pelo menos Nome Completo do Cliente, Veículo/Modelo e Placa.");
+      }
+
+      const dadosCli = {
+        cliente,
+        whatsapp: document.getElementById("cad-wa").value.trim(),
+        cpf: document.getElementById("cad-cpf").value.trim(),
+        email: document.getElementById("cad-email").value.trim(),
+        endereco: document.getElementById("cad-endereco").value.trim(),
+        modelo,
+        placa,
+        ano: document.getElementById("cad-ano").value.trim(),
+        cor: document.getElementById("cad-cor").value.trim(),
+        km: document.getElementById("cad-km").value.trim(),
+        obs: document.getElementById("cad-obs").value.trim()
+      };
+
+      upsertCliente(dadosCli);
+      sincronizarPassagemHistorico({ ...dadosCli, status: "CADASTRO" }, "Cadastro de Cliente / Veículo");
+      saveState();
+      limparFormCliente();
+      renderizarClientes();
+      renderizarEditarDados();
+      renderizarHistorico();
+      alert("Cliente e veículo salvos no sistema!");
+    }
+
+    function excluirCliente(idx) {
+      if (!confirm("Deseja excluir este cliente e veículo do cadastro?")) return;
+      state.clientes.splice(idx, 1);
+      saveState();
+      renderizarClientes();
+      renderizarEditarDados();
+      preencherClientesSalvosOS();
+    }
+
+    function renderizarClientes() {
+      const q = (document.getElementById("busca-clientes").value || "").trim().toLowerCase();
+      const box = document.getElementById("lista-clientes");
+      const status = document.getElementById("status-clientes");
+      const lista = state.clientes
+        .map((c, idx) => ({ c, idx }))
+        .filter(({ c }) => {
+          const t = `${c.cliente || ""} ${c.whatsapp || ""} ${c.cpf || ""} ${c.email || ""} ${c.endereco || ""} ${c.modelo || ""} ${c.ano || ""} ${c.cor || ""} ${c.placa || ""} ${c.obs || ""}`.toLowerCase();
+          return !q || t.includes(q);
+        });
+
+      if (status) status.textContent = `${lista.length} de ${state.clientes.length} cadastrado(s)`;
+
+      if (!lista.length) {
+        box.innerHTML = `<div class="empty-state">Nenhum cliente/veículo cadastrado.</div>`;
+        return;
+      }
+
+      box.innerHTML = lista.map(({ c, idx }) => {
+        const placaUp = (c.placa || "-").toUpperCase();
+        const prevsCli = state.preventivasMonitoramento.filter(m =>
+          (placaUp !== "-" && (m.placa || "").toUpperCase() === placaUp) ||
+          ((m.cliente || "").toLowerCase() === (c.cliente || "").toLowerCase() && (m.modelo || "").toLowerCase() === (c.modelo || "").toLowerCase())
+        );
+        const prevHtml = prevsCli.length
+          ? `<div class="os-detail-list"><b>Preventivas em Monitoramento:</b> ${prevsCli.map(p => {
+              const partes = [];
+              if (Number(p.proximoKm || 0) > 0) partes.push(`${Number(p.proximoKm).toLocaleString("pt-BR")} km`);
+              if (p.proximaDataISO) partes.push(fmtDataISO(p.proximaDataISO));
+              return `${p.servico} (${partes.join(" / ") || "Ativo"})`;
+            }).join(" • ")}</div>`
+          : "";
+
+        return `
+          <div class="os-card">
+            <div style="flex:1;min-width:260px;">
+              <div class="os-main-title">
+                <span>${c.cliente || "-"}</span>
+                <span class="tag">${fmtVeiculo(c)}</span>
+                <span class="tag">${placaUp}</span>
+                ${c.cor ? `<span class="tag">${c.cor}</span>` : ""}
+              </div>
+              <div class="os-detail-grid">
+                <div><b>WhatsApp:</b> ${c.whatsapp || "-"}</div>
+                <div><b>CPF / CNPJ:</b> ${c.cpf || "-"}</div>
+                <div><b>E-mail:</b> ${c.email || "-"}</div>
+                <div><b>KM:</b> ${c.km || "-"}</div>
+                <div><b>Endereço:</b> ${c.endereco || "-"}</div>
+                <div><b>Última visita:</b> ${c.ultimaVisita || "-"}</div>
+              </div>
+              ${c.obs ? `<div class="os-detail-list"><b>Observações:</b> ${c.obs}</div>` : ""}
+              ${prevHtml}
+            </div>
+            <div class="card-actions">
+              <button type="button" class="btn" onclick="abrirTelaEdicao('cliente', ${idx})">Editar</button>
+              <button type="button" class="btn btn-secondary" onclick="usarClienteNaNovaOS(${idx})">Nova OS</button>
+              <button type="button" class="btn btn-danger" onclick="excluirCliente(${idx})">Excluir</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    /* BAIXA, PDF NA PASTA SAIDAS, WHATSAPP E HISTÓRICO */
+    function abrirModalBaixa(idx) {
+      const item = state.patio[idx];
+      if (!item) return;
+      const ativas = state.pagamentos.filter(p => p.ativo).map(p => p.nome);
+      if (!ativas.length) {
+        return alert("Ative pelo menos uma forma de pagamento em Configurações > Pagamento.");
+      }
+      const sel = document.getElementById("modal-pagamento");
+      sel.innerHTML = ativas.map(nome => `<option value="${nome}">${nome}</option>`).join("");
+
+      const t = calcTotais(item);
+      baixaCtx = { idx, item, t };
+      document.getElementById("modal-info").innerHTML =
+        `Cliente: <b>${item.cliente || "-"}</b><br/>Veículo: <b>${fmtVeiculo(item)}</b> • Placa: <b>${(item.placa || "-").toUpperCase()}</b>`;
+      document.getElementById("modal-total").textContent = `Total a Receber: ${fmtBRL(t.total)}`;
+      document.getElementById("modal-baixa").classList.add("open");
+    }
+
+    function fecharModalBaixa() {
+      baixaCtx = null;
+      document.getElementById("modal-baixa").classList.remove("open");
+    }
+
+    function gerarNomeArquivoSaidas(reg) {
+      const placaLimpa = (reg.placa || "VEICULO").toUpperCase().replace(/[^A-Z0-9]/g, "");
+      const dataLimpa = (reg.dataConclusao || "").replace(/\//g, "-");
+      const horaLimpa = (reg.horaBaixa || "").replace(/:/g, "-");
+      return `Comprovante_${placaLimpa}_${dataLimpa}_${horaLimpa}.pdf`;
+    }
+
+    async function gerarPdfNaPastaSaidas(reg) {
+      const nomeBase = gerarNomeArquivoSaidas(reg);
+      const itens = Array.isArray(reg.servicosAtuais) ? reg.servicosAtuais : [];
+      const oficinaNome = state.config.oficinaNome || "NEXUS OFICINA";
+      const oficinaFone = state.config.oficinaFone || "";
+      const oficinaEnd = state.config.oficinaEndereco || "";
+
+      if (window.jspdf && window.jspdf.jsPDF) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: "mm", format: "a4" });
+        let y = 16;
+
+        if (state.config.logoDataUrl) {
+          try {
+            const fmt = state.config.logoDataUrl.includes("image/png") ? "PNG" : "JPEG";
+            doc.addImage(state.config.logoDataUrl, fmt, 14, y - 4, 18, 18);
+            doc.setFontSize(15);
+            doc.setFont("helvetica", "bold");
+            doc.text(oficinaNome, 36, y + 3);
+            doc.setFontSize(9.5);
+            doc.setFont("helvetica", "normal");
+            if (oficinaFone || oficinaEnd) {
+              doc.text(`${oficinaFone}${oficinaFone && oficinaEnd ? " • " : ""}${oficinaEnd}`, 36, y + 9);
+            }
+            y += 22;
+          } catch {
+            doc.setFontSize(15);
+            doc.setFont("helvetica", "bold");
+            doc.text(oficinaNome, 14, y);
+            y += 8;
+          }
+        } else {
+          doc.setFontSize(15);
+          doc.setFont("helvetica", "bold");
+          doc.text(oficinaNome, 14, y);
+          y += 6;
+          if (oficinaFone || oficinaEnd) {
+            doc.setFontSize(9.5);
+            doc.setFont("helvetica", "normal");
+            doc.text(`${oficinaFone}${oficinaFone && oficinaEnd ? " • " : ""}${oficinaEnd}`, 14, y);
+            y += 6;
+          }
+        }
+
+        doc.setFontSize(10.5);
+        doc.setFont("helvetica", "bold");
+        doc.text(`COMPROVANTE DE SAÍDA — ${PASTA_SAIDAS_ALVO}`, 14, y);
+        y += 6;
+        doc.setFontSize(9.5);
+        doc.setFont("helvetica", "normal");
+        doc.text(`Entrada: ${reg.dataEntrada || "-"} ${reg.horaEntrada || ""}   |   Saída: ${reg.dataConclusao || ""} ${reg.horaBaixa || ""}`, 14, y);
+        y += 5;
+        doc.text(`Forma de Pagamento: ${reg.formaPagamento || "-"}`, 14, y);
+        y += 7;
+        doc.line(14, y, 196, y);
+        y += 7;
+
+        doc.text(`Cliente: ${reg.cliente || "-"}   |   WhatsApp: ${reg.whatsapp || "-"}`, 14, y);
+        y += 6;
+        doc.text(`Veículo: ${fmtVeiculo(reg)}   |   Placa: ${(reg.placa || "-").toUpperCase()}   |   KM: ${reg.km || "-"}`, 14, y);
+        y += 8;
+
+        doc.setFont("helvetica", "bold");
+        doc.text("Serviços e Peças", 14, y);
+        doc.text("Qtd", 135, y, { align: "center" });
+        doc.text("Unitário", 162, y, { align: "right" });
+        doc.text("Subtotal", 196, y, { align: "right" });
+        y += 3;
+        doc.line(14, y, 196, y);
+        y += 6;
+        doc.setFont("helvetica", "normal");
+
+        if (!itens.length) {
+          doc.text("Nenhum serviço ou peça discriminado.", 14, y);
+          y += 7;
+        } else {
+          for (let i = 0; i < itens.length; i++) {
+            const s = itens[i];
+            const qtd = Math.max(1, parseInt(s.qtdPeca || 1, 10) || 1);
+            const unit = parseBRL(s.valorPeca);
+            const sub = qtd * unit;
+            const garInfo = avaliarGarantiaItem(s, reg);
+            const desc = `${i + 1}. ${s.nome || "Serviço"}${garInfo.diasGarantia > 0 ? " [Gar: " + garInfo.diasGarantia + "d / Val: " + fmtDataISO(garInfo.validadeISO) + "]" : ""}`.slice(0, 62);
+            doc.text(desc, 14, y);
+            doc.text(String(qtd), 135, y, { align: "center" });
+            doc.text(fmtBRL(unit), 162, y, { align: "right" });
+            doc.text(fmtBRL(sub), 196, y, { align: "right" });
+            y += 6;
+            if (y > 265) {
+              doc.addPage();
+              y = 18;
+            }
+          }
+        }
+
+        y += 4;
+        doc.line(14, y, 196, y);
+        y += 7;
+        doc.text(`Peças/Itens: ${fmtBRL(calcTotais(reg).somaPecas)}   |   Mão de Obra: ${fmtBRL(parseBRL(reg.maoDeObraGeral))}`, 14, y);
+        y += 7;
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
+        doc.text(`TOTAL PAGO: ${fmtBRL(parseBRL(reg.total))}`, 196, y, { align: "right" });
+        y += 10;
+
+        if (reg.obsMecanico) {
+          doc.setFontSize(10);
+          doc.setFont("helvetica", "bold");
+          doc.text("Observação do Mecânico (Aviso ao Cliente):", 14, y);
+          y += 5;
+          doc.setFont("helvetica", "normal");
+          const linhasObs = doc.splitTextToSize(reg.obsMecanico, 180);
+          doc.text(linhasObs, 14, y);
+          y += linhasObs.length * 5 + 4;
+        }
+
+        const pdfBlob = doc.output("blob");
+        const saidasDir = await obterPastaSaidasHandle();
+        if (saidasDir) {
+          try {
+            const fileHandle = await saidasDir.getFileHandle(nomeBase, { create: true });
+            const writable = await fileHandle.createWritable();
+            await writable.write(pdfBlob);
+            await writable.close();
+            return `${PASTA_SAIDAS_ALVO}\\${nomeBase}`;
+          } catch {}
+        }
+
+        const url = URL.createObjectURL(pdfBlob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `SAIDAS_${nomeBase}`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        return `${PASTA_SAIDAS_ALVO}\\${nomeBase}`;
+      }
+
+      imprimir(reg);
+      return `${PASTA_SAIDAS_ALVO}\\${nomeBase}`;
+    }
+
+    function montarMensagemWhatsApp(reg) {
+      const itens = Array.isArray(reg.servicosAtuais) ? reg.servicosAtuais : [];
+      const itensTexto = itens.length
+        ? itens.map((s, i) => {
+            const qtd = Math.max(1, parseInt(s.qtdPeca || 1, 10) || 1);
+            const val = parseBRL(s.valorPeca);
+            const gar = avaliarGarantiaItem(s, reg);
+            const garTxt = gar.diasGarantia > 0 ? ` • Garantia: ${gar.diasGarantia} dias (até ${fmtDataISO(gar.validadeISO)})` : "";
+            return `• ${i + 1}. ${s.nome || "Serviço"} (${qtd}x ${fmtBRL(val)} = ${fmtBRL(qtd * val)})${garTxt}${s.detalhes ? " - " + s.detalhes : ""}`;
+          }).join("\n")
+        : "• Serviços gerais realizados";
+
+      const obsTexto = reg.obsMecanico
+        ? `\n\n*Aviso do Mecânico:* ${reg.obsMecanico}`
+        : "";
+
+      return [
+        `*${state.config.oficinaNome || "NEXUS OFICINA"} — Comprovante de Saída*`,
+        `Olá, *${reg.cliente || "Cliente"}*! Seguem os detalhes do serviço do seu veículo:`,
+        ``,
+        `*Veículo:* ${fmtVeiculo(reg)}`,
+        `*Placa:* ${(reg.placa || "-").toUpperCase()}`,
+        `*KM:* ${reg.km || "-"}`,
+        `*Entrada:* ${reg.dataEntrada || "-"} ${reg.horaEntrada || ""}`,
+        `*Saída:* ${reg.dataConclusao || ""} ${reg.horaBaixa || ""}`,
+        ``,
+        `*Serviços e Peças:*`,
+        itensTexto,
+        ``,
+        `*Mão de Obra:* ${fmtBRL(parseBRL(reg.maoDeObraGeral))}`,
+        `*Valor Total:* *${fmtBRL(parseBRL(reg.total))}*`,
+        `*Forma de Pagamento:* ${reg.formaPagamento || "-"}`,
+        obsTexto
+      ].filter(Boolean).join("\n");
+    }
+
+    function abrirWhatsAppCliente(reg) {
+      const digitos = String(reg.whatsapp || "").replace(/\D/g, "");
+      const numero = digitos.length >= 10 ? (digitos.startsWith("55") ? digitos : "55" + digitos) : "";
+      const texto = encodeURIComponent(montarMensagemWhatsApp(reg));
+      const url = numero
+        ? `https://wa.me/${numero}?text=${texto}`
+        : `https://wa.me/?text=${texto}`;
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+
+    async function confirmarBaixa() {
+      if (!baixaCtx) return;
+      const formaPagamento = document.getElementById("modal-pagamento").value;
+      const agora = new Date();
+      const { idx, item, t } = baixaCtx;
+
+      const reg = {
+        ...item,
+        formaPagamento,
+        pagamento: formaPagamento,
+        total: t.total,
+        maoDeObraGeral: t.mo,
+        status: "CONCLUIDA",
+        dataConclusao: agora.toLocaleDateString("pt-BR"),
+        horaBaixa: agora.toLocaleTimeString("pt-BR")
+      };
+
+      const caminhoPdf = await gerarPdfNaPastaSaidas(reg);
+      reg.arquivoPdfSaidas = caminhoPdf;
+
+      if (idx !== null && idx !== undefined && state.patio[idx]) state.patio.splice(idx, 1);
+      upsertCliente(reg);
+      registrarMonitoramentoPreventivo(reg);
+      sincronizarPassagemHistorico(reg, "Saída / Baixa Concluída");
+      saveState();
+      fecharModalBaixa();
+      renderizarPatio();
+      renderizarHistorico();
+      renderizarMonitoramentoPreventivas();
+      abrirWhatsAppCliente(reg);
+    }
+
+    function imprimir(reg) {
+      const itens = Array.isArray(reg.servicosAtuais) ? reg.servicosAtuais : [];
+      const rows = itens.length
+        ? itens.map((s, i) => {
+            const qtd = Math.max(1, parseInt(s.qtdPeca || 1, 10) || 1);
+            const unit = parseBRL(s.valorPeca);
+            const gar = avaliarGarantiaItem(s, reg);
+            return `<tr>
+              <td style="padding:6px;border-bottom:1px solid #ddd;">${i + 1}. ${s.nome || "Serviço"} ${gar.diasGarantia > 0 ? "(Garantia: " + gar.diasGarantia + "d até " + fmtDataISO(gar.validadeISO) + ")" : ""} ${s.detalhes ? "(" + s.detalhes + ")" : ""}</td>
+              <td style="padding:6px;border-bottom:1px solid #ddd;text-align:center;">${qtd}</td>
+              <td style="padding:6px;border-bottom:1px solid #ddd;text-align:right;">${fmtBRL(qtd * unit)}</td>
+            </tr>`;
+          }).join("")
+        : `<tr><td colspan="3" style="padding:6px;">Nenhum item listado.</td></tr>`;
+
+      const logoHtml = state.config.logoDataUrl
+        ? `<img src="${state.config.logoDataUrl}" style="max-height:56px;max-width:140px;object-fit:contain;margin-bottom:8px;" />`
+        : "";
+
+      const obsPrint = reg.obsMecanico
+        ? `<p style="margin-bottom:12px;"><b>Aviso do Mecânico ao Cliente:</b> ${reg.obsMecanico}</p>`
+        : "";
+
+      document.getElementById("print-area").innerHTML = `
+        ${logoHtml}
+        <h2>${state.config.oficinaNome || "NEXUS OFICINA"}</h2>
+        <p style="font-size:12px;color:#444;">${state.config.oficinaFone || ""} ${state.config.oficinaEndereco ? "• " + state.config.oficinaEndereco : ""}</p>
+        <p style="font-size:13px;margin:8px 0 12px;">Comprovante de Saída (${PASTA_SAIDAS_ALVO}) • Entrada: ${reg.dataEntrada || "-"} ${reg.horaEntrada || ""} • Saída: ${reg.dataConclusao || ""} ${reg.horaBaixa || ""}</p>
+        <hr style="margin-bottom:12px;"/>
+        <p><b>Cliente:</b> ${reg.cliente || "-"} &nbsp;|&nbsp; <b>WhatsApp:</b> ${reg.whatsapp || "-"}</p>
+        <p><b>Veículo:</b> ${fmtVeiculo(reg)} &nbsp;|&nbsp; <b>Placa:</b> ${(reg.placa || "-").toUpperCase()} &nbsp;|&nbsp; <b>KM:</b> ${reg.km || "-"}</p>
+        <p style="margin-bottom:10px;"><b>Pagamento:</b> ${reg.formaPagamento || "-"}</p>
+        ${obsPrint}
+        <table style="width:100%;border-collapse:collapse;margin-bottom:12px;">
+          <thead>
+            <tr>
+              <th style="text-align:left;border-bottom:2px solid #333;padding:6px;">Serviço / Peça</th>
+              <th style="text-align:center;border-bottom:2px solid #333;padding:6px;">Qtd</th>
+              <th style="text-align:right;border-bottom:2px solid #333;padding:6px;">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <p style="text-align:right;"><b>Mão de Obra:</b> ${fmtBRL(parseBRL(reg.maoDeObraGeral))}</p>
+        <h3 style="text-align:right;margin-top:6px;">TOTAL PAGO: ${fmtBRL(parseBRL(reg.total))}</h3>
+      `;
+      window.print();
+    }
+
+    function renderizarHistorico() {
+      const box = document.getElementById("lista-historico");
+      const resumoEl = document.getElementById("resumo-historico");
+      if (!box || !resumoEl) return;
+
+      const q = (document.getElementById("busca-historico")?.value || "").trim().toLowerCase();
+      const filtroGar = document.getElementById("filtro-garantia-historico")?.value || "todos";
+
+      const avaliados = state.historico.map((reg, idx) => {
+        const itens = Array.isArray(reg.servicosAtuais) ? reg.servicosAtuais : [];
+        const garantiasItens = itens.map(s => ({ item: s, gar: avaliarGarantiaItem(s, reg) }));
+        const temNaGarantia = garantiasItens.some(x => x.gar.status === "na_garantia");
+        const temForaGarantia = garantiasItens.some(x => x.gar.status === "fora_garantia");
+        return { reg, idx, garantiasItens, temNaGarantia, temForaGarantia };
+      });
+
+      const filtrados = avaliados.filter(({ reg, garantiasItens, temNaGarantia, temForaGarantia }) => {
+        const itensTxt = garantiasItens
+          .map(({ item, gar }) => `${item.nome || ""} ${item.detalhes || ""} ${gar.label} ${fmtDataISO(gar.validadeISO)}`)
+          .join(" ");
+        const prevTxt = (Array.isArray(reg.preventivasSnapshot) ? reg.preventivasSnapshot : [])
+          .map(p => `${p.servico || ""} ${p.intervaloKm || ""} ${p.proximoKm || ""} ${p.intervaloDias || ""} ${fmtDataISO(p.proximaDataISO)}`)
+          .join(" ");
+        const baseTxt = `${reg.cliente || ""} ${reg.whatsapp || ""} ${reg.modelo || ""} ${reg.ano || ""} ${reg.placa || ""} ${reg.km || ""} ${reg.origemEvento || ""} ${reg.formaPagamento || ""} ${reg.dataEntrada || ""} ${reg.dataConclusao || ""} ${reg.dataGeracao || ""} ${reg.obsMecanico || ""} ${itensTxt} ${prevTxt}`.toLowerCase();
+
+        const matchBusca = !q || baseTxt.includes(q);
+        if (!matchBusca) return false;
+        if (filtroGar === "na_garantia") return temNaGarantia;
+        if (filtroGar === "fora_garantia") return temForaGarantia;
+        return true;
+      });
+
+      const totalRecebido = state.historico.reduce((a, r) => a + parseBRL(r.total), 0);
+      resumoEl.textContent =
+        `Exibindo ${filtrados.length} de ${state.historico.length} passagem(ns) • Recebido em Saídas: ${fmtBRL(totalRecebido)}`;
+
+      if (!filtrados.length) {
+        box.innerHTML = `<div class="empty-state">Nenhum registro encontrado no histórico para este filtro.</div>`;
+        return;
+      }
+
+      box.innerHTML = filtrados.map(({ reg, idx, garantiasItens, temNaGarantia, temForaGarantia }) => {
+        const t = calcTotais(reg);
+        let statusGarBadge = `<span class="tag">Sem Garantia Cadastrada</span>`;
+        if (temNaGarantia && temForaGarantia) {
+          statusGarBadge = `<span class="tag amber">Misto: Possui Item NA GARANTIA e Item FORA</span>`;
+        } else if (temNaGarantia) {
+          statusGarBadge = `<span class="tag green">ESTÁ NA GARANTIA</span>`;
+        } else if (temForaGarantia) {
+          statusGarBadge = `<span class="tag red">PASSOU DA GARANTIA</span>`;
+        }
+
+        const itensHtml = garantiasItens.length
+          ? garantiasItens.map(({ item, gar }, i) => {
+              const qtd = Math.max(1, parseInt(item.qtdPeca || 1, 10) || 1);
+              const unit = parseBRL(item.valorPeca);
+              return `
+                <div class="garantia-item-box">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                    <span><b>${i + 1}. ${item.nome || "Serviço"}</b> — Qtd: <b>${qtd}</b> • Unitário: <b>${fmtBRL(unit)}</b> • Subtotal: <b>${fmtBRL(qtd * unit)}</b></span>
+                    <span class="${gar.tagClass}">${gar.label}</span>
+                  </div>
+                  <div class="os-meta" style="margin-top:4px;">
+                    Garantia: <b>${gar.diasGarantia > 0 ? gar.diasGarantia + " dia(s)" : "Não informada"}</b> •
+                    Início: <b>${fmtDataISO(gar.dataBaseISO)}</b> •
+                    Validade: <b>${gar.validadeISO ? fmtDataISO(gar.validadeISO) : "-"}</b>
+                    ${item.detalhes ? ` • Obs: <i>${item.detalhes}</i>` : ""}
+                  </div>
+                </div>
+              `;
+            }).join("")
+          : `<div class="os-meta">Nenhum serviço ou peça discriminado nesta passagem.</div>`;
+
+        const prevsLista = Array.isArray(reg.preventivasSnapshot) && reg.preventivasSnapshot.length
+          ? reg.preventivasSnapshot
+          : state.preventivasMonitoramento.filter(m =>
+              ((reg.placa && reg.placa !== "-" && (m.placa || "").toUpperCase() === reg.placa.toUpperCase()) ||
+              ((m.cliente || "").toLowerCase() === (reg.cliente || "").toLowerCase() && (m.modelo || "").toLowerCase() === (reg.modelo || "").toLowerCase()))
+            );
+
+        const prevHtml = prevsLista.length
+          ? `<div class="os-detail-list">
+              <div style="margin-bottom:4px;"><b>Preventivas Vinculadas (KM e Dias):</b></div>
+              ${prevsLista.map(p => {
+                const kmTxt = Number(p.proximoKm || 0) > 0 ? `Próximo KM: <b>${Number(p.proximoKm).toLocaleString("pt-BR")} km</b>` : "";
+                const intKmTxt = Number(p.intervaloKm || 0) > 0 ? `(${Number(p.intervaloKm).toLocaleString("pt-BR")} km)` : "";
+                const dataTxt = p.proximaDataISO ? `Próxima Data: <b>${fmtDataISO(p.proximaDataISO)}</b>` : "";
+                const intDiasTxt = Number(p.intervaloDias || 0) > 0 ? `(${Number(p.intervaloDias)} dias)` : "";
+                const partes = [kmTxt, intKmTxt, dataTxt, intDiasTxt].filter(Boolean).join(" ");
+                return `<div>• <b>${p.servico || "Preventiva"}</b> — ${partes || "Monitorada"}</div>`;
+              }).join("")}
+            </div>`
+          : `<div class="os-detail-list" style="color:var(--muted);"><b>Preventivas:</b> Nenhuma preventiva vinculada a este atendimento.</div>`;
+
+        const obsHtml = reg.obsMecanico
+          ? `<div class="obs-aviso-box"><b>Observação do Mecânico:</b> ${reg.obsMecanico}</div>`
+          : "";
+
+        return `
+          <div class="os-card">
+            <div style="flex:1;min-width:260px;">
+              <div class="os-main-title">
+                <span>${reg.cliente || "Cliente"} — ${fmtVeiculo(reg)}</span>
+                <span class="tag">${(reg.placa || "-").toUpperCase()}</span>
+                <span class="tag">${reg.origemEvento || reg.status || "Passagem"}</span>
+                ${statusGarBadge}
+                <span class="tag green">${fmtBRL(t.total)}</span>
+              </div>
+
+              <div class="os-detail-grid">
+                <div><b>Data / Hora Entrada:</b> ${reg.dataEntrada || "-"} ${reg.horaEntrada || ""}</div>
+                <div><b>Data / Hora Saída (Baixa):</b> ${reg.dataConclusao ? `${reg.dataConclusao} ${reg.horaBaixa || ""}` : "Ainda não saiu / em aberto"}</div>
+                <div><b>Data Orçamento:</b> ${reg.dataGeracao ? `${reg.dataGeracao} ${reg.horaGeracao || ""}` : "-"}</div>
+                <div><b>KM Registrado:</b> ${reg.km || "-"}</div>
+                <div><b>WhatsApp:</b> ${reg.whatsapp || "-"}</div>
+                <div><b>Pagamento:</b> ${reg.formaPagamento || "-"}</div>
+              </div>
+
+              <div class="os-detail-list">
+                <div style="margin-bottom:4px;"><b>Serviços, Peças e Situação da Garantia:</b></div>
+                ${itensHtml}
+                <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border-soft);display:flex;gap:18px;flex-wrap:wrap;">
+                  <span>Peças/Itens: <b>${fmtBRL(t.somaPecas)}</b></span>
+                  <span>Mão de Obra: <b>${fmtBRL(t.mo)}</b></span>
+                  <span>Valor Total: <b>${fmtBRL(t.total)}</b></span>
+                </div>
+              </div>
+
+              ${prevHtml}
+              ${obsHtml}
+              ${reg.arquivoPdfSaidas ? `<div class="os-meta" style="margin-top:8px;">Comprovante PDF: <b>${reg.arquivoPdfSaidas}</b></div>` : ""}
+            </div>
+
+            <div class="card-actions">
+              <button type="button" class="btn btn-secondary" onclick="abrirTelaEdicao('historico', ${idx})">Editar / Garantia</button>
+              <button type="button" class="btn btn-secondary" onclick="abrirWhatsAppCliente(state.historico[${idx}])">WhatsApp</button>
+              <button type="button" class="btn" onclick="gerarPdfNaPastaSaidas(state.historico[${idx}])">Baixar PDF</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    /* SUBMENUS DE CONFIGURAÇÕES */
+    function abrirSubmenuConfig(sub) {
+      document.querySelectorAll(".sub-btn").forEach(b => b.classList.toggle("active", b.dataset.sub === sub));
+      document.querySelectorAll(".sub-section").forEach(s => s.classList.toggle("active", s.id === `sub-${sub}`));
+      if (sub === "oficina") {
+        preencherConfigForm();
+        renderizarEditarDados();
+      }
+      if (sub === "servicos") {
+        atualizarBotaoPreventivaNovoServico();
+        renderizarServicos();
+      }
+      if (sub === "preventivas") renderizarPreventivas();
+      if (sub === "cor") aplicarCor(state.corSistema || "#3b82f6");
+      if (sub === "pagamento") renderizarPagamentos();
+    }
+
+    function preencherConfigForm() {
+      document.getElementById("cfg-nome").value = state.config.oficinaNome || "";
+      document.getElementById("cfg-fone").value = state.config.oficinaFone || "";
+      document.getElementById("cfg-endereco").value = state.config.oficinaEndereco || "";
+      atualizarPreviewLogo();
+    }
+
+    function processarUploadLogo(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        state.config.logoDataUrl = e.target.result;
+        atualizarPreviewLogo();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removerLogo() {
+      state.config.logoDataUrl = "";
+      document.getElementById("cfg-logo-file").value = "";
+      atualizarPreviewLogo();
+    }
+
+    function atualizarPreviewLogo() {
+      const img = document.getElementById("cfg-logo-preview");
+      const st = document.getElementById("cfg-logo-status");
+      if (state.config.logoDataUrl) {
+        img.src = state.config.logoDataUrl;
+        img.style.display = "block";
+        st.textContent = "Logo carregada no sistema.";
+      } else {
+        img.src = "";
+        img.style.display = "none";
+        st.textContent = "Nenhuma logo enviada.";
+      }
+    }
+
+    function salvarConfiguracoesOficina() {
+      state.config = {
+        ...state.config,
+        oficinaNome: document.getElementById("cfg-nome").value.trim() || "NEXUS OFICINA",
+        oficinaFone: document.getElementById("cfg-fone").value.trim(),
+        oficinaEndereco: document.getElementById("cfg-endereco").value.trim(),
+        pastaSaidas: PASTA_SAIDAS_ALVO
+      };
+      saveState();
+      alert("Configurações da oficina salvas!");
+    }
+
+    function renderizarEditarDados() {
+      const box = document.getElementById("lista-editar-dados");
+      if (!state.clientes.length) {
+        box.innerHTML = `<div class="empty-state">Nenhum registro de cliente/veículo cadastrado ainda.</div>`;
+        return;
+      }
+      box.innerHTML = state.clientes.map((c, idx) => `
+        <div class="os-card">
+          <div>
+            <div class="os-main-title">${c.cliente || "-"} <span class="tag">${fmtVeiculo(c)}</span> <span class="tag">${(c.placa || "-").toUpperCase()}</span></div>
+            <div class="os-meta">WhatsApp: <b>${c.whatsapp || "-"}</b></div>
+          </div>
+          <div class="card-actions">
+            <button type="button" class="btn" onclick="abrirTelaEdicao('cliente', ${idx})">Editar Dados</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function resetarTodosDados() {
+      if (!confirm("Deseja realmente resetar e apagar todos os dados salvos do sistema?")) return;
+      state = defaultState();
+      saveState();
+      preencherConfigForm();
+      atualizarPainel();
+      alert("Dados resetados com sucesso.");
+    }
+
+    function atualizarBotaoPreventivaNovoServico() {
+      const btn = document.getElementById("btn-marcar-preventiva-novo");
+      if (!btn) return;
+      btn.setAttribute("aria-pressed", String(novoServicoPrecisaPreventiva));
+      if (novoServicoPrecisaPreventiva) {
+        btn.className = "btn btn-success";
+        btn.textContent = "☑ Preventiva Marcada (Lança em Preventivas)";
+      } else {
+        btn.className = "btn btn-secondary";
+        btn.textContent = "☐ Precisa de Preventiva";
+      }
+    }
+
+    function alternarMarcarPreventivaNovoServico() {
+      novoServicoPrecisaPreventiva = !novoServicoPrecisaPreventiva;
+      atualizarBotaoPreventivaNovoServico();
+    }
+
+    function salvarNovoServico() {
+      const nome = document.getElementById("input-nome-servico").value.trim();
+      if (!nome) return alert("Digite o nome do serviço.");
+      const precisaPrev = novoServicoPrecisaPreventiva;
+      state.servicos.push({
+        nome,
+        preventiva: precisaPrev,
+        intervaloKm: precisaPrev ? 10000 : 0,
+        intervaloDias: precisaPrev ? 180 : 0
+      });
+      document.getElementById("input-nome-servico").value = "";
+      novoServicoPrecisaPreventiva = false;
+      atualizarBotaoPreventivaNovoServico();
+      saveState();
+      renderizarServicos();
+      renderizarPreventivas();
+    }
+
+    function excluirServico(idx) {
+      if (!confirm("Excluir este serviço?")) return;
+      state.servicos.splice(idx, 1);
+      saveState();
+      renderizarServicos();
+      renderizarPreventivas();
+    }
+
+    function lancarServicoEmPreventivas(idx) {
+      const s = state.servicos[idx];
+      if (!s) return;
+      s.preventiva = true;
+      if (!s.intervaloKm) s.intervaloKm = 10000;
+      if (!s.intervaloDias) s.intervaloDias = 180;
+      saveState();
+      renderizarServicos();
+      renderizarPreventivas();
+    }
+
+    function renderizarServicos() {
+      const box = document.getElementById("lista-servicos-cad");
+      if (!state.servicos.length) {
+        box.innerHTML = `<div class="empty-state">Nenhum serviço cadastrado ainda.</div>`;
+        return;
+      }
+      box.innerHTML = state.servicos.map((s, idx) => `
+        <div class="os-card">
+          <div>
+            <div class="os-main-title">
+              <span>${s.nome}</span>
+              ${s.preventiva
+                ? `<span class="tag green">Lançado em Preventivas (${Number(s.intervaloKm || 0).toLocaleString("pt-BR")} km • ${Number(s.intervaloDias || 0)} dias)</span>`
+                : `<span class="tag amber">Sem Preventiva</span>`}
+            </div>
+          </div>
+          <div class="card-actions">
+            ${!s.preventiva
+              ? `<button type="button" class="btn btn-success" onclick="lancarServicoEmPreventivas(${idx})">Marcar e Lançar em Preventivas</button>`
+              : `<button type="button" class="btn" onclick="abrirTelaEdicao('preventiva', ${idx})">Configurar KM / Dias</button>`}
+            <button type="button" class="btn btn-secondary" onclick="abrirTelaEdicao('servico', ${idx})">Editar Dados</button>
+            <button type="button" class="btn btn-danger" onclick="excluirServico(${idx})">Excluir</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function adicionarFormaPagamento() {
+      const nome = document.getElementById("nova-forma-pagamento").value.trim();
+      if (!nome) return alert("Digite o nome da forma de pagamento.");
+      state.pagamentos.push({ nome, ativo: true });
+      document.getElementById("nova-forma-pagamento").value = "";
+      saveState();
+      renderizarPagamentos();
+    }
+
+    function alternarPagamento(idx) {
+      const p = state.pagamentos[idx];
+      if (!p) return;
+      p.ativo = !p.ativo;
+      saveState();
+      renderizarPagamentos();
+    }
+
+    function renderizarPagamentos() {
+      const box = document.getElementById("lista-pagamentos");
+      box.innerHTML = state.pagamentos.map((p, idx) => `
+        <div class="os-card">
+          <div>
+            <div class="os-main-title">${p.nome} ${p.ativo ? '<span class="tag green">Ativado</span>' : '<span class="tag">Desativado</span>'}</div>
+          </div>
+          <div class="card-actions">
+            <button type="button" class="btn ${p.ativo ? "btn-secondary" : "btn-success"}" onclick="alternarPagamento(${idx})">
+              ${p.ativo ? "Desativar" : "Ativar"}
+            </button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function alternarPreventiva(idx) {
+      const s = state.servicos[idx];
+      if (!s) return;
+      s.preventiva = !s.preventiva;
+      saveState();
+      renderizarPreventivas();
+      renderizarServicos();
+    }
+
+    function renderizarPreventivas() {
+      const box = document.getElementById("lista-preventivas");
+      if (!state.servicos.length) {
+        box.innerHTML = `<div class="empty-state">Cadastre serviços no submenu <b>Serviços</b> para configurar preventivas.</div>`;
+        return;
+      }
+      box.innerHTML = state.servicos.map((s, idx) => {
+        const kmTxt = `${Number(s.intervaloKm || 0).toLocaleString("pt-BR")} km`;
+        const diasTxt = `${Number(s.intervaloDias || 0)} dias`;
+        return `
+          <div class="os-card">
+            <div>
+              <div class="os-main-title">${s.nome} ${s.preventiva ? '<span class="tag green">Precisa de Preventiva</span>' : '<span class="tag amber">Não Precisa</span>'}</div>
+              <div class="os-meta">Precisa a cada: <b>${kmTxt}</b> e <b>${diasTxt}</b></div>
+            </div>
+            <div class="card-actions">
+              <button type="button" class="btn btn-secondary" onclick="abrirTelaEdicao('preventiva', ${idx})">Editar Dados</button>
+              <button type="button" class="btn ${s.preventiva ? "btn-secondary" : "btn-success"}" onclick="alternarPreventiva(${idx})">
+                ${s.preventiva ? "Marcar: Não Precisa" : "Marcar: Precisa"}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function criarOsTeste() {
+      const agora = new Date();
+      const osObj = {
+        id: "TESTE_" + agora.getTime(),
+        cliente: "Leandro Teste",
+        whatsapp: "(19) 99999-9999",
+        modelo: "Renault Clio 1.0 16V",
+        ano: "2016",
+        placa: "ABC1D23",
+        km: "85400",
+        obsMecanico: "Verificada suspensão; cliente avisado sobre buchas da bandeja.",
+        servicosAtuais: [
+          { nome: "Troca de Óleo e Filtro", qtdPeca: 1, valorPeca: 140, garantiaDias: 90, dataBaseGarantiaISO: hojeISO(), detalhes: "5W30 Sintético" }
+        ],
+        maoDeObraGeral: 90,
+        total: 230,
+        status: "NO_PATIO",
+        dataEntrada: agora.toLocaleDateString("pt-BR"),
+        horaEntrada: agora.toLocaleTimeString("pt-BR")
+      };
+      state.patio.unshift(osObj);
+      upsertCliente(osObj);
+      registrarMonitoramentoPreventivo(osObj);
+      sincronizarPassagemHistorico(osObj, "Entrada no Pátio / OS");
+      saveState();
+      navegar("patio");
+    }
+
+    aplicarIdentidadeVisual();
+    atualizarPainel();
+  </script>
+</body>
+</html>
