@@ -3,45 +3,57 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Nexus Oficina PRO — Gestão Automotiva</title>
+  <title>Nexus Oficina — Motorsport Telemetry</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     :root {
-      --bg: #070b14;
-      --sidebar: #0d1322;
-      --panel: #11192c;
-      --card: #17223b;
-      --input-bg: #0b1220;
-      --border: #243354;
-      --border-soft: #1b2742;
-      --text: #f1f5f9;
+      --bg: #050608;
+      --sidebar: #090b0f;
+      --panel: #10131a;
+      --card: #171b24;
+      --input-bg: #07090d;
+      --border: #262d3d;
+      --border-soft: #1b202c;
+      --text: #f8fafc;
       --muted: #94a3b8;
       --dim: #64748b;
-      --primary: #3b82f6;
-      --primary-dark: #2563eb;
-      --primary-glow: rgba(59, 130, 246, 0.18);
+      --primary: #f97316;
+      --primary-dark: #ea580c;
+      --primary-glow: rgba(249, 115, 22, 0.18);
       --success: #10b981;
       --success-dark: #059669;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --danger-dark: #dc2626;
-      --sidebar-w: 270px;
-      --sidebar-mini-w: 76px;
+      --warning: #eab308;
+      --danger: #f43f5e;
+      --danger-dark: #e11d48;
+      --sidebar-w: 286px;
+      --sidebar-mini-w: 78px;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
       -webkit-tap-highlight-color: transparent;
+    }
+
+    h1, h2, h3, .page-title, .brand-texts strong, .kpi-value, .nav-group-title {
+      font-family: "Chakra Petch", "Plus Jakarta Sans", sans-serif;
     }
 
     html, body {
       width: 100%;
       max-width: 100%;
       min-height: 100dvh;
-      background: var(--bg);
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+        radial-gradient(circle at 85% 0%, var(--primary-glow), transparent 42%);
+      background-size: 28px 28px, 28px 28px, 100% 100%;
       color: var(--text);
       overflow-x: hidden;
     }
@@ -50,19 +62,20 @@
       display: flex;
     }
 
-    /* ==================== MENU LATERAL ==================== */
+    /* ==================== MENU LATERAL & ABAS PREMIUM ==================== */
     .sidebar {
       width: var(--sidebar-w);
-      background: var(--sidebar);
+      background: linear-gradient(180deg, #0b0e14 0%, #080a0e 100%);
       border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
-      transition: width 0.22s ease, transform 0.24s ease;
+      transition: width 0.2s ease, transform 0.24s ease;
       position: sticky;
       top: 0;
       height: 100dvh;
       z-index: 60;
       flex-shrink: 0;
+      box-shadow: 6px 0 28px rgba(0, 0, 0, 0.45);
     }
 
     .sidebar.collapsed {
@@ -70,28 +83,31 @@
     }
 
     .sidebar-header {
-      min-height: 68px;
-      padding: 10px 14px;
+      min-height: 76px;
+      padding: 12px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid var(--border-soft);
       gap: 8px;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.03), transparent);
     }
 
     .brand-box {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 11px;
       overflow: hidden;
       min-width: 0;
     }
 
     .brand-logo {
-      width: 38px;
-      height: 38px;
-      border-radius: 10px;
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
       background: var(--primary);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 6px 18px var(--primary-glow);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -113,8 +129,10 @@
 
     .brand-texts strong {
       display: block;
-      font-size: 14.5px;
-      font-weight: 800;
+      font-size: 15px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
       color: #fff;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -122,8 +140,11 @@
 
     .brand-texts span {
       display: block;
-      font-size: 11px;
-      color: var(--muted);
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--primary);
     }
 
     .sidebar.collapsed .brand-texts,
@@ -139,6 +160,10 @@
       padding: 11px;
     }
 
+    .sidebar.collapsed .nav-btn.active::before {
+      display: none;
+    }
+
     .toggle-btn {
       width: 36px;
       height: 36px;
@@ -151,17 +176,19 @@
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
+      transition: all 0.15s ease;
     }
 
     .toggle-btn:hover {
       color: #fff;
       background: var(--card);
+      border-color: var(--primary);
     }
 
     .sidebar-nav {
       flex: 1;
       overflow-y: auto;
-      padding: 10px;
+      padding: 14px 12px;
       -webkit-overflow-scrolling: touch;
     }
 
@@ -169,36 +196,61 @@
       font-size: 10.5px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.85px;
+      letter-spacing: 1.5px;
       color: var(--dim);
-      padding: 12px 12px 5px;
+      padding: 14px 12px 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-group-title::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border-soft), transparent);
     }
 
     .nav-btn {
+      position: relative;
       width: 100%;
-      background: transparent;
-      border: 1px solid transparent;
+      background: rgba(16, 19, 26, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.04);
       color: #cbd5e1;
       border-radius: 10px;
-      padding: 11px 12px;
-      margin-bottom: 4px;
+      padding: 11px 13px;
+      margin-bottom: 7px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
       font-size: 13.5px;
-      font-weight: 600;
+      font-weight: 700;
+      letter-spacing: 0.2px;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: all 0.16s ease;
       text-align: left;
-      min-height: 42px;
+      min-height: 46px;
     }
 
     .nav-btn-left {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 11px;
       min-width: 0;
+    }
+
+    .nav-icon-wrap {
+      width: 30px;
+      height: 30px;
+      border-radius: 7px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.16s ease;
     }
 
     .nav-label {
@@ -208,47 +260,82 @@
     }
 
     .nav-btn svg {
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
       flex-shrink: 0;
       stroke: currentColor;
       fill: none;
-      stroke-width: 1.9;
+      stroke-width: 2;
     }
 
     .nav-btn:hover {
-      background: rgba(255, 255, 255, 0.04);
+      background: rgba(255, 255, 255, 0.06);
+      border-color: var(--border);
       color: #fff;
+      transform: translateX(2px);
+    }
+
+    .nav-btn:hover .nav-icon-wrap {
+      border-color: rgba(255, 255, 255, 0.15);
+      color: var(--primary);
     }
 
     .nav-btn.active {
-      background: var(--primary-glow);
-      border-color: var(--primary);
+      background: linear-gradient(90deg, var(--primary-glow) 0%, rgba(23, 27, 36, 0.96) 100%);
+      border-color: rgba(249, 115, 22, 0.45);
       color: #fff;
+      box-shadow: 0 8px 22px -6px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .nav-btn.active::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 8px;
+      bottom: 8px;
+      width: 3.5px;
+      border-radius: 0 4px 4px 0;
+      background: var(--primary);
+      box-shadow: 0 0 10px var(--primary);
+    }
+
+    .nav-btn.active .nav-icon-wrap {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #050608;
+      box-shadow: 0 0 14px var(--primary-glow);
     }
 
     .nav-badge {
-      background: var(--card);
+      background: var(--input-bg);
       color: #e2e8f0;
       font-size: 11px;
-      font-weight: 700;
-      padding: 2px 8px;
+      font-weight: 800;
+      padding: 3px 8px;
       border-radius: 999px;
       border: 1px solid var(--border);
       flex-shrink: 0;
+      min-width: 24px;
+      text-align: center;
+      transition: all 0.16s ease;
     }
 
     .nav-btn.active .nav-badge {
       background: var(--primary);
-      color: #fff;
-      border-color: transparent;
+      color: #050608;
+      border-color: var(--primary);
+      box-shadow: 0 2px 10px var(--primary-glow);
     }
 
     .sidebar-footer {
       border-top: 1px solid var(--border-soft);
-      padding: 12px 14px;
-      font-size: 11.5px;
+      padding: 13px 16px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
       color: var(--muted);
+      background: rgba(255, 255, 255, 0.015);
     }
 
     .dot-online {
@@ -257,7 +344,8 @@
       height: 8px;
       border-radius: 50%;
       background: var(--success);
-      margin-right: 6px;
+      box-shadow: 0 0 8px var(--success);
+      margin-right: 8px;
     }
 
     /* ==================== ÁREA PRINCIPAL ==================== */
@@ -270,9 +358,9 @@
     }
 
     .topbar {
-      min-height: 68px;
-      background: rgba(13, 19, 34, 0.94);
-      backdrop-filter: blur(8px);
+      min-height: 76px;
+      background: rgba(9, 11, 15, 0.92);
+      backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
       padding: 10px 24px;
       display: flex;
@@ -288,7 +376,7 @@
     .topbar-left {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       min-width: 0;
       flex: 1 1 220px;
     }
@@ -297,7 +385,7 @@
       display: none;
       width: 40px;
       height: 40px;
-      border-radius: 9px;
+      border-radius: 8px;
       border: 1px solid var(--border);
       background: var(--panel);
       color: #fff;
@@ -308,8 +396,10 @@
     }
 
     .page-title {
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -323,7 +413,7 @@
     }
 
     .content {
-      padding: 20px 24px 40px;
+      padding: 24px 24px 44px;
       max-width: 1320px;
       width: 100%;
       margin: 0 auto;
@@ -333,8 +423,8 @@
     .kpi-grid {
       display: none;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      margin-bottom: 18px;
+      gap: 16px;
+      margin-bottom: 22px;
     }
 
     .kpi-grid.visible {
@@ -344,30 +434,33 @@
     .kpi-card {
       background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px 18px;
+      border-top: 3px solid var(--primary);
+      border-radius: 10px;
+      padding: 18px 20px;
       min-width: 0;
     }
 
     .kpi-title {
-      font-size: 12px;
-      font-weight: 600;
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
       color: var(--muted);
       margin-bottom: 6px;
     }
 
     .kpi-value {
-      font-size: 20px;
-      font-weight: 800;
+      font-size: 24px;
+      font-weight: 700;
       color: #fff;
       word-break: break-word;
     }
 
     .kpi-value.green { color: #34d399; }
     .kpi-value.blue { color: var(--primary); }
-    .kpi-value.amber { color: #fbbf24; }
+    .kpi-value.amber { color: #facc15; }
 
-    /* ==================== TELAS E SUBMENUS DE CONFIGURAÇÕES ==================== */
+    /* ==================== TELAS E SUBMENUS DE CONFIGURAÇÕES PREMIUM ==================== */
     .screen { display: none; }
     .screen.active { display: block; }
 
@@ -375,33 +468,39 @@
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
-      margin-bottom: 18px;
-      padding-bottom: 14px;
-      border-bottom: 1px solid var(--border-soft);
+      margin-bottom: 20px;
+      padding: 8px;
+      background: var(--input-bg);
+      border: 1px solid var(--border-soft);
+      border-radius: 12px;
     }
 
     .sub-btn {
-      background: var(--card);
-      color: #cbd5e1;
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      padding: 9px 14px;
-      font-size: 13px;
-      font-weight: 700;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 9px 15px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: all 0.16s ease;
       min-height: 38px;
     }
 
     .sub-btn:hover {
       color: #fff;
-      border-color: var(--primary);
+      background: rgba(255, 255, 255, 0.04);
+      border-color: var(--border);
     }
 
     .sub-btn.active {
-      background: var(--primary);
-      color: #fff;
-      border-color: var(--primary);
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: #050608;
+      border-color: transparent;
+      box-shadow: 0 4px 16px var(--primary-glow);
     }
 
     .sub-section { display: none; }
@@ -413,11 +512,67 @@
       border-top: 1px solid var(--border-soft);
     }
 
+    .oleo-box {
+      margin-top: 12px;
+      padding: 14px;
+      background: var(--card);
+      border: 1px solid var(--primary);
+      border-radius: 10px;
+    }
+
+    .oleo-box-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .oleo-box-title {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--primary);
+    }
+
+    .chip-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .chip-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    .chip-remove {
+      background: transparent;
+      border: none;
+      color: #fda4af;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0 2px;
+    }
+
     .panel {
       background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 20px;
+      border-radius: 10px;
+      padding: 22px;
       margin-bottom: 18px;
       min-width: 0;
     }
@@ -429,11 +584,15 @@
       gap: 12px;
       flex-wrap: wrap;
       margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-soft);
     }
 
     .panel-header h3 {
       font-size: 16px;
       font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
       line-height: 1.35;
     }
 
@@ -449,13 +608,14 @@
     .os-card {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px 18px;
-      margin-bottom: 12px;
+      border-left: 4px solid var(--primary);
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-bottom: 14px;
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      gap: 14px;
+      gap: 16px;
       flex-wrap: wrap;
       min-width: 0;
     }
@@ -465,10 +625,10 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
       gap: 8px 14px;
-      padding: 10px 12px;
+      padding: 11px 13px;
       background: var(--input-bg);
       border: 1px solid var(--border-soft);
-      border-radius: 9px;
+      border-radius: 8px;
       font-size: 13px;
       color: #cbd5e1;
       word-break: break-word;
@@ -476,10 +636,10 @@
 
     .os-detail-list {
       margin-top: 10px;
-      padding: 10px 12px;
+      padding: 11px 13px;
       background: var(--input-bg);
       border: 1px solid var(--border-soft);
-      border-radius: 9px;
+      border-radius: 8px;
       font-size: 13px;
       color: #cbd5e1;
       line-height: 1.55;
@@ -496,18 +656,18 @@
 
     .obs-aviso-box {
       margin-top: 10px;
-      padding: 10px 12px;
-      background: rgba(245, 158, 11, 0.1);
-      border: 1px solid rgba(245, 158, 11, 0.35);
-      border-radius: 9px;
+      padding: 11px 13px;
+      background: rgba(234, 179, 8, 0.12);
+      border: 1px solid rgba(234, 179, 8, 0.45);
+      border-radius: 8px;
       font-size: 13px;
-      color: #fde68a;
+      color: #fef08a;
       line-height: 1.5;
       word-break: break-word;
     }
 
     .os-main-title {
-      font-size: 15px;
+      font-size: 15.5px;
       font-weight: 700;
       color: #fff;
       margin-bottom: 4px;
@@ -519,32 +679,34 @@
     }
 
     .tag {
-      font-size: 11px;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 6px;
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 3px 9px;
+      border-radius: 999px;
       background: var(--primary-glow);
-      color: #e2e8f0;
+      color: #fff;
       border: 1px solid var(--primary);
       display: inline-block;
     }
 
     .tag.green {
-      background: rgba(16, 185, 129, 0.15);
+      background: rgba(16, 185, 129, 0.16);
       color: #6ee7b7;
-      border-color: rgba(16, 185, 129, 0.35);
+      border-color: rgba(16, 185, 129, 0.45);
     }
 
     .tag.amber {
-      background: rgba(245, 158, 11, 0.15);
-      color: #fcd34d;
-      border-color: rgba(245, 158, 11, 0.35);
+      background: rgba(234, 179, 8, 0.16);
+      color: #fde047;
+      border-color: rgba(234, 179, 8, 0.45);
     }
 
     .tag.red {
-      background: rgba(239, 68, 68, 0.16);
-      color: #fca5a5;
-      border-color: rgba(239, 68, 68, 0.4);
+      background: rgba(244, 63, 94, 0.18);
+      color: #fda4af;
+      border-color: rgba(244, 63, 94, 0.5);
     }
 
     .os-meta {
@@ -590,8 +752,10 @@
     }
 
     .field label {
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
       color: #cbd5e1;
     }
 
@@ -606,7 +770,7 @@
     .inline-select {
       padding: 6px 8px;
       font-size: 12px;
-      border-radius: 7px;
+      border-radius: 8px;
       max-width: 230px;
     }
 
@@ -617,7 +781,7 @@
       background: var(--input-bg);
       color: var(--text);
       border: 1px solid var(--border);
-      border-radius: 9px;
+      border-radius: 8px;
       padding: 10px 12px;
       font-size: 14px;
       outline: none;
@@ -625,6 +789,7 @@
 
     input:focus, select:focus, textarea:focus {
       border-color: var(--primary);
+      box-shadow: 0 0 0 2px var(--primary-glow);
     }
 
     textarea {
@@ -635,10 +800,12 @@
 
     .btn {
       border: 1px solid transparent;
-      border-radius: 9px;
-      padding: 10px 15px;
-      font-size: 13px;
-      font-weight: 700;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 12.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
       cursor: pointer;
       color: #fff;
       background: var(--primary);
@@ -648,13 +815,14 @@
       gap: 6px;
       min-height: 40px;
       white-space: nowrap;
+      transition: filter 0.14s ease;
     }
 
-    .btn:hover { filter: brightness(0.92); }
+    .btn:hover { filter: brightness(1.08); }
     .btn-success { background: var(--success); }
     .btn-success:hover { background: var(--success-dark); }
-    .btn-secondary { background: #1e293b; border-color: var(--border); color: #e2e8f0; }
-    .btn-secondary:hover { background: #273549; }
+    .btn-secondary { background: #1e2430; border-color: var(--border); color: #e2e8f0; }
+    .btn-secondary:hover { background: #272f3f; }
     .btn-danger { background: var(--danger); }
     .btn-danger:hover { background: var(--danger-dark); }
 
@@ -669,7 +837,7 @@
       margin-top: 12px;
       background: var(--input-bg);
       border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: 8px;
       padding: 12px 14px;
       font-size: 13px;
       color: #cbd5e1;
@@ -680,22 +848,25 @@
       margin-top: 14px;
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px 16px;
+      border-left: 4px solid var(--success);
+      border-radius: 10px;
+      padding: 15px 18px;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
     }
 
     .calc-item-label {
-      font-size: 11.5px;
-      font-weight: 600;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
       color: var(--muted);
       margin-bottom: 4px;
     }
 
     .calc-item-val {
-      font-size: 17px;
+      font-size: 18px;
       font-weight: 800;
       color: #fff;
       word-break: break-word;
@@ -721,7 +892,7 @@
       gap: 14px;
       background: var(--input-bg);
       border: 1px dashed var(--border);
-      border-radius: 10px;
+      border-radius: 8px;
       padding: 12px;
       margin-top: 6px;
       flex-wrap: wrap;
@@ -730,7 +901,7 @@
     .logo-preview-img {
       width: 64px;
       height: 64px;
-      border-radius: 10px;
+      border-radius: 8px;
       object-fit: contain;
       background: var(--card);
       border: 1px solid var(--border);
@@ -749,40 +920,41 @@
       align-items: center;
       gap: 8px;
       padding: 10px 14px;
-      border-radius: 10px;
+      border-radius: 8px;
       border: 1px solid var(--border);
       background: var(--card);
       color: #fff;
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 700;
+      text-transform: uppercase;
       cursor: pointer;
       min-height: 40px;
     }
 
     .swatch-dot {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      border: 2px solid rgba(255, 255, 255, 0.35);
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
       flex-shrink: 0;
     }
 
     .empty-state {
       text-align: center;
-      padding: 32px 18px;
+      padding: 34px 18px;
       color: var(--muted);
-      background: var(--panel);
+      background: var(--input-bg);
       border: 1px dashed var(--border);
-      border-radius: 12px;
-      line-height: 1.6;
+      border-radius: 10px;
+      line-height: 1.65;
     }
 
     /* ==================== MODAL / TELA DE EDIÇÃO ==================== */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(2, 6, 23, 0.84);
-      backdrop-filter: blur(3px);
+      background: rgba(2, 3, 6, 0.88);
+      backdrop-filter: blur(4px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -795,11 +967,12 @@
     .modal-card {
       background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-top: 3px solid var(--primary);
+      border-radius: 10px;
       width: 100%;
       max-width: 720px;
-      padding: 20px;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+      padding: 22px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8);
       max-height: 92dvh;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
@@ -807,7 +980,8 @@
 
     .modal-card h3 {
       font-size: 18px;
-      font-weight: 800;
+      font-weight: 700;
+      text-transform: uppercase;
       margin-bottom: 6px;
     }
 
@@ -821,10 +995,10 @@
     .modal-total {
       background: var(--input-bg);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px;
+      border-radius: 8px;
+      padding: 14px;
       text-align: center;
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 800;
       color: #34d399;
       margin-bottom: 16px;
@@ -834,7 +1008,7 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(2, 6, 23, 0.7);
+      background: rgba(2, 3, 6, 0.78);
       z-index: 50;
     }
 
@@ -871,9 +1045,9 @@
         left: 0;
         top: 0;
         height: 100dvh;
-        width: min(290px, 85vw);
+        width: min(295px, 85vw);
         transform: translateX(-100%);
-        box-shadow: 12px 0 36px rgba(0, 0, 0, 0.55);
+        box-shadow: 12px 0 36px rgba(0, 0, 0, 0.7);
       }
       .sidebar.mobile-open { transform: translateX(0); }
       .toggle-btn { display: none; }
@@ -890,7 +1064,7 @@
       .topbar-actions .btn {
         flex: 1;
         padding: 9px 10px;
-        font-size: 12.5px;
+        font-size: 12px;
       }
       .os-card {
         padding: 14px;
@@ -919,19 +1093,18 @@
     <div class="sidebar-header">
       <div class="brand-box">
         <div class="brand-logo" id="sidebar-logo-box">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#050608" stroke-width="2.4">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
           </svg>
         </div>
         <div class="brand-texts">
           <strong id="sidebar-oficina-nome">NEXUS OFICINA</strong>
-          <span>ERP Automotivo PRO</span>
+          <span>Motorsport Telemetry</span>
         </div>
       </div>
 
       <button class="toggle-btn" title="Recolher/Expandir menu" onclick="alternarSidebar()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
           <line x1="3" y1="6" x2="21" y2="6"></line>
           <line x1="3" y1="12" x2="21" y2="12"></line>
           <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -940,11 +1113,11 @@
     </div>
 
     <nav class="sidebar-nav">
-      <div class="nav-group-title">Operação</div>
+      <div class="nav-group-title">Operação &amp; Pátio</div>
 
       <button class="nav-btn active" data-screen="patio" onclick="navegar('patio')">
         <span class="nav-btn-left">
-          <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="10" rx="2"></rect><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle></svg>
+          <span class="nav-icon-wrap"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="10" rx="2"></rect><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle></svg></span>
           <span class="nav-label">Pátio e Baixa</span>
         </span>
         <span id="badge-patio" class="nav-badge">0</span>
@@ -952,14 +1125,14 @@
 
       <button class="nav-btn" data-screen="nova_os" onclick="navegar('nova_os')">
         <span class="nav-btn-left">
-          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>
+          <span class="nav-icon-wrap"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></span>
           <span class="nav-label">Nova OS / Entrada</span>
         </span>
       </button>
 
       <button class="nav-btn" data-screen="orcamentos" onclick="navegar('orcamentos')">
         <span class="nav-btn-left">
-          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          <span class="nav-icon-wrap"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></span>
           <span class="nav-label">Orçamentos</span>
         </span>
         <span id="badge-orcamentos" class="nav-badge">0</span>
@@ -967,24 +1140,24 @@
 
       <button class="nav-btn" data-screen="preventivas" onclick="navegar('preventivas')">
         <span class="nav-btn-left">
-          <svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="9"></circle></svg>
+          <span class="nav-icon-wrap"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="9"></circle></svg></span>
           <span class="nav-label">Preventivas</span>
         </span>
         <span id="badge-preventivas" class="nav-badge">0</span>
       </button>
 
-      <div class="nav-group-title">Cadastros e Sistema</div>
+      <div class="nav-group-title">Gestão &amp; Histórico</div>
 
       <button class="nav-btn" data-screen="clientes" onclick="navegar('clientes')">
         <span class="nav-btn-left">
-          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+          <span class="nav-icon-wrap"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg></span>
           <span class="nav-label">Clientes e Veículos</span>
         </span>
       </button>
 
       <button class="nav-btn" data-screen="historico" onclick="navegar('historico')">
         <span class="nav-btn-left">
-          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+          <span class="nav-icon-wrap"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg></span>
           <span class="nav-label">Histórico</span>
         </span>
         <span id="badge-historico" class="nav-badge">0</span>
@@ -992,7 +1165,7 @@
 
       <button class="nav-btn" data-screen="config" onclick="navegar('config')">
         <span class="nav-btn-left">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span class="nav-icon-wrap"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></span>
           <span class="nav-label">Configurações</span>
         </span>
       </button>
@@ -1000,7 +1173,7 @@
 
     <div class="sidebar-footer">
       <div class="sidebar-footer-info">
-        <span class="dot-online"></span>Sistema Local Ativo
+        <span class="dot-online"></span>Telemetria Online
       </div>
     </div>
   </aside>
@@ -1010,7 +1183,7 @@
     <header class="topbar">
       <div class="topbar-left">
         <button class="mobile-menu-btn" onclick="abrirDrawerMobile()" aria-label="Abrir menu">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
             <line x1="3" y1="6" x2="21" y2="6"></line>
             <line x1="3" y1="12" x2="21" y2="12"></line>
             <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -1020,8 +1193,8 @@
       </div>
 
       <div class="topbar-actions">
-        <button class="btn btn-secondary" onclick="criarOsTeste()">OS de Teste</button>
-        <button class="btn" onclick="atualizarPainel()">Atualizar</button>
+        <button type="button" class="btn btn-secondary" onclick="criarOsTeste()">OS de Teste</button>
+        <button type="button" class="btn" onclick="atualizarPainel()">Atualizar</button>
       </div>
     </header>
 
@@ -1106,10 +1279,31 @@
             </select>
           </div>
           <div class="grid-item-add">
-            <input type="text" id="serv-nome" placeholder="Serviço ou Peça" />
+            <input type="text" id="serv-nome" placeholder="Serviço ou Peça (ex.: Troca de Óleo)" oninput="atualizarBlocoOleoNovaOS()" />
             <input type="number" id="serv-qtd" value="1" min="1" />
             <input type="text" id="serv-valor" placeholder="Valor Peça (R$)" />
           </div>
+
+          <!-- BLOCO TROCA DE ÓLEO: TIPO E MARCA + BOTÃO PARA EDITAR / ACRESCENTAR -->
+          <div id="bloco-oleo-nova-os" class="oleo-box" style="display:none;">
+            <div class="oleo-box-header">
+              <span class="oleo-box-title">Detalhes da Troca de Óleo</span>
+              <button type="button" class="btn btn-secondary" style="padding:6px 12px;min-height:32px;font-size:11.5px;" onclick="abrirTelaEdicao('oleo')">
+                Editar Tipos / Marcas
+              </button>
+            </div>
+            <div class="grid-2">
+              <div class="field">
+                <label for="serv-oleo-tipo">Tipo (Viscosidade)</label>
+                <select id="serv-oleo-tipo"></select>
+              </div>
+              <div class="field">
+                <label for="serv-oleo-marca">Marca</label>
+                <select id="serv-oleo-marca"></select>
+              </div>
+            </div>
+          </div>
+
           <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;align-items:center;">
             <input type="number" id="serv-garantia-dias" value="90" min="0" placeholder="Garantia (dias)" title="Dias de garantia deste serviço/peça" style="width:160px;max-width:100%;" />
             <input type="text" id="serv-obs" placeholder="Observações / Detalhes da Garantia" style="flex:1;min-width:200px;" />
@@ -1337,6 +1531,7 @@
           <div id="sub-servicos" class="sub-section">
             <div class="panel-header">
               <h3>Serviços (Sem Preço)</h3>
+              <button type="button" class="btn btn-secondary" onclick="abrirTelaEdicao('oleo')">Editar Tipos / Marcas de Óleo</button>
             </div>
             <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
               <input type="text" id="input-nome-servico" placeholder="Nome do serviço (ex.: Troca de Óleo, Revisão de Freios)" style="flex:1;min-width:220px;" />
@@ -1367,16 +1562,16 @@
             </div>
             <p class="os-meta">Escolha uma cor rápida ou clique em <b>Editar Dados</b> para abrir a tela de edição de cor:</p>
             <div class="color-swatches">
+              <button type="button" class="swatch-btn" onclick="aplicarCor('#f97316')"><span class="swatch-dot" style="background:#f97316;"></span>Laranja Racing</button>
               <button type="button" class="swatch-btn" onclick="aplicarCor('#3b82f6')"><span class="swatch-dot" style="background:#3b82f6;"></span>Azul</button>
-              <button type="button" class="swatch-btn" onclick="aplicarCor('#10b981')"><span class="swatch-dot" style="background:#10b981;"></span>Esmeralda</button>
-              <button type="button" class="swatch-btn" onclick="aplicarCor('#f59e0b')"><span class="swatch-dot" style="background:#f59e0b;"></span>Âmbar</button>
+              <button type="button" class="swatch-btn" onclick="aplicarCor('#10b981')"><span class="swatch-dot" style="background:#10b981;"></span>Verde</button>
+              <button type="button" class="swatch-btn" onclick="aplicarCor('#eab308')"><span class="swatch-dot" style="background:#eab308;"></span>Amarelo</button>
               <button type="button" class="swatch-btn" onclick="aplicarCor('#8b5cf6')"><span class="swatch-dot" style="background:#8b5cf6;"></span>Roxo</button>
-              <button type="button" class="swatch-btn" onclick="aplicarCor('#ef4444')"><span class="swatch-dot" style="background:#ef4444;"></span>Vermelho</button>
-              <button type="button" class="swatch-btn" onclick="aplicarCor('#06b6d4')"><span class="swatch-dot" style="background:#06b6d4;"></span>Ciano</button>
+              <button type="button" class="swatch-btn" onclick="aplicarCor('#f43f5e')"><span class="swatch-dot" style="background:#f43f5e;"></span>Vermelho</button>
             </div>
             <div style="display:flex;align-items:center;gap:12px;margin-top:18px;flex-wrap:wrap;">
               <span class="os-meta"><b>Cor atual:</b></span>
-              <span id="cor-atual-texto" class="tag">#3b82f6</span>
+              <span id="cor-atual-texto" class="tag">#f97316</span>
             </div>
           </div>
 
@@ -1431,12 +1626,11 @@
         <select id="modal-pagamento"></select>
       </div>
       <p class="os-meta" style="margin-bottom:14px;">
-        Destino do PDF: <b>C:\Users\15121\Desktop\PROJETO MECANICA\SAIDAS</b>.<br/>
-        Ao confirmar, o sistema gera o <b>PDF completo</b> e abre o <b>WhatsApp</b> com a mensagem pronta para o cliente.
+        Ao confirmar, o sistema conclui a baixa, registra no histórico, prepara o <b>PDF</b> e abre o <b>WhatsApp</b> com a mensagem pronta para o cliente.
       </p>
       <div class="btn-row" style="justify-content:flex-end;">
         <button type="button" class="btn btn-secondary" onclick="fecharModalBaixa()">Cancelar</button>
-        <button type="button" class="btn btn-success" onclick="confirmarBaixa()">Confirmar e Comprovante</button>
+        <button type="button" id="btn-confirmar-baixa" class="btn btn-success" onclick="confirmarBaixa()">Confirmar e Comprovante</button>
       </div>
     </div>
   </div>
@@ -1444,17 +1638,22 @@
   <div id="print-area"></div>
 
   <script>
-    const STORAGE_KEY = "nexus_oficina_pro_v19";
+    const STORAGE_KEY = "nexus_oficina_pro_v22";
     const PASTA_SAIDAS_ALVO = "C:\\Users\\15121\\Desktop\\PROJETO MECANICA\\SAIDAS";
     const IDB_NAME = "nexus_oficina_fs_db";
     const IDB_STORE = "handles";
     const IDB_KEY = "pasta_saidas_handle";
+
+    const TIPOS_OLEO_PADRAO = ["0W20", "5W30", "5W40", "10W20", "10W40", "15W40", "20W50"];
+    const MARCAS_OLEO_PADRAO = ["MOBIL", "CASTROL", "SHELL", "PETRONAS", "MOTUL", "LUBRAX", "IPIRANGA", "IDMITSU", "VALVOLINE", "BARDAHL"];
 
     let state = loadState();
     let servicosTemp = [];
     let novoServicoPrecisaPreventiva = false;
     let editContext = null;
     let editItensTemp = [];
+    let editOleoTiposTemp = [];
+    let editOleoMarcasTemp = [];
     let baixaCtx = null;
 
     function defaultState() {
@@ -1464,6 +1663,8 @@
         historico: [],
         preventivasMonitoramento: [],
         clientes: [],
+        tiposOleo: [...TIPOS_OLEO_PADRAO],
+        marcasOleo: [...MARCAS_OLEO_PADRAO],
         servicos: [
           { nome: "Troca de Óleo e Filtro", preventiva: true, intervaloKm: 10000, intervaloDias: 180 },
           { nome: "Revisão de Freios", preventiva: true, intervaloKm: 20000, intervaloDias: 365 },
@@ -1477,7 +1678,7 @@
           { nome: "Cartão de Débito", ativo: true },
           { nome: "Boleto / A Prazo", ativo: false }
         ],
-        corSistema: "#3b82f6",
+        corSistema: "#f97316",
         config: {
           oficinaNome: "NEXUS OFICINA",
           oficinaFone: "",
@@ -1507,6 +1708,8 @@
           ...p,
           orcamentos: Array.isArray(p.orcamentos) ? p.orcamentos : [],
           preventivasMonitoramento: Array.isArray(p.preventivasMonitoramento) ? p.preventivasMonitoramento : [],
+          tiposOleo: Array.isArray(p.tiposOleo) && p.tiposOleo.length ? p.tiposOleo : [...TIPOS_OLEO_PADRAO],
+          marcasOleo: Array.isArray(p.marcasOleo) && p.marcasOleo.length ? p.marcasOleo : [...MARCAS_OLEO_PADRAO],
           servicos: servicosNorm,
           pagamentos: Array.isArray(p.pagamentos) && p.pagamentos.length ? p.pagamentos : def.pagamentos,
           config: { ...def.config, ...(p.config || {}), pastaSaidas: PASTA_SAIDAS_ALVO }
@@ -1517,36 +1720,87 @@
     }
 
     function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch {}
       aplicarIdentidadeVisual();
       atualizarKPIs();
     }
 
-    function abrirIdb() {
-      return new Promise((resolve, reject) => {
-        if (!("indexedDB" in window)) return resolve(null);
-        const req = indexedDB.open(IDB_NAME, 1);
-        req.onupgradeneeded = () => {
-          if (!req.result.objectStoreNames.contains(IDB_STORE)) {
-            req.result.createObjectStore(IDB_STORE);
-          }
-        };
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = () => reject(req.error);
-      });
+    /* ==================== TROCA DE ÓLEO: TIPO E MARCA ==================== */
+    function ehServicoTrocaOleo(nomeServico) {
+      const txt = String(nomeServico || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      return txt.includes("oleo");
     }
 
-    async function salvarHandlePasta(handle) {
-      try {
-        const db = await abrirIdb();
-        if (!db) return;
-        const tx = db.transaction(IDB_STORE, "readwrite");
-        tx.objectStore(IDB_STORE).put(handle, IDB_KEY);
-        await new Promise((res, rej) => {
-          tx.oncomplete = res;
-          tx.onerror = () => rej(tx.error);
-        });
-      } catch {}
+    function preencherSelectsOleo(selTipoId, selMarcaId, valorTipo = "", valorMarca = "") {
+      const selTipo = document.getElementById(selTipoId);
+      const selMarca = document.getElementById(selMarcaId);
+      const tipos = Array.isArray(state.tiposOleo) && state.tiposOleo.length ? state.tiposOleo : TIPOS_OLEO_PADRAO;
+      const marcas = Array.isArray(state.marcasOleo) && state.marcasOleo.length ? state.marcasOleo : MARCAS_OLEO_PADRAO;
+
+      if (selTipo) {
+        const atual = valorTipo || selTipo.value || "";
+        selTipo.innerHTML = `<option value="">Selecione o tipo...</option>` +
+          tipos.map(t => `<option value="${String(t).replace(/"/g, "&quot;")}">${t}</option>`).join("");
+        if (atual && tipos.includes(atual)) selTipo.value = atual;
+      }
+
+      if (selMarca) {
+        const atualM = valorMarca || selMarca.value || "";
+        selMarca.innerHTML = `<option value="">Selecione a marca...</option>` +
+          marcas.map(m => `<option value="${String(m).replace(/"/g, "&quot;")}">${m}</option>`).join("");
+        if (atualM && marcas.includes(atualM)) selMarca.value = atualM;
+      }
+    }
+
+    function atualizarBlocoOleoNovaOS() {
+      const nome = document.getElementById("serv-nome")?.value || "";
+      const bloco = document.getElementById("bloco-oleo-nova-os");
+      if (!bloco) return;
+      const ativo = ehServicoTrocaOleo(nome);
+      bloco.style.display = ativo ? "block" : "none";
+      if (ativo) {
+        preencherSelectsOleo("serv-oleo-tipo", "serv-oleo-marca");
+      }
+    }
+
+    function atualizarBlocoOleoEditModal() {
+      const nome = document.getElementById("edit-orc-novo-nome")?.value || "";
+      const bloco = document.getElementById("bloco-oleo-edit-modal");
+      if (!bloco) return;
+      const ativo = ehServicoTrocaOleo(nome);
+      bloco.style.display = ativo ? "block" : "none";
+      if (ativo) {
+        preencherSelectsOleo("edit-oleo-tipo", "edit-oleo-marca");
+      }
+    }
+
+    function formatarResumoOleo(item) {
+      const tipo = (item?.oleoTipo || "").trim();
+      const marca = (item?.oleoMarca || "").trim();
+      const partes = [];
+      if (tipo) partes.push(`Tipo: ${tipo}`);
+      if (marca) partes.push(`Marca: ${marca}`);
+      return partes.join(" • ");
+    }
+
+    function abrirIdb() {
+      return new Promise((resolve) => {
+        try {
+          if (!("indexedDB" in window)) return resolve(null);
+          const req = indexedDB.open(IDB_NAME, 1);
+          req.onupgradeneeded = () => {
+            if (!req.result.objectStoreNames.contains(IDB_STORE)) {
+              req.result.createObjectStore(IDB_STORE);
+            }
+          };
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => resolve(null);
+        } catch {
+          resolve(null);
+        }
+      });
     }
 
     async function lerHandlePasta() {
@@ -1555,39 +1809,26 @@
         if (!db) return null;
         const tx = db.transaction(IDB_STORE, "readonly");
         const req = tx.objectStore(IDB_STORE).get(IDB_KEY);
-        return await new Promise((res, rej) => {
+        return await new Promise((res) => {
           req.onsuccess = () => res(req.result || null);
-          req.onerror = () => rej(req.error);
+          req.onerror = () => res(null);
         });
       } catch {
         return null;
       }
     }
 
-    async function obterPastaSaidasHandle() {
+    async function obterPastaSaidasHandleSilencioso() {
       if (!window.showDirectoryPicker) return null;
       if (!(window.isSecureContext || location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
         return null;
       }
       try {
-        let dir = await lerHandlePasta();
-        if (dir) {
-          const perm = await dir.queryPermission({ mode: "readwrite" });
-          if (perm !== "granted") {
-            const reqPerm = await dir.requestPermission({ mode: "readwrite" });
-            if (reqPerm !== "granted") dir = null;
-          }
-        }
-        if (!dir) {
-          const escolhida = await window.showDirectoryPicker({ mode: "readwrite" });
-          if (escolhida.name && escolhida.name.toUpperCase() === "SAIDAS") {
-            dir = escolhida;
-          } else {
-            dir = await escolhida.getDirectoryHandle("SAIDAS", { create: true });
-          }
-          await salvarHandlePasta(dir);
-        }
-        return dir;
+        const dir = await lerHandlePasta();
+        if (!dir) return null;
+        const perm = await dir.queryPermission({ mode: "readwrite" });
+        if (perm === "granted") return dir;
+        return null;
       } catch {
         return null;
       }
@@ -1603,7 +1844,7 @@
     }
 
     function aplicarIdentidadeVisual() {
-      document.documentElement.style.setProperty("--primary", state.corSistema || "#3b82f6");
+      document.documentElement.style.setProperty("--primary", state.corSistema || "#f97316");
       const nome = state.config.oficinaNome || "NEXUS OFICINA";
       document.getElementById("sidebar-oficina-nome").textContent = nome;
       document.title = `${nome} — Gestão Automotiva`;
@@ -1775,6 +2016,7 @@
       if (tela === "nova_os") {
         preencherClientesSalvosOS();
         preencherAtalhoServicosOS();
+        atualizarBlocoOleoNovaOS();
         atualizarCalculoTelaOS();
       }
       if (tela === "orcamentos") renderizarOrcamentosGerados();
@@ -1787,7 +2029,7 @@
         renderizarServicos();
         renderizarPagamentos();
         renderizarPreventivas();
-        aplicarCor(state.corSistema || "#3b82f6");
+        aplicarCor(state.corSistema || "#f97316");
       }
     }
 
@@ -1824,6 +2066,7 @@
       renderizarPagamentos();
       renderizarPreventivas();
       preencherClientesSalvosOS();
+      atualizarBlocoOleoNovaOS();
       atualizarCalculoTelaOS();
       atualizarKPIs();
     }
@@ -1850,6 +2093,8 @@
         valorPeca: parseBRL(s.valorPeca),
         garantiaDias: Math.max(0, parseInt(s.garantiaDias ?? 90, 10) || 0),
         dataBaseGarantiaISO: s.dataBaseGarantiaISO || dataBrParaISO(dados.dataConclusao || dataEntradaBr) || hojeISO(),
+        oleoTipo: s.oleoTipo || "",
+        oleoMarca: s.oleoMarca || "",
         detalhes: s.detalhes || ""
       }));
 
@@ -2027,8 +2272,6 @@
     function avisarClientePreventivaWhatsApp(idx) {
       const reg = state.preventivasMonitoramento[idx];
       if (!reg) return;
-      const digitos = String(reg.whatsapp || "").replace(/\D/g, "");
-      const numero = digitos.length >= 10 ? (digitos.startsWith("55") ? digitos : "55" + digitos) : "";
       const linhas = [
         `*${state.config.oficinaNome || "NEXUS OFICINA"} — Aviso de Preventiva*`,
         `Olá, *${reg.cliente || "Cliente"}*! Seu veículo *${fmtVeiculo(reg)}* (Placa *${reg.placa}*) está em monitoramento para *${reg.servico}*.`,
@@ -2040,11 +2283,7 @@
       if (reg.proximaDataISO) {
         linhas.push(`Próxima preventiva por prazo: *${fmtDataISO(reg.proximaDataISO)}* (${Number(reg.intervaloDias || 0)} dias)`);
       }
-      const msg = linhas.join("\n");
-      const url = numero
-        ? `https://wa.me/${numero}?text=${encodeURIComponent(msg)}`
-        : `https://wa.me/?text=${encodeURIComponent(msg)}`;
-      window.open(url, "_blank", "noopener,noreferrer");
+      dispararWhatsApp(reg.whatsapp, linhas.join("\n"));
     }
 
     function removerMonitoramentoPreventivo(idx) {
@@ -2128,6 +2367,63 @@
     }
 
     /* TELA DE EDIÇÃO DEDICADA */
+    function renderizarListaEdicaoOleo() {
+      const boxTipos = document.getElementById("edit-oleo-lista-tipos");
+      const boxMarcas = document.getElementById("edit-oleo-lista-marcas");
+      if (boxTipos) {
+        boxTipos.innerHTML = editOleoTiposTemp.length
+          ? editOleoTiposTemp.map((t, i) => `
+              <span class="chip-item">
+                <span>${t}</span>
+                <button type="button" class="chip-remove" title="Remover tipo" onclick="removerTipoOleoTemp(${i})">×</button>
+              </span>
+            `).join("")
+          : `<span class="os-meta">Nenhum tipo cadastrado.</span>`;
+      }
+      if (boxMarcas) {
+        boxMarcas.innerHTML = editOleoMarcasTemp.length
+          ? editOleoMarcasTemp.map((m, i) => `
+              <span class="chip-item">
+                <span>${m}</span>
+                <button type="button" class="chip-remove" title="Remover marca" onclick="removerMarcaOleoTemp(${i})">×</button>
+              </span>
+            `).join("")
+          : `<span class="os-meta">Nenhuma marca cadastrada.</span>`;
+      }
+    }
+
+    function adicionarTipoOleoTemp() {
+      const inp = document.getElementById("edit-oleo-novo-tipo");
+      const val = (inp?.value || "").trim().toUpperCase();
+      if (!val) return alert("Digite o tipo de óleo (ex.: 0W16 ou 5W50).");
+      if (!editOleoTiposTemp.some(x => x.toUpperCase() === val)) {
+        editOleoTiposTemp.push(val);
+      }
+      inp.value = "";
+      renderizarListaEdicaoOleo();
+    }
+
+    function removerTipoOleoTemp(i) {
+      editOleoTiposTemp.splice(i, 1);
+      renderizarListaEdicaoOleo();
+    }
+
+    function adicionarMarcaOleoTemp() {
+      const inp = document.getElementById("edit-oleo-nova-marca");
+      const val = (inp?.value || "").trim().toUpperCase();
+      if (!val) return alert("Digite a marca de óleo.");
+      if (!editOleoMarcasTemp.some(x => x.toUpperCase() === val)) {
+        editOleoMarcasTemp.push(val);
+      }
+      inp.value = "";
+      renderizarListaEdicaoOleo();
+    }
+
+    function removerMarcaOleoTemp(i) {
+      editOleoMarcasTemp.splice(i, 1);
+      renderizarListaEdicaoOleo();
+    }
+
     function montarFormEdicaoOS(registro, tituloTexto, descTexto) {
       const dataBasePadrao = dataBrParaISO(registro.dataConclusao || registro.dataEntrada || registro.dataGeracao) || hojeISO();
       editItensTemp = Array.isArray(registro.servicosAtuais)
@@ -2137,6 +2433,8 @@
             valorPeca: parseBRL(s.valorPeca),
             garantiaDias: Math.max(0, parseInt(s.garantiaDias ?? 90, 10) || 0),
             dataBaseGarantiaISO: s.dataBaseGarantiaISO || dataBasePadrao,
+            oleoTipo: s.oleoTipo || "",
+            oleoMarca: s.oleoMarca || "",
             detalhes: s.detalhes || ""
           }))
         : [];
@@ -2189,10 +2487,30 @@
             </select>
           </div>
           <div class="grid-item-add">
-            <input type="text" id="edit-orc-novo-nome" placeholder="Serviço ou peça" />
+            <input type="text" id="edit-orc-novo-nome" placeholder="Serviço ou peça" oninput="atualizarBlocoOleoEditModal()" />
             <input type="number" id="edit-orc-novo-qtd" value="1" min="1" />
             <input type="text" id="edit-orc-novo-valor" placeholder="Valor (R$)" />
           </div>
+
+          <div id="bloco-oleo-edit-modal" class="oleo-box" style="display:none;">
+            <div class="oleo-box-header">
+              <span class="oleo-box-title">Detalhes da Troca de Óleo</span>
+              <button type="button" class="btn btn-secondary" style="padding:6px 12px;min-height:32px;font-size:11.5px;" onclick="abrirTelaEdicao('oleo')">
+                Editar Tipos / Marcas
+              </button>
+            </div>
+            <div class="grid-2">
+              <div class="field">
+                <label for="edit-oleo-tipo">Tipo (Viscosidade)</label>
+                <select id="edit-oleo-tipo"></select>
+              </div>
+              <div class="field">
+                <label for="edit-oleo-marca">Marca</label>
+                <select id="edit-oleo-marca"></select>
+              </div>
+            </div>
+          </div>
+
           <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center;">
             <input type="number" id="edit-orc-novo-garantia" value="90" min="0" placeholder="Garantia (dias)" title="Dias de garantia" style="width:140px;max-width:100%;" />
             <input type="text" id="edit-orc-novo-obs" placeholder="Observação / garantia" style="flex:1;min-width:160px;" />
@@ -2222,7 +2540,36 @@
       const desc = document.getElementById("edit-modal-desc");
       const campos = document.getElementById("edit-modal-campos");
 
-      if (tipo === "oficina") {
+      if (tipo === "oleo") {
+        editOleoTiposTemp = [...(Array.isArray(state.tiposOleo) && state.tiposOleo.length ? state.tiposOleo : TIPOS_OLEO_PADRAO)];
+        editOleoMarcasTemp = [...(Array.isArray(state.marcasOleo) && state.marcasOleo.length ? state.marcasOleo : MARCAS_OLEO_PADRAO)];
+        titulo.textContent = "Tela de Edição — Tipos e Marcas de Óleo";
+        desc.textContent = "Acrescente ou remova tipos de viscosidade e marcas de óleo para usar na Troca de Óleo.";
+        campos.innerHTML = `
+          <div class="sub-box" style="margin-top:0;padding-top:0;border-top:none;">
+            <div class="field">
+              <label>Tipos de Óleo (Viscosidade)</label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <input type="text" id="edit-oleo-novo-tipo" placeholder="Ex.: 0W16, 5W50..." style="flex:1;min-width:180px;" />
+                <button type="button" class="btn" onclick="adicionarTipoOleoTemp()">+ Acrescentar Tipo</button>
+              </div>
+              <div id="edit-oleo-lista-tipos" class="chip-list"></div>
+            </div>
+          </div>
+
+          <div class="sub-box">
+            <div class="field">
+              <label>Marcas de Óleo</label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <input type="text" id="edit-oleo-nova-marca" placeholder="Ex.: HAVOLINE, TOTAL, ACDelco..." style="flex:1;min-width:180px;" />
+                <button type="button" class="btn" onclick="adicionarMarcaOleoTemp()">+ Acrescentar Marca</button>
+              </div>
+              <div id="edit-oleo-lista-marcas" class="chip-list"></div>
+            </div>
+          </div>
+        `;
+        renderizarListaEdicaoOleo();
+      } else if (tipo === "oficina") {
         titulo.textContent = "Tela de Edição — Dados da Oficina";
         desc.textContent = "Edite nome, telefone, endereço ou logo da oficina.";
         campos.innerHTML = `
@@ -2348,11 +2695,11 @@
         campos.innerHTML = `
           <div class="field" style="margin-bottom:12px;">
             <label>Selecionar Cor</label>
-            <input type="color" id="edit-cor-picker" value="${state.corSistema || "#3b82f6"}" style="width:80px;height:46px;padding:2px;cursor:pointer;" />
+            <input type="color" id="edit-cor-picker" value="${state.corSistema || "#f97316"}" style="width:80px;height:46px;padding:2px;cursor:pointer;" />
           </div>
           <div class="field">
             <label>Código da Cor (HEX)</label>
-            <input type="text" id="edit-cor-hex" value="${state.corSistema || "#3b82f6"}" />
+            <input type="text" id="edit-cor-hex" value="${state.corSistema || "#f97316"}" />
           </div>
         `;
         setTimeout(() => {
@@ -2383,6 +2730,7 @@
       if (!sel || !sel.value) return;
       document.getElementById("edit-orc-novo-nome").value = decodeURIComponent(sel.value);
       sel.value = "";
+      atualizarBlocoOleoEditModal();
     }
 
     function adicionarItemEditOrc() {
@@ -2392,20 +2740,24 @@
       const valorPeca = parseBRL(document.getElementById("edit-orc-novo-valor").value);
       const garantiaDias = Math.max(0, parseInt(document.getElementById("edit-orc-novo-garantia")?.value || "90", 10) || 0);
       const detalhes = document.getElementById("edit-orc-novo-obs").value.trim();
+      const isOleo = ehServicoTrocaOleo(nome);
+      const oleoTipo = isOleo ? (document.getElementById("edit-oleo-tipo")?.value || "").trim() : "";
+      const oleoMarca = isOleo ? (document.getElementById("edit-oleo-marca")?.value || "").trim() : "";
 
-      editItensTemp.push({ nome, qtdPeca, valorPeca, garantiaDias, dataBaseGarantiaISO: hojeISO(), detalhes });
+      editItensTemp.push({ nome, qtdPeca, valorPeca, garantiaDias, dataBaseGarantiaISO: hojeISO(), oleoTipo, oleoMarca, detalhes });
       document.getElementById("edit-orc-novo-nome").value = "";
       document.getElementById("edit-orc-novo-qtd").value = "1";
       document.getElementById("edit-orc-novo-valor").value = "";
       if (document.getElementById("edit-orc-novo-garantia")) document.getElementById("edit-orc-novo-garantia").value = "90";
       document.getElementById("edit-orc-novo-obs").value = "";
+      atualizarBlocoOleoEditModal();
       renderizarItensEditOrc();
       recalcularTotalEditOrc();
     }
 
     function atualizarItemEditOrc(i, campo, valor) {
       if (!editItensTemp[i]) return;
-      if (campo === "nome" || campo === "detalhes" || campo === "dataBaseGarantiaISO") editItensTemp[i][campo] = valor;
+      if (campo === "nome" || campo === "detalhes" || campo === "dataBaseGarantiaISO" || campo === "oleoTipo" || campo === "oleoMarca") editItensTemp[i][campo] = valor;
       if (campo === "qtdPeca") editItensTemp[i].qtdPeca = Math.max(1, parseInt(valor || "1", 10) || 1);
       if (campo === "valorPeca") editItensTemp[i].valorPeca = parseBRL(valor);
       if (campo === "garantiaDias") editItensTemp[i].garantiaDias = Math.max(0, parseInt(valor || "0", 10) || 0);
@@ -2432,24 +2784,44 @@
         box.textContent = "Nenhum serviço ou peça adicionado.";
         return;
       }
-      box.innerHTML = editItensTemp.map((s, i) => `
-        <div class="item-line">
-          <div style="display:flex;gap:8px;flex-wrap:wrap;flex:1;align-items:center;min-width:0;">
-            <input type="text" value="${(s.nome || "").replace(/"/g, "&quot;")}" onchange="atualizarItemEditOrc(${i}, 'nome', this.value)" style="flex:1;min-width:130px;padding:7px 8px;" />
-            <input type="number" min="1" value="${s.qtdPeca || 1}" onchange="atualizarItemEditOrc(${i}, 'qtdPeca', this.value)" style="width:74px;padding:7px 8px;" title="Quantidade" />
-            <input type="text" value="${parseBRL(s.valorPeca).toFixed(2)}" onchange="atualizarItemEditOrc(${i}, 'valorPeca', this.value)" style="width:94px;padding:7px 8px;" title="Valor unitário" />
-            <input type="number" min="0" value="${s.garantiaDias ?? 90}" onchange="atualizarItemEditOrc(${i}, 'garantiaDias', this.value)" style="width:90px;padding:7px 8px;" title="Dias de garantia" />
-            <input type="date" value="${s.dataBaseGarantiaISO || hojeISO()}" onchange="atualizarItemEditOrc(${i}, 'dataBaseGarantiaISO', this.value)" style="width:146px;max-width:100%;padding:7px 6px;" title="Data início da garantia" />
-            <input type="text" value="${(s.detalhes || "").replace(/"/g, "&quot;")}" placeholder="Obs" onchange="atualizarItemEditOrc(${i}, 'detalhes', this.value)" style="flex:1;min-width:110px;padding:7px 8px;" />
+      const tipos = Array.isArray(state.tiposOleo) && state.tiposOleo.length ? state.tiposOleo : TIPOS_OLEO_PADRAO;
+      const marcas = Array.isArray(state.marcasOleo) && state.marcasOleo.length ? state.marcasOleo : MARCAS_OLEO_PADRAO;
+
+      box.innerHTML = editItensTemp.map((s, i) => {
+        const isOleo = ehServicoTrocaOleo(s.nome);
+        const oleoInputs = isOleo ? `
+          <select onchange="atualizarItemEditOrc(${i}, 'oleoTipo', this.value)" style="width:110px;padding:7px 6px;" title="Tipo de óleo">
+            <option value="">Tipo...</option>
+            ${tipos.map(t => `<option value="${String(t).replace(/"/g, "&quot;")}" ${s.oleoTipo === t ? "selected" : ""}>${t}</option>`).join("")}
+          </select>
+          <select onchange="atualizarItemEditOrc(${i}, 'oleoMarca', this.value)" style="width:130px;padding:7px 6px;" title="Marca do óleo">
+            <option value="">Marca...</option>
+            ${marcas.map(m => `<option value="${String(m).replace(/"/g, "&quot;")}" ${s.oleoMarca === m ? "selected" : ""}>${m}</option>`).join("")}
+          </select>
+        ` : "";
+
+        return `
+          <div class="item-line">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;flex:1;align-items:center;min-width:0;">
+              <input type="text" value="${(s.nome || "").replace(/"/g, "&quot;")}" onchange="atualizarItemEditOrc(${i}, 'nome', this.value)" style="flex:1;min-width:130px;padding:7px 8px;" />
+              ${oleoInputs}
+              <input type="number" min="1" value="${s.qtdPeca || 1}" onchange="atualizarItemEditOrc(${i}, 'qtdPeca', this.value)" style="width:74px;padding:7px 8px;" title="Quantidade" />
+              <input type="text" value="${parseBRL(s.valorPeca).toFixed(2)}" onchange="atualizarItemEditOrc(${i}, 'valorPeca', this.value)" style="width:94px;padding:7px 8px;" title="Valor unitário" />
+              <input type="number" min="0" value="${s.garantiaDias ?? 90}" onchange="atualizarItemEditOrc(${i}, 'garantiaDias', this.value)" style="width:90px;padding:7px 8px;" title="Dias de garantia" />
+              <input type="date" value="${s.dataBaseGarantiaISO || hojeISO()}" onchange="atualizarItemEditOrc(${i}, 'dataBaseGarantiaISO', this.value)" style="width:146px;max-width:100%;padding:7px 6px;" title="Data início da garantia" />
+              <input type="text" value="${(s.detalhes || "").replace(/"/g, "&quot;")}" placeholder="Obs" onchange="atualizarItemEditOrc(${i}, 'detalhes', this.value)" style="flex:1;min-width:110px;padding:7px 8px;" />
+            </div>
+            <button type="button" class="btn btn-danger" style="padding:6px 10px;" onclick="removerItemEditOrc(${i})">Remover</button>
           </div>
-          <button type="button" class="btn btn-danger" style="padding:6px 10px;" onclick="removerItemEditOrc(${i})">Remover</button>
-        </div>
-      `).join("");
+        `;
+      }).join("");
     }
 
     function fecharTelaEdicao() {
       editContext = null;
       editItensTemp = [];
+      editOleoTiposTemp = [];
+      editOleoMarcasTemp = [];
       document.getElementById("modal-editar").classList.remove("open");
     }
 
@@ -2472,7 +2844,9 @@
           ...s,
           valorPeca: parseBRL(s.valorPeca),
           garantiaDias: Math.max(0, parseInt(s.garantiaDias ?? 90, 10) || 0),
-          dataBaseGarantiaISO: s.dataBaseGarantiaISO || hojeISO()
+          dataBaseGarantiaISO: s.dataBaseGarantiaISO || hojeISO(),
+          oleoTipo: ehServicoTrocaOleo(s.nome) ? (s.oleoTipo || "") : "",
+          oleoMarca: ehServicoTrocaOleo(s.nome) ? (s.oleoMarca || "") : ""
         })),
         total: totalFinal
       };
@@ -2482,7 +2856,14 @@
       if (!editContext) return;
       const { tipo, idx } = editContext;
 
-      if (tipo === "oficina") {
+      if (tipo === "oleo") {
+        state.tiposOleo = editOleoTiposTemp.length ? [...editOleoTiposTemp] : [...TIPOS_OLEO_PADRAO];
+        state.marcasOleo = editOleoMarcasTemp.length ? [...editOleoMarcasTemp] : [...MARCAS_OLEO_PADRAO];
+        saveState();
+        preencherSelectsOleo("serv-oleo-tipo", "serv-oleo-marca");
+        preencherSelectsOleo("edit-oleo-tipo", "edit-oleo-marca");
+        fecharTelaEdicao();
+      } else if (tipo === "oficina") {
         const nome = document.getElementById("edit-oficina-nome").value.trim() || "NEXUS OFICINA";
         const fone = document.getElementById("edit-oficina-fone").value.trim();
         const end = document.getElementById("edit-oficina-end").value.trim();
@@ -2553,7 +2934,7 @@
         renderizarPreventivas();
         fecharTelaEdicao();
       } else if (tipo === "cor") {
-        const hex = (document.getElementById("edit-cor-hex").value || document.getElementById("edit-cor-picker").value || "#3b82f6").trim();
+        const hex = (document.getElementById("edit-cor-hex").value || document.getElementById("edit-cor-picker").value || "#f97316").trim();
         aplicarCor(hex);
         fecharTelaEdicao();
       } else if (tipo === "orcamento") {
@@ -2616,7 +2997,8 @@
               const qtd = Math.max(1, parseInt(s.qtdPeca || 1, 10) || 1);
               const val = parseBRL(s.valorPeca);
               const diasGar = Math.max(0, parseInt(s.garantiaDias ?? 90, 10) || 0);
-              return `<div>• <b>${i + 1}. ${s.nome || "Serviço"}</b> — Qtd: <b>${qtd}</b> • Unitário: <b>${fmtBRL(val)}</b> • Subtotal: <b>${fmtBRL(qtd * val)}</b>${diasGar > 0 ? ` • Garantia: <b>${diasGar} dias</b>` : ""}${s.detalhes ? ` • Obs: <i>${s.detalhes}</i>` : ""}</div>`;
+              const oleoTxt = formatarResumoOleo(s);
+              return `<div>• <b>${i + 1}. ${s.nome || "Serviço"}</b>${oleoTxt ? ` [${oleoTxt}]` : ""} — Qtd: <b>${qtd}</b> • Unitário: <b>${fmtBRL(val)}</b> • Subtotal: <b>${fmtBRL(qtd * val)}</b>${diasGar > 0 ? ` • Garantia: <b>${diasGar} dias</b>` : ""}${s.detalhes ? ` • Obs: <i>${s.detalhes}</i>` : ""}</div>`;
             }).join("")
           : `<div>• Nenhum serviço ou peça adicionado ainda</div>`;
 
@@ -2749,6 +3131,7 @@
       if (!sel.value) return;
       document.getElementById("serv-nome").value = decodeURIComponent(sel.value);
       sel.value = "";
+      atualizarBlocoOleoNovaOS();
     }
 
     function atualizarCalculoTelaOS() {
@@ -2772,13 +3155,19 @@
       const valor = parseBRL(document.getElementById("serv-valor").value);
       const garantiaDias = Math.max(0, parseInt(document.getElementById("serv-garantia-dias")?.value || "90", 10) || 0);
       const detalhes = document.getElementById("serv-obs").value.trim();
+      const isOleo = ehServicoTrocaOleo(nome);
+      const oleoTipo = isOleo ? (document.getElementById("serv-oleo-tipo")?.value || "").trim() : "";
+      const oleoMarca = isOleo ? (document.getElementById("serv-oleo-marca")?.value || "").trim() : "";
 
-      servicosTemp.push({ nome, qtdPeca: qtd, valorPeca: valor, garantiaDias, dataBaseGarantiaISO: hojeISO(), detalhes });
+      servicosTemp.push({ nome, qtdPeca: qtd, valorPeca: valor, garantiaDias, dataBaseGarantiaISO: hojeISO(), oleoTipo, oleoMarca, detalhes });
       document.getElementById("serv-nome").value = "";
       document.getElementById("serv-qtd").value = "1";
       document.getElementById("serv-valor").value = "";
       if (document.getElementById("serv-garantia-dias")) document.getElementById("serv-garantia-dias").value = "90";
       document.getElementById("serv-obs").value = "";
+      if (document.getElementById("serv-oleo-tipo")) document.getElementById("serv-oleo-tipo").value = "";
+      if (document.getElementById("serv-oleo-marca")) document.getElementById("serv-oleo-marca").value = "";
+      atualizarBlocoOleoNovaOS();
       renderServicosTemp();
     }
 
@@ -2792,12 +3181,15 @@
       if (!servicosTemp.length) {
         box.textContent = "Nenhum item adicionado ainda.";
       } else {
-        box.innerHTML = servicosTemp.map((s, i) => `
-          <div class="item-line">
-            <span>${i + 1}. <b>${s.nome}</b> (${s.qtdPeca}x ${fmtBRL(s.valorPeca)} = <b>${fmtBRL(s.qtdPeca * s.valorPeca)}</b>) • Garantia: <b>${s.garantiaDias ?? 90} dias</b>${s.detalhes ? " — " + s.detalhes : ""}</span>
-            <button type="button" class="btn btn-danger" style="padding:5px 10px;" onclick="removerServicoTemp(${i})">Remover</button>
-          </div>
-        `).join("");
+        box.innerHTML = servicosTemp.map((s, i) => {
+          const oleoTxt = formatarResumoOleo(s);
+          return `
+            <div class="item-line">
+              <span>${i + 1}. <b>${s.nome}</b>${oleoTxt ? ` [${oleoTxt}]` : ""} (${s.qtdPeca}x ${fmtBRL(s.valorPeca)} = <b>${fmtBRL(s.qtdPeca * s.valorPeca)}</b>) • Garantia: <b>${s.garantiaDias ?? 90} dias</b>${s.detalhes ? " — " + s.detalhes : ""}</span>
+              <button type="button" class="btn btn-danger" style="padding:5px 10px;" onclick="removerServicoTemp(${i})">Remover</button>
+            </div>
+          `;
+        }).join("");
       }
       atualizarCalculoTelaOS();
     }
@@ -2824,9 +3216,12 @@
         .forEach(id => document.getElementById(id).value = "");
       const selCli = document.getElementById("atalho-cliente-os");
       if (selCli) selCli.value = "";
+      if (document.getElementById("serv-oleo-tipo")) document.getElementById("serv-oleo-tipo").value = "";
+      if (document.getElementById("serv-oleo-marca")) document.getElementById("serv-oleo-marca").value = "";
       if (document.getElementById("serv-garantia-dias")) document.getElementById("serv-garantia-dias").value = "90";
       document.getElementById("serv-qtd").value = "1";
       servicosTemp = [];
+      atualizarBlocoOleoNovaOS();
       renderServicosTemp();
     }
 
@@ -2962,7 +3357,8 @@
               const qtd = Math.max(1, parseInt(s.qtdPeca || 1, 10) || 1);
               const val = parseBRL(s.valorPeca);
               const diasGar = Math.max(0, parseInt(s.garantiaDias ?? 90, 10) || 0);
-              return `<div>• <b>${i + 1}. ${s.nome || "Serviço"}</b> — Qtd: <b>${qtd}</b> • Unitário: <b>${fmtBRL(val)}</b> • Subtotal: <b>${fmtBRL(qtd * val)}</b>${diasGar > 0 ? ` • Garantia: <b>${diasGar} dias</b>` : ""}${s.detalhes ? ` • Obs: <i>${s.detalhes}</i>` : ""}</div>`;
+              const oleoTxt = formatarResumoOleo(s);
+              return `<div>• <b>${i + 1}. ${s.nome || "Serviço"}</b>${oleoTxt ? ` [${oleoTxt}]` : ""} — Qtd: <b>${qtd}</b> • Unitário: <b>${fmtBRL(val)}</b> • Subtotal: <b>${fmtBRL(qtd * val)}</b>${diasGar > 0 ? ` • Garantia: <b>${diasGar} dias</b>` : ""}${s.detalhes ? ` • Obs: <i>${s.detalhes}</i>` : ""}</div>`;
             }).join("")
           : `<div>• Nenhum item ou peça discriminado</div>`;
 
@@ -3119,16 +3515,14 @@
       }).join("");
     }
 
-    /* BAIXA, PDF NA PASTA SAIDAS, WHATSAPP E HISTÓRICO */
+    /* BAIXA, PDF, WHATSAPP E HISTÓRICO */
     function abrirModalBaixa(idx) {
       const item = state.patio[idx];
       if (!item) return;
       const ativas = state.pagamentos.filter(p => p.ativo).map(p => p.nome);
-      if (!ativas.length) {
-        return alert("Ative pelo menos uma forma de pagamento em Configurações > Pagamento.");
-      }
+      const opcoes = ativas.length ? ativas : ["PIX", "Dinheiro", "Cartão"];
       const sel = document.getElementById("modal-pagamento");
-      sel.innerHTML = ativas.map(nome => `<option value="${nome}">${nome}</option>`).join("");
+      sel.innerHTML = opcoes.map(nome => `<option value="${nome}">${nome}</option>`).join("");
 
       const t = calcTotais(item);
       baixaCtx = { idx, item, t };
@@ -3152,145 +3546,148 @@
 
     async function gerarPdfNaPastaSaidas(reg) {
       const nomeBase = gerarNomeArquivoSaidas(reg);
-      const itens = Array.isArray(reg.servicosAtuais) ? reg.servicosAtuais : [];
-      const oficinaNome = state.config.oficinaNome || "NEXUS OFICINA";
-      const oficinaFone = state.config.oficinaFone || "";
-      const oficinaEnd = state.config.oficinaEndereco || "";
+      const caminhoPrevisto = `${PASTA_SAIDAS_ALVO}\\${nomeBase}`;
+      try {
+        const itens = Array.isArray(reg.servicosAtuais) ? reg.servicosAtuais : [];
+        const oficinaNome = state.config.oficinaNome || "NEXUS OFICINA";
+        const oficinaFone = state.config.oficinaFone || "";
+        const oficinaEnd = state.config.oficinaEndereco || "";
 
-      if (window.jspdf && window.jspdf.jsPDF) {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({ unit: "mm", format: "a4" });
-        let y = 16;
+        if (window.jspdf && window.jspdf.jsPDF) {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF({ unit: "mm", format: "a4" });
+          let y = 16;
 
-        if (state.config.logoDataUrl) {
-          try {
-            const fmt = state.config.logoDataUrl.includes("image/png") ? "PNG" : "JPEG";
-            doc.addImage(state.config.logoDataUrl, fmt, 14, y - 4, 18, 18);
-            doc.setFontSize(15);
-            doc.setFont("helvetica", "bold");
-            doc.text(oficinaNome, 36, y + 3);
-            doc.setFontSize(9.5);
-            doc.setFont("helvetica", "normal");
-            if (oficinaFone || oficinaEnd) {
-              doc.text(`${oficinaFone}${oficinaFone && oficinaEnd ? " • " : ""}${oficinaEnd}`, 36, y + 9);
+          if (state.config.logoDataUrl) {
+            try {
+              const fmt = state.config.logoDataUrl.includes("image/png") ? "PNG" : "JPEG";
+              doc.addImage(state.config.logoDataUrl, fmt, 14, y - 4, 18, 18);
+              doc.setFontSize(15);
+              doc.setFont("helvetica", "bold");
+              doc.text(oficinaNome, 36, y + 3);
+              doc.setFontSize(9.5);
+              doc.setFont("helvetica", "normal");
+              if (oficinaFone || oficinaEnd) {
+                doc.text(`${oficinaFone}${oficinaFone && oficinaEnd ? " • " : ""}${oficinaEnd}`, 36, y + 9);
+              }
+              y += 22;
+            } catch {
+              doc.setFontSize(15);
+              doc.setFont("helvetica", "bold");
+              doc.text(oficinaNome, 14, y);
+              y += 8;
             }
-            y += 22;
-          } catch {
+          } else {
             doc.setFontSize(15);
             doc.setFont("helvetica", "bold");
             doc.text(oficinaNome, 14, y);
-            y += 8;
-          }
-        } else {
-          doc.setFontSize(15);
-          doc.setFont("helvetica", "bold");
-          doc.text(oficinaNome, 14, y);
-          y += 6;
-          if (oficinaFone || oficinaEnd) {
-            doc.setFontSize(9.5);
-            doc.setFont("helvetica", "normal");
-            doc.text(`${oficinaFone}${oficinaFone && oficinaEnd ? " • " : ""}${oficinaEnd}`, 14, y);
             y += 6;
-          }
-        }
-
-        doc.setFontSize(10.5);
-        doc.setFont("helvetica", "bold");
-        doc.text(`COMPROVANTE DE SAÍDA — ${PASTA_SAIDAS_ALVO}`, 14, y);
-        y += 6;
-        doc.setFontSize(9.5);
-        doc.setFont("helvetica", "normal");
-        doc.text(`Entrada: ${reg.dataEntrada || "-"} ${reg.horaEntrada || ""}   |   Saída: ${reg.dataConclusao || ""} ${reg.horaBaixa || ""}`, 14, y);
-        y += 5;
-        doc.text(`Forma de Pagamento: ${reg.formaPagamento || "-"}`, 14, y);
-        y += 7;
-        doc.line(14, y, 196, y);
-        y += 7;
-
-        doc.text(`Cliente: ${reg.cliente || "-"}   |   WhatsApp: ${reg.whatsapp || "-"}`, 14, y);
-        y += 6;
-        doc.text(`Veículo: ${fmtVeiculo(reg)}   |   Placa: ${(reg.placa || "-").toUpperCase()}   |   KM: ${reg.km || "-"}`, 14, y);
-        y += 8;
-
-        doc.setFont("helvetica", "bold");
-        doc.text("Serviços e Peças", 14, y);
-        doc.text("Qtd", 135, y, { align: "center" });
-        doc.text("Unitário", 162, y, { align: "right" });
-        doc.text("Subtotal", 196, y, { align: "right" });
-        y += 3;
-        doc.line(14, y, 196, y);
-        y += 6;
-        doc.setFont("helvetica", "normal");
-
-        if (!itens.length) {
-          doc.text("Nenhum serviço ou peça discriminado.", 14, y);
-          y += 7;
-        } else {
-          for (let i = 0; i < itens.length; i++) {
-            const s = itens[i];
-            const qtd = Math.max(1, parseInt(s.qtdPeca || 1, 10) || 1);
-            const unit = parseBRL(s.valorPeca);
-            const sub = qtd * unit;
-            const garInfo = avaliarGarantiaItem(s, reg);
-            const desc = `${i + 1}. ${s.nome || "Serviço"}${garInfo.diasGarantia > 0 ? " [Gar: " + garInfo.diasGarantia + "d / Val: " + fmtDataISO(garInfo.validadeISO) + "]" : ""}`.slice(0, 62);
-            doc.text(desc, 14, y);
-            doc.text(String(qtd), 135, y, { align: "center" });
-            doc.text(fmtBRL(unit), 162, y, { align: "right" });
-            doc.text(fmtBRL(sub), 196, y, { align: "right" });
-            y += 6;
-            if (y > 265) {
-              doc.addPage();
-              y = 18;
+            if (oficinaFone || oficinaEnd) {
+              doc.setFontSize(9.5);
+              doc.setFont("helvetica", "normal");
+              doc.text(`${oficinaFone}${oficinaFone && oficinaEnd ? " • " : ""}${oficinaEnd}`, 14, y);
+              y += 6;
             }
           }
-        }
 
-        y += 4;
-        doc.line(14, y, 196, y);
-        y += 7;
-        doc.text(`Peças/Itens: ${fmtBRL(calcTotais(reg).somaPecas)}   |   Mão de Obra: ${fmtBRL(parseBRL(reg.maoDeObraGeral))}`, 14, y);
-        y += 7;
-        doc.setFontSize(12);
-        doc.setFont("helvetica", "bold");
-        doc.text(`TOTAL PAGO: ${fmtBRL(parseBRL(reg.total))}`, 196, y, { align: "right" });
-        y += 10;
-
-        if (reg.obsMecanico) {
-          doc.setFontSize(10);
+          doc.setFontSize(10.5);
           doc.setFont("helvetica", "bold");
-          doc.text("Observação do Mecânico (Aviso ao Cliente):", 14, y);
-          y += 5;
+          doc.text(`COMPROVANTE DE SAÍDA — ${PASTA_SAIDAS_ALVO}`, 14, y);
+          y += 6;
+          doc.setFontSize(9.5);
           doc.setFont("helvetica", "normal");
-          const linhasObs = doc.splitTextToSize(reg.obsMecanico, 180);
-          doc.text(linhasObs, 14, y);
-          y += linhasObs.length * 5 + 4;
+          doc.text(`Entrada: ${reg.dataEntrada || "-"} ${reg.horaEntrada || ""}   |   Saída: ${reg.dataConclusao || ""} ${reg.horaBaixa || ""}`, 14, y);
+          y += 5;
+          doc.text(`Forma de Pagamento: ${reg.formaPagamento || "-"}`, 14, y);
+          y += 7;
+          doc.line(14, y, 196, y);
+          y += 7;
+
+          doc.text(`Cliente: ${reg.cliente || "-"}   |   WhatsApp: ${reg.whatsapp || "-"}`, 14, y);
+          y += 6;
+          doc.text(`Veículo: ${fmtVeiculo(reg)}   |   Placa: ${(reg.placa || "-").toUpperCase()}   |   KM: ${reg.km || "-"}`, 14, y);
+          y += 8;
+
+          doc.setFont("helvetica", "bold");
+          doc.text("Serviços e Peças", 14, y);
+          doc.text("Qtd", 135, y, { align: "center" });
+          doc.text("Unitário", 162, y, { align: "right" });
+          doc.text("Subtotal", 196, y, { align: "right" });
+          y += 3;
+          doc.line(14, y, 196, y);
+          y += 6;
+          doc.setFont("helvetica", "normal");
+
+          if (!itens.length) {
+            doc.text("Nenhum serviço ou peça discriminado.", 14, y);
+            y += 7;
+          } else {
+            for (let i = 0; i < itens.length; i++) {
+              const s = itens[i];
+              const qtd = Math.max(1, parseInt(s.qtdPeca || 1, 10) || 1);
+              const unit = parseBRL(s.valorPeca);
+              const sub = qtd * unit;
+              const garInfo = avaliarGarantiaItem(s, reg);
+              const oleoTxt = formatarResumoOleo(s);
+              const desc = `${i + 1}. ${s.nome || "Serviço"}${oleoTxt ? " (" + oleoTxt + ")" : ""}${garInfo.diasGarantia > 0 ? " [Gar: " + garInfo.diasGarantia + "d / Val: " + fmtDataISO(garInfo.validadeISO) + "]" : ""}`.slice(0, 68);
+              doc.text(desc, 14, y);
+              doc.text(String(qtd), 135, y, { align: "center" });
+              doc.text(fmtBRL(unit), 162, y, { align: "right" });
+              doc.text(fmtBRL(sub), 196, y, { align: "right" });
+              y += 6;
+              if (y > 265) {
+                doc.addPage();
+                y = 18;
+              }
+            }
+          }
+
+          y += 4;
+          doc.line(14, y, 196, y);
+          y += 7;
+          doc.text(`Peças/Itens: ${fmtBRL(calcTotais(reg).somaPecas)}   |   Mão de Obra: ${fmtBRL(parseBRL(reg.maoDeObraGeral))}`, 14, y);
+          y += 7;
+          doc.setFontSize(12);
+          doc.setFont("helvetica", "bold");
+          doc.text(`TOTAL PAGO: ${fmtBRL(parseBRL(reg.total))}`, 196, y, { align: "right" });
+          y += 10;
+
+          if (reg.obsMecanico) {
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "bold");
+            doc.text("Observação do Mecânico (Aviso ao Cliente):", 14, y);
+            y += 5;
+            doc.setFont("helvetica", "normal");
+            const linhasObs = doc.splitTextToSize(reg.obsMecanico, 180);
+            doc.text(linhasObs, 14, y);
+            y += linhasObs.length * 5 + 4;
+          }
+
+          const pdfBlob = doc.output("blob");
+          const saidasDir = await obterPastaSaidasHandleSilencioso();
+          if (saidasDir) {
+            try {
+              const fileHandle = await saidasDir.getFileHandle(nomeBase, { create: true });
+              const writable = await fileHandle.createWritable();
+              await writable.write(pdfBlob);
+              await writable.close();
+              return caminhoPrevisto;
+            } catch {}
+          }
+
+          const url = URL.createObjectURL(pdfBlob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `SAIDAS_${nomeBase}`;
+          a.rel = "noopener";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1500);
+          return caminhoPrevisto;
         }
-
-        const pdfBlob = doc.output("blob");
-        const saidasDir = await obterPastaSaidasHandle();
-        if (saidasDir) {
-          try {
-            const fileHandle = await saidasDir.getFileHandle(nomeBase, { create: true });
-            const writable = await fileHandle.createWritable();
-            await writable.write(pdfBlob);
-            await writable.close();
-            return `${PASTA_SAIDAS_ALVO}\\${nomeBase}`;
-          } catch {}
-        }
-
-        const url = URL.createObjectURL(pdfBlob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `SAIDAS_${nomeBase}`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-        return `${PASTA_SAIDAS_ALVO}\\${nomeBase}`;
-      }
-
-      imprimir(reg);
-      return `${PASTA_SAIDAS_ALVO}\\${nomeBase}`;
+      } catch {}
+      return caminhoPrevisto;
     }
 
     function montarMensagemWhatsApp(reg) {
@@ -3301,7 +3698,8 @@
             const val = parseBRL(s.valorPeca);
             const gar = avaliarGarantiaItem(s, reg);
             const garTxt = gar.diasGarantia > 0 ? ` • Garantia: ${gar.diasGarantia} dias (até ${fmtDataISO(gar.validadeISO)})` : "";
-            return `• ${i + 1}. ${s.nome || "Serviço"} (${qtd}x ${fmtBRL(val)} = ${fmtBRL(qtd * val)})${garTxt}${s.detalhes ? " - " + s.detalhes : ""}`;
+            const oleoTxt = formatarResumoOleo(s);
+            return `• ${i + 1}. ${s.nome || "Serviço"}${oleoTxt ? ` (${oleoTxt})` : ""} (${qtd}x ${fmtBRL(val)} = ${fmtBRL(qtd * val)})${garTxt}${s.detalhes ? " - " + s.detalhes : ""}`;
           }).join("\n")
         : "• Serviços gerais realizados";
 
@@ -3329,19 +3727,42 @@
       ].filter(Boolean).join("\n");
     }
 
-    function abrirWhatsAppCliente(reg) {
-      const digitos = String(reg.whatsapp || "").replace(/\D/g, "");
-      const numero = digitos.length >= 10 ? (digitos.startsWith("55") ? digitos : "55" + digitos) : "";
-      const texto = encodeURIComponent(montarMensagemWhatsApp(reg));
+    function formatarTelefoneWhatsApp(rawFone) {
+      const digitos = String(rawFone || "").replace(/\D/g, "");
+      if (!digitos) return "";
+      if (digitos.startsWith("55") && (digitos.length === 12 || digitos.length === 13)) {
+        return digitos;
+      }
+      if (digitos.length === 10 || digitos.length === 11) {
+        return "55" + digitos;
+      }
+      return digitos;
+    }
+
+    function dispararWhatsApp(rawFone, mensagem) {
+      const numero = formatarTelefoneWhatsApp(rawFone);
+      const texto = encodeURIComponent(mensagem);
       const url = numero
         ? `https://wa.me/${numero}?text=${texto}`
         : `https://wa.me/?text=${texto}`;
-      window.open(url, "_blank", "noopener,noreferrer");
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
     }
 
-    async function confirmarBaixa() {
+    function abrirWhatsAppCliente(reg) {
+      const msg = montarMensagemWhatsApp(reg);
+      dispararWhatsApp(reg.whatsapp, msg);
+    }
+
+    function confirmarBaixa() {
       if (!baixaCtx) return;
-      const formaPagamento = document.getElementById("modal-pagamento").value;
+      const formaPagamento = document.getElementById("modal-pagamento").value || "PIX";
       const agora = new Date();
       const { idx, item, t } = baixaCtx;
 
@@ -3356,10 +3777,16 @@
         horaBaixa: agora.toLocaleTimeString("pt-BR")
       };
 
-      const caminhoPdf = await gerarPdfNaPastaSaidas(reg);
-      reg.arquivoPdfSaidas = caminhoPdf;
+      const nomeBase = gerarNomeArquivoSaidas(reg);
+      reg.arquivoPdfSaidas = `${PASTA_SAIDAS_ALVO}\\${nomeBase}`;
 
-      if (idx !== null && idx !== undefined && state.patio[idx]) state.patio.splice(idx, 1);
+      if (idx !== null && idx !== undefined && state.patio[idx]) {
+        state.patio.splice(idx, 1);
+      } else if (item && item.id) {
+        const pos = state.patio.findIndex(p => p.id === item.id);
+        if (pos >= 0) state.patio.splice(pos, 1);
+      }
+
       upsertCliente(reg);
       registrarMonitoramentoPreventivo(reg);
       sincronizarPassagemHistorico(reg, "Saída / Baixa Concluída");
@@ -3368,6 +3795,8 @@
       renderizarPatio();
       renderizarHistorico();
       renderizarMonitoramentoPreventivas();
+
+      gerarPdfNaPastaSaidas(reg);
       abrirWhatsAppCliente(reg);
     }
 
@@ -3378,8 +3807,9 @@
             const qtd = Math.max(1, parseInt(s.qtdPeca || 1, 10) || 1);
             const unit = parseBRL(s.valorPeca);
             const gar = avaliarGarantiaItem(s, reg);
+            const oleoTxt = formatarResumoOleo(s);
             return `<tr>
-              <td style="padding:6px;border-bottom:1px solid #ddd;">${i + 1}. ${s.nome || "Serviço"} ${gar.diasGarantia > 0 ? "(Garantia: " + gar.diasGarantia + "d até " + fmtDataISO(gar.validadeISO) + ")" : ""} ${s.detalhes ? "(" + s.detalhes + ")" : ""}</td>
+              <td style="padding:6px;border-bottom:1px solid #ddd;">${i + 1}. ${s.nome || "Serviço"} ${oleoTxt ? "(" + oleoTxt + ")" : ""} ${gar.diasGarantia > 0 ? "(Garantia: " + gar.diasGarantia + "d até " + fmtDataISO(gar.validadeISO) + ")" : ""} ${s.detalhes ? "(" + s.detalhes + ")" : ""}</td>
               <td style="padding:6px;border-bottom:1px solid #ddd;text-align:center;">${qtd}</td>
               <td style="padding:6px;border-bottom:1px solid #ddd;text-align:right;">${fmtBRL(qtd * unit)}</td>
             </tr>`;
@@ -3438,7 +3868,7 @@
 
       const filtrados = avaliados.filter(({ reg, garantiasItens, temNaGarantia, temForaGarantia }) => {
         const itensTxt = garantiasItens
-          .map(({ item, gar }) => `${item.nome || ""} ${item.detalhes || ""} ${gar.label} ${fmtDataISO(gar.validadeISO)}`)
+          .map(({ item, gar }) => `${item.nome || ""} ${item.oleoTipo || ""} ${item.oleoMarca || ""} ${item.detalhes || ""} ${gar.label} ${fmtDataISO(gar.validadeISO)}`)
           .join(" ");
         const prevTxt = (Array.isArray(reg.preventivasSnapshot) ? reg.preventivasSnapshot : [])
           .map(p => `${p.servico || ""} ${p.intervaloKm || ""} ${p.proximoKm || ""} ${p.intervaloDias || ""} ${fmtDataISO(p.proximaDataISO)}`)
@@ -3476,10 +3906,11 @@
           ? garantiasItens.map(({ item, gar }, i) => {
               const qtd = Math.max(1, parseInt(item.qtdPeca || 1, 10) || 1);
               const unit = parseBRL(item.valorPeca);
+              const oleoTxt = formatarResumoOleo(item);
               return `
                 <div class="garantia-item-box">
                   <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
-                    <span><b>${i + 1}. ${item.nome || "Serviço"}</b> — Qtd: <b>${qtd}</b> • Unitário: <b>${fmtBRL(unit)}</b> • Subtotal: <b>${fmtBRL(qtd * unit)}</b></span>
+                    <span><b>${i + 1}. ${item.nome || "Serviço"}</b>${oleoTxt ? ` [${oleoTxt}]` : ""} — Qtd: <b>${qtd}</b> • Unitário: <b>${fmtBRL(unit)}</b> • Subtotal: <b>${fmtBRL(qtd * unit)}</b></span>
                     <span class="${gar.tagClass}">${gar.label}</span>
                   </div>
                   <div class="os-meta" style="margin-top:4px;">
@@ -3576,7 +4007,7 @@
         renderizarServicos();
       }
       if (sub === "preventivas") renderizarPreventivas();
-      if (sub === "cor") aplicarCor(state.corSistema || "#3b82f6");
+      if (sub === "cor") aplicarCor(state.corSistema || "#f97316");
       if (sub === "pagamento") renderizarPagamentos();
     }
 
@@ -3813,14 +4244,14 @@
       const osObj = {
         id: "TESTE_" + agora.getTime(),
         cliente: "Leandro Teste",
-        whatsapp: "(19) 99999-9999",
+        whatsapp: "19999999999",
         modelo: "Renault Clio 1.0 16V",
         ano: "2016",
         placa: "ABC1D23",
         km: "85400",
         obsMecanico: "Verificada suspensão; cliente avisado sobre buchas da bandeja.",
         servicosAtuais: [
-          { nome: "Troca de Óleo e Filtro", qtdPeca: 1, valorPeca: 140, garantiaDias: 90, dataBaseGarantiaISO: hojeISO(), detalhes: "5W30 Sintético" }
+          { nome: "Troca de Óleo e Filtro", qtdPeca: 1, valorPeca: 140, garantiaDias: 90, dataBaseGarantiaISO: hojeISO(), oleoTipo: "5W30", oleoMarca: "MOBIL", detalhes: "Sintético" }
         ],
         maoDeObraGeral: 90,
         total: 230,
