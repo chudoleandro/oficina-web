@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Nexus Oficina — Motorsport Telemetry (v1.0.1)</title>
+  <title>Nexus Oficina — Motorsport Telemetry (v1.1.0)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -1124,7 +1124,7 @@
         </div>
         <div class="brand-texts">
           <strong id="sidebar-oficina-nome">NEXUS OFICINA</strong>
-          <span id="sidebar-versao-tag">v1.0.0 • Telemetry</span>
+          <span id="sidebar-versao-tag">v1.1.0 • Telemetry</span>
         </div>
       </div>
 
@@ -1205,7 +1205,7 @@
 
     <div class="sidebar-footer">
       <div class="sidebar-footer-info">
-        <span class="dot-online"></span>Telemetria Online • v1.0.0
+        <span class="dot-online"></span>Telemetria Online • v1.1.0
       </div>
     </div>
   </aside>
@@ -1231,7 +1231,7 @@
     </header>
 
     <main class="content">
-      <!-- BANNER DE NOVA VERSÃO DISPONÍVEL -->
+      <!-- BANNER DE ATUALIZAÇÃO -->
       <div id="update-banner" class="update-banner">
         <div id="update-banner-text" class="update-banner-text"></div>
         <div class="update-banner-actions">
@@ -1862,7 +1862,6 @@
       atualizarKPIs();
     }
 
-    /* ==================== TROCA DE ÓLEO: TIPO E MARCA ==================== */
     function ehServicoTrocaOleo(nomeServico) {
       const txt = String(nomeServico || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
       return txt.includes("oleo");
@@ -2447,7 +2446,6 @@
       `).join("");
     }
 
-    /* ==================== HISTÓRICO GERAL DE PASSAGENS ==================== */
     function sincronizarPassagemHistorico(dados, origemEvento = "PASSAGEM") {
       if (!dados) return;
       const clienteLimpo = (dados.cliente || "").trim();
@@ -2532,7 +2530,6 @@
       }
     }
 
-    /* ==================== MONITORAMENTO DE PREVENTIVAS (KM E DIAS) ==================== */
     function encontrarServicosPreventivosNaOS(dadosOS) {
       const itens = Array.isArray(dadosOS.servicosAtuais) ? dadosOS.servicosAtuais : [];
       const servicosPrevAtivos = state.servicos.filter(s => s.preventiva);
@@ -2742,7 +2739,6 @@
       }).join("");
     }
 
-    /* TELA DE EDIÇÃO DEDICADA */
     function renderizarListaEdicaoOleo() {
       const boxTipos = document.getElementById("edit-oleo-lista-tipos");
       const boxMarcas = document.getElementById("edit-oleo-lista-marcas");
@@ -3352,7 +3348,6 @@
       }
     }
 
-    /* PÁTIO DETALHADO (SEM VALORES FINANCEIROS FORA DO FINANCEIRO) */
     function renderizarPatio() {
       const q = (document.getElementById("busca-patio").value || "").trim().toLowerCase();
       const box = document.getElementById("lista-patio");
@@ -3424,7 +3419,6 @@
       renderizarFinanceiro();
     }
 
-    /* NOVA OS — CLIENTES SALVOS E SERVIÇOS */
     function preencherClientesSalvosOS() {
       const dl = document.getElementById("lista-clientes-salvos");
       const sel = document.getElementById("atalho-cliente-os");
@@ -3635,7 +3629,6 @@
       navegar("patio");
     }
 
-    /* ORÇAMENTOS GERADOS */
     function gerarOrcamentoDaOS() {
       const d = coletarOS();
       if (!d.cliente && !d.modelo && !d.placa && !d.servicosAtuais.length && d.total <= 0) {
@@ -3754,7 +3747,6 @@
       }).join("");
     }
 
-    /* CLIENTES E VEÍCULOS */
     function limparFormCliente() {
       ["cad-cliente", "cad-wa", "cad-cpf", "cad-email", "cad-endereco", "cad-modelo", "cad-placa", "cad-ano", "cad-cor", "cad-km", "cad-obs"]
         .forEach(id => {
@@ -3867,7 +3859,6 @@
       }).join("");
     }
 
-    /* BAIXA, PDF, WHATSAPP E HISTÓRICO */
     function abrirModalBaixa(idx) {
       const item = state.patio[idx];
       if (!item) return;
@@ -4286,7 +4277,6 @@
       }).join("");
     }
 
-    /* SUBMENUS DE CONFIGURAÇÕES */
     function abrirSubmenuConfig(sub) {
       document.querySelectorAll(".sub-btn").forEach(b => b.classList.toggle("active", b.dataset.sub === sub));
       document.querySelectorAll(".sub-section").forEach(s => s.classList.toggle("active", s.id === `sub-${sub}`));
