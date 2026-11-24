@@ -1103,7 +1103,7 @@
         </div>
       </div>
 
-      <button class="toggle-btn" title="Recolher/Expandir menu" onclick="alternarSidebar()">
+      <button type="button" class="toggle-btn" title="Recolher/Expandir menu" onclick="alternarSidebar()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
           <line x1="3" y1="6" x2="21" y2="6"></line>
           <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -1115,7 +1115,7 @@
     <nav class="sidebar-nav">
       <div class="nav-group-title">Operação &amp; Pátio</div>
 
-      <button class="nav-btn active" data-screen="patio" onclick="navegar('patio')">
+      <button type="button" class="nav-btn active" data-screen="patio" onclick="navegar('patio')">
         <span class="nav-btn-left">
           <span class="nav-icon-wrap"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="10" rx="2"></rect><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle></svg></span>
           <span class="nav-label">Pátio e Baixa</span>
@@ -1123,14 +1123,14 @@
         <span id="badge-patio" class="nav-badge">0</span>
       </button>
 
-      <button class="nav-btn" data-screen="nova_os" onclick="navegar('nova_os')">
+      <button type="button" class="nav-btn" data-screen="nova_os" onclick="navegar('nova_os')">
         <span class="nav-btn-left">
           <span class="nav-icon-wrap"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></span>
           <span class="nav-label">Nova OS / Entrada</span>
         </span>
       </button>
 
-      <button class="nav-btn" data-screen="orcamentos" onclick="navegar('orcamentos')">
+      <button type="button" class="nav-btn" data-screen="orcamentos" onclick="navegar('orcamentos')">
         <span class="nav-btn-left">
           <span class="nav-icon-wrap"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></span>
           <span class="nav-label">Orçamentos</span>
@@ -1138,7 +1138,7 @@
         <span id="badge-orcamentos" class="nav-badge">0</span>
       </button>
 
-      <button class="nav-btn" data-screen="preventivas" onclick="navegar('preventivas')">
+      <button type="button" class="nav-btn" data-screen="preventivas" onclick="navegar('preventivas')">
         <span class="nav-btn-left">
           <span class="nav-icon-wrap"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="9"></circle></svg></span>
           <span class="nav-label">Preventivas</span>
@@ -1148,14 +1148,14 @@
 
       <div class="nav-group-title">Gestão &amp; Histórico</div>
 
-      <button class="nav-btn" data-screen="clientes" onclick="navegar('clientes')">
+      <button type="button" class="nav-btn" data-screen="clientes" onclick="navegar('clientes')">
         <span class="nav-btn-left">
           <span class="nav-icon-wrap"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg></span>
           <span class="nav-label">Clientes e Veículos</span>
         </span>
       </button>
 
-      <button class="nav-btn" data-screen="historico" onclick="navegar('historico')">
+      <button type="button" class="nav-btn" data-screen="historico" onclick="navegar('historico')">
         <span class="nav-btn-left">
           <span class="nav-icon-wrap"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg></span>
           <span class="nav-label">Histórico</span>
@@ -1163,7 +1163,7 @@
         <span id="badge-historico" class="nav-badge">0</span>
       </button>
 
-      <button class="nav-btn" data-screen="config" onclick="navegar('config')">
+      <button type="button" class="nav-btn" data-screen="config" onclick="navegar('config')">
         <span class="nav-btn-left">
           <span class="nav-icon-wrap"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></span>
           <span class="nav-label">Configurações</span>
@@ -1182,7 +1182,7 @@
   <div class="main-wrapper">
     <header class="topbar">
       <div class="topbar-left">
-        <button class="mobile-menu-btn" onclick="abrirDrawerMobile()" aria-label="Abrir menu">
+        <button type="button" class="mobile-menu-btn" onclick="abrirDrawerMobile()" aria-label="Abrir menu">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
             <line x1="3" y1="6" x2="21" y2="6"></line>
             <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -1638,7 +1638,7 @@
   <div id="print-area"></div>
 
   <script>
-    const STORAGE_KEY = "nexus_oficina_pro_v22";
+    const STORAGE_KEY = "nexus_oficina_pro_v23";
     const PASTA_SAIDAS_ALVO = "C:\\Users\\15121\\Desktop\\PROJETO MECANICA\\SAIDAS";
     const IDB_NAME = "nexus_oficina_fs_db";
     const IDB_STORE = "handles";
@@ -1722,7 +1722,9 @@
     function saveState() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      } catch {}
+      } catch (err) {
+        console.warn("Aviso ao salvar no localStorage:", err);
+      }
       aplicarIdentidadeVisual();
       atualizarKPIs();
     }
@@ -1852,6 +1854,8 @@
       const logoBox = document.getElementById("sidebar-logo-box");
       if (state.config.logoDataUrl) {
         logoBox.innerHTML = `<img src="${state.config.logoDataUrl}" alt="Logo" />`;
+      } else {
+        logoBox.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#050608" stroke-width="2.4"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>`;
       }
     }
 
@@ -2004,13 +2008,16 @@
       config: "Configurações"
     };
 
-    function navegar(tela) {
+    function navegar(tela, opcoes = {}) {
+      const ativarSub = opcoes.subconfig || null;
       document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.screen === tela));
       document.querySelectorAll(".screen").forEach(s => s.classList.toggle("active", s.id === `screen-${tela}`));
       document.getElementById("page-title").textContent = TITULOS[tela] || "Nexus Oficina";
       document.getElementById("kpi-section").classList.toggle("visible", tela === "patio");
       fecharDrawerMobile();
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (!opcoes.manterScroll) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
 
       if (tela === "patio") renderizarPatio();
       if (tela === "nova_os") {
@@ -2024,6 +2031,10 @@
       if (tela === "clientes") renderizarClientes();
       if (tela === "historico") renderizarHistorico();
       if (tela === "config") {
+        if (ativarSub) {
+          document.querySelectorAll(".sub-btn").forEach(b => b.classList.toggle("active", b.dataset.sub === ativarSub));
+          document.querySelectorAll(".sub-section").forEach(s => s.classList.toggle("active", s.id === `sub-${ativarSub}`));
+        }
         preencherConfigForm();
         renderizarEditarDados();
         renderizarServicos();
@@ -2870,10 +2881,13 @@
         const fileInput = document.getElementById("edit-oficina-logo");
         const file = fileInput && fileInput.files && fileInput.files[0];
 
-        const concluir = () => {
+        const concluir = async (logoFinal) => {
           state.config.oficinaNome = nome;
           state.config.oficinaFone = fone;
           state.config.oficinaEndereco = end;
+          if (logoFinal) {
+            state.config.logoDataUrl = logoFinal;
+          }
           saveState();
           preencherConfigForm();
           fecharTelaEdicao();
@@ -2881,13 +2895,13 @@
 
         if (file) {
           const reader = new FileReader();
-          reader.onload = (e) => {
-            state.config.logoDataUrl = e.target.result;
-            concluir();
+          reader.onload = async (e) => {
+            const otimizada = await comprimirLogoDataUrl(e.target?.result || "");
+            await concluir(otimizada);
           };
           reader.readAsDataURL(file);
         } else {
-          concluir();
+          concluir("");
         }
       } else if (tipo === "cliente") {
         const c = state.clientes[idx];
@@ -4018,12 +4032,55 @@
       atualizarPreviewLogo();
     }
 
+    function comprimirLogoDataUrl(dataUrl, maxSize = 280, quality = 0.82) {
+      return new Promise((resolve) => {
+        if (!dataUrl || typeof dataUrl !== "string") return resolve("");
+        const img = new Image();
+        img.onload = () => {
+          try {
+            let { width, height } = img;
+            if (width > maxSize || height > maxSize) {
+              if (width >= height) {
+                height = Math.max(1, Math.round((height * maxSize) / width));
+                width = maxSize;
+              } else {
+                width = Math.max(1, Math.round((width * maxSize) / height));
+                height = maxSize;
+              }
+            }
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return resolve(dataUrl);
+            ctx.clearRect(0, 0, width, height);
+            ctx.drawImage(img, 0, 0, width, height);
+            const isPng = dataUrl.startsWith("data:image/png");
+            resolve(isPng ? canvas.toDataURL("image/png") : canvas.toDataURL("image/jpeg", quality));
+          } catch {
+            resolve(dataUrl);
+          }
+        };
+        img.onerror = () => resolve(dataUrl);
+        img.src = dataUrl;
+      });
+    }
+
     function processarUploadLogo(event) {
-      const file = event.target.files && event.target.files[0];
+      if (event && typeof event.preventDefault === "function") {
+        event.preventDefault();
+      }
+      const input = event && event.target;
+      const file = input && input.files && input.files[0];
       if (!file) return;
+
       const reader = new FileReader();
-      reader.onload = function(e) {
-        state.config.logoDataUrl = e.target.result;
+      reader.onload = async function(e) {
+        const bruto = e.target?.result || "";
+        const otimizada = await comprimirLogoDataUrl(bruto);
+        state.config.logoDataUrl = otimizada;
+        saveState();
+        navegar("config", { subconfig: "oficina", manterScroll: true });
         atualizarPreviewLogo();
       };
       reader.readAsDataURL(file);
@@ -4031,19 +4088,23 @@
 
     function removerLogo() {
       state.config.logoDataUrl = "";
-      document.getElementById("cfg-logo-file").value = "";
+      const fileInput = document.getElementById("cfg-logo-file");
+      if (fileInput) fileInput.value = "";
+      saveState();
+      navegar("config", { subconfig: "oficina", manterScroll: true });
       atualizarPreviewLogo();
     }
 
     function atualizarPreviewLogo() {
       const img = document.getElementById("cfg-logo-preview");
       const st = document.getElementById("cfg-logo-status");
+      if (!img || !st) return;
       if (state.config.logoDataUrl) {
         img.src = state.config.logoDataUrl;
         img.style.display = "block";
-        st.textContent = "Logo carregada no sistema.";
+        st.textContent = "Logo carregada e atualizada no sistema.";
       } else {
-        img.src = "";
+        img.removeAttribute("src");
         img.style.display = "none";
         st.textContent = "Nenhuma logo enviada.";
       }
@@ -4058,6 +4119,7 @@
         pastaSaidas: PASTA_SAIDAS_ALVO
       };
       saveState();
+      navegar("config", { subconfig: "oficina", manterScroll: true });
       alert("Configurações da oficina salvas!");
     }
 
