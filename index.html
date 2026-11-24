@@ -419,46 +419,77 @@
       margin: 0 auto;
     }
 
-    /* ==================== KPI CARDS (SOMENTE NA ABA PÁTIO) ==================== */
-    .kpi-grid {
-      display: none;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
-      margin-bottom: 22px;
-    }
-
-    .kpi-grid.visible {
+    /* ==================== FINANCEIRO CARDS & GRÁFICOS ==================== */
+    .fin-kpi-grid {
       display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
     }
 
-    .kpi-card {
-      background: var(--panel);
+    .fin-kpi-card {
+      background: var(--card);
       border: 1px solid var(--border);
       border-top: 3px solid var(--primary);
       border-radius: 10px;
-      padding: 18px 20px;
+      padding: 16px 18px;
       min-width: 0;
     }
 
-    .kpi-title {
-      font-size: 11.5px;
+    .fin-kpi-title {
+      font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 0.9px;
       color: var(--muted);
       margin-bottom: 6px;
     }
 
-    .kpi-value {
-      font-size: 24px;
+    .fin-kpi-value {
+      font-family: "Chakra Petch", "Plus Jakarta Sans", sans-serif;
+      font-size: 22px;
       font-weight: 700;
       color: #fff;
       word-break: break-word;
     }
 
-    .kpi-value.green { color: #34d399; }
-    .kpi-value.blue { color: var(--primary); }
-    .kpi-value.amber { color: #facc15; }
+    .fin-kpi-value.green { color: #34d399; }
+    .fin-kpi-value.amber { color: #facc15; }
+    .fin-kpi-value.blue { color: #60a5fa; }
+
+    .charts-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .chart-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      min-width: 0;
+    }
+
+    .chart-title {
+      font-family: "Chakra Petch", "Plus Jakarta Sans", sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    canvas.fin-chart {
+      width: 100%;
+      height: 230px;
+      display: block;
+      background: var(--input-bg);
+      border: 1px solid var(--border-soft);
+      border-radius: 8px;
+    }
 
     /* ==================== TELAS E SUBMENUS DE CONFIGURAÇÕES PREMIUM ==================== */
     .screen { display: none; }
@@ -844,36 +875,6 @@
       word-break: break-word;
     }
 
-    .calc-summary-box {
-      margin-top: 14px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-left: 4px solid var(--success);
-      border-radius: 10px;
-      padding: 15px 18px;
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .calc-item-label {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
-
-    .calc-item-val {
-      font-size: 18px;
-      font-weight: 800;
-      color: #fff;
-      word-break: break-word;
-    }
-
-    .calc-item-val.green { color: #34d399; }
-
     .item-line {
       display: flex;
       align-items: center;
@@ -992,18 +993,6 @@
       margin-bottom: 14px;
     }
 
-    .modal-total {
-      background: var(--input-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 14px;
-      text-align: center;
-      font-size: 19px;
-      font-weight: 800;
-      color: #34d399;
-      margin-bottom: 16px;
-    }
-
     .drawer-backdrop {
       display: none;
       position: fixed;
@@ -1026,8 +1015,14 @@
       #print-area { display: block !important; }
     }
 
+    @media (max-width: 1080px) {
+      .fin-kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
     @media (max-width: 900px) {
-      .kpi-grid, .calc-summary-box, .grid-2, .grid-3, .grid-item-add {
+      .charts-grid-2, .fin-kpi-grid, .grid-2, .grid-3, .grid-item-add {
         grid-template-columns: 1fr;
       }
       .content {
@@ -1163,6 +1158,13 @@
         <span id="badge-historico" class="nav-badge">0</span>
       </button>
 
+      <button type="button" class="nav-btn" data-screen="financeiro" onclick="navegar('financeiro')">
+        <span class="nav-btn-left">
+          <span class="nav-icon-wrap"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></span>
+          <span class="nav-label">Financeiro</span>
+        </span>
+      </button>
+
       <button type="button" class="nav-btn" data-screen="config" onclick="navegar('config')">
         <span class="nav-btn-left">
           <span class="nav-icon-wrap"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></span>
@@ -1199,22 +1201,6 @@
     </header>
 
     <main class="content">
-      <!-- KPIs: EXIBIDOS SOMENTE NA ABA PÁTIO E BAIXA -->
-      <section id="kpi-section" class="kpi-grid visible">
-        <div class="kpi-card">
-          <div class="kpi-title">Veículos no Pátio</div>
-          <div id="kpi-qtd-patio" class="kpi-value blue">0</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-title">Previsão no Pátio</div>
-          <div id="kpi-valor-patio" class="kpi-value amber">R$ 0,00</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-title">Total Recebido</div>
-          <div id="kpi-total-saidas" class="kpi-value green">R$ 0,00</div>
-        </div>
-      </section>
-
       <!-- 1. PÁTIO E BAIXA -->
       <section id="screen-patio" class="screen active">
         <div class="panel">
@@ -1281,7 +1267,7 @@
           <div class="grid-item-add">
             <input type="text" id="serv-nome" placeholder="Serviço ou Peça (ex.: Troca de Óleo)" oninput="atualizarBlocoOleoNovaOS()" />
             <input type="number" id="serv-qtd" value="1" min="1" />
-            <input type="text" id="serv-valor" placeholder="Valor Peça (R$)" />
+            <input type="text" id="serv-valor" placeholder="Valor Peça" />
           </div>
 
           <!-- BLOCO TROCA DE ÓLEO: TIPO E MARCA + BOTÃO PARA EDITAR / ACRESCENTAR -->
@@ -1313,23 +1299,8 @@
           <div id="lista-servicos-temp" class="items-box">Nenhum item adicionado ainda.</div>
 
           <div class="field" style="margin-top:14px;">
-            <label>Mão de Obra (R$)</label>
-            <input type="text" id="os-mo" placeholder="Ex.: 90.00" oninput="atualizarCalculoTelaOS()" />
-          </div>
-
-          <div class="calc-summary-box">
-            <div>
-              <div class="calc-item-label">Total Peças / Itens</div>
-              <div id="os-calc-pecas" class="calc-item-val">R$ 0,00</div>
-            </div>
-            <div>
-              <div class="calc-item-label">Mão de Obra</div>
-              <div id="os-calc-mo" class="calc-item-val">R$ 0,00</div>
-            </div>
-            <div>
-              <div class="calc-item-label">Valor Total da OS</div>
-              <div id="os-calc-total" class="calc-item-val green">R$ 0,00</div>
-            </div>
+            <label>Mão de Obra</label>
+            <input type="text" id="os-mo" placeholder="Ex.: 90.00" />
           </div>
 
           <div class="btn-row">
@@ -1470,7 +1441,70 @@
         </div>
       </section>
 
-      <!-- 7. CONFIGURAÇÕES COM SUBMENUS -->
+      <!-- 7. FINANCEIRO COMPLETO COM GRÁFICOS -->
+      <section id="screen-financeiro" class="screen">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Painel Financeiro Completo</h3>
+            <span id="fin-resumo-filtro" class="os-meta">Todas as movimentações</span>
+          </div>
+
+          <div class="toolbar" style="justify-content:flex-start;">
+            <select id="fin-filtro-periodo" onchange="renderizarFinanceiro()" style="min-width:190px;max-width:100%;">
+              <option value="todos">Todo o Período</option>
+              <option value="hoje">Hoje</option>
+              <option value="7d">Últimos 7 Dias</option>
+              <option value="30d">Últimos 30 Dias</option>
+            </select>
+            <select id="fin-filtro-pagamento" onchange="renderizarFinanceiro()" style="min-width:210px;max-width:100%;">
+              <option value="todos">Todas as Formas de Pagamento</option>
+            </select>
+            <input type="text" id="fin-busca" placeholder="Buscar cliente, veículo ou placa no extrato..." oninput="renderizarFinanceiro()" style="flex:1;min-width:220px;" />
+          </div>
+
+          <div class="fin-kpi-grid">
+            <div class="fin-kpi-card">
+              <div class="fin-kpi-title">Total Recebido (Baixas)</div>
+              <div id="fin-total-recebido" class="fin-kpi-value green">R$ 0,00</div>
+            </div>
+            <div class="fin-kpi-card">
+              <div class="fin-kpi-title">Previsão no Pátio</div>
+              <div id="fin-previsao-patio" class="fin-kpi-value amber">R$ 0,00</div>
+            </div>
+            <div class="fin-kpi-card">
+              <div class="fin-kpi-title">Peças vs. Mão de Obra</div>
+              <div id="fin-pecas-mo" class="fin-kpi-value blue">R$ 0,00 / R$ 0,00</div>
+            </div>
+            <div class="fin-kpi-card">
+              <div class="fin-kpi-title">Ticket Médio (Saídas)</div>
+              <div id="fin-ticket-medio" class="fin-kpi-value">R$ 0,00</div>
+            </div>
+          </div>
+
+          <div class="charts-grid-2">
+            <div class="chart-box">
+              <div class="chart-title">Receita por Forma de Pagamento</div>
+              <canvas id="chart-pagamento" class="fin-chart" width="520" height="230"></canvas>
+            </div>
+            <div class="chart-box">
+              <div class="chart-title">Receita Realizada vs. Previsão em Aberto</div>
+              <canvas id="chart-status-receita" class="fin-chart" width="520" height="230"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-box" style="margin-bottom:18px;">
+            <div class="chart-title">Composição de Valores: Peças/Itens vs. Mão de Obra</div>
+            <canvas id="chart-composicao" class="fin-chart" width="1060" height="220"></canvas>
+          </div>
+
+          <div class="panel-header">
+            <h3>Extrato Financeiro de Saídas e Previsões</h3>
+          </div>
+          <div id="fin-lista-extrato"></div>
+        </div>
+      </section>
+
+      <!-- 8. CONFIGURAÇÕES COM SUBMENUS -->
       <section id="screen-config" class="screen">
         <div class="panel">
           <div class="config-submenu">
@@ -1620,13 +1654,12 @@
     <div class="modal-card">
       <h3 style="text-align:center;">Confirmar Baixa do Veículo</h3>
       <div id="modal-info" class="modal-sub" style="text-align:center;"></div>
-      <div id="modal-total" class="modal-total">R$ 0,00</div>
       <div class="field" style="margin-bottom:16px;">
         <label>Forma de Pagamento</label>
         <select id="modal-pagamento"></select>
       </div>
       <p class="os-meta" style="margin-bottom:14px;">
-        Ao confirmar, o sistema conclui a baixa, registra no histórico, prepara o <b>PDF</b> e abre o <b>WhatsApp</b> com a mensagem pronta para o cliente.
+        Ao confirmar, o sistema conclui a baixa, registra no histórico e no financeiro, prepara o <b>PDF</b> e abre o <b>WhatsApp</b> com a mensagem pronta para o cliente.
       </p>
       <div class="btn-row" style="justify-content:flex-end;">
         <button type="button" class="btn btn-secondary" onclick="fecharModalBaixa()">Cancelar</button>
@@ -1638,7 +1671,7 @@
   <div id="print-area"></div>
 
   <script>
-    const STORAGE_KEY = "nexus_oficina_pro_v23";
+    const STORAGE_KEY = "nexus_oficina_pro_v24";
     const PASTA_SAIDAS_ALVO = "C:\\Users\\15121\\Desktop\\PROJETO MECANICA\\SAIDAS";
     const IDB_NAME = "nexus_oficina_fs_db";
     const IDB_STORE = "handles";
@@ -1843,6 +1876,9 @@
       const elCor = document.getElementById("cor-atual-texto");
       if (elCor) elCor.textContent = hex;
       saveState();
+      if (document.getElementById("screen-financeiro")?.classList.contains("active")) {
+        renderizarFinanceiro();
+      }
     }
 
     function aplicarIdentidadeVisual() {
@@ -1986,16 +2022,11 @@
     }
 
     function atualizarKPIs() {
-      const totalPatio = state.patio.reduce((acc, x) => acc + calcTotais(x).total, 0);
-      const totalSaidas = state.historico.reduce((acc, x) => acc + parseBRL(x.total), 0);
       document.getElementById("badge-patio").textContent = String(state.patio.length);
       document.getElementById("badge-orcamentos").textContent = String(state.orcamentos.length);
       const badgePrev = document.getElementById("badge-preventivas");
       if (badgePrev) badgePrev.textContent = String(state.preventivasMonitoramento.length);
       document.getElementById("badge-historico").textContent = String(state.historico.length);
-      document.getElementById("kpi-qtd-patio").textContent = String(state.patio.length);
-      document.getElementById("kpi-valor-patio").textContent = fmtBRL(totalPatio);
-      document.getElementById("kpi-total-saidas").textContent = fmtBRL(totalSaidas);
     }
 
     const TITULOS = {
@@ -2005,6 +2036,7 @@
       preventivas: "Preventivas — Veículos em Monitoramento",
       clientes: "Clientes e Veículos",
       historico: "Histórico Completo — Garantias, Preventivas e Datas",
+      financeiro: "Financeiro — Receitas, Previsão e Gráficos",
       config: "Configurações"
     };
 
@@ -2013,7 +2045,6 @@
       document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.screen === tela));
       document.querySelectorAll(".screen").forEach(s => s.classList.toggle("active", s.id === `screen-${tela}`));
       document.getElementById("page-title").textContent = TITULOS[tela] || "Nexus Oficina";
-      document.getElementById("kpi-section").classList.toggle("visible", tela === "patio");
       fecharDrawerMobile();
       if (!opcoes.manterScroll) {
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -2024,12 +2055,12 @@
         preencherClientesSalvosOS();
         preencherAtalhoServicosOS();
         atualizarBlocoOleoNovaOS();
-        atualizarCalculoTelaOS();
       }
       if (tela === "orcamentos") renderizarOrcamentosGerados();
       if (tela === "preventivas") renderizarMonitoramentoPreventivas();
       if (tela === "clientes") renderizarClientes();
       if (tela === "historico") renderizarHistorico();
+      if (tela === "financeiro") renderizarFinanceiro();
       if (tela === "config") {
         if (ativarSub) {
           document.querySelectorAll(".sub-btn").forEach(b => b.classList.toggle("active", b.dataset.sub === ativarSub));
@@ -2071,6 +2102,7 @@
       renderizarOrcamentosGerados();
       renderizarMonitoramentoPreventivas();
       renderizarHistorico();
+      renderizarFinanceiro();
       renderizarClientes();
       renderizarEditarDados();
       renderizarServicos();
@@ -2078,8 +2110,241 @@
       renderizarPreventivas();
       preencherClientesSalvosOS();
       atualizarBlocoOleoNovaOS();
-      atualizarCalculoTelaOS();
       atualizarKPIs();
+    }
+
+    /* ==================== FINANCEIRO COMPLETO COM GRÁFICOS ==================== */
+    function preencherFiltroPagamentosFinanceiro() {
+      const sel = document.getElementById("fin-filtro-pagamento");
+      if (!sel) return;
+      const atual = sel.value || "todos";
+      const nomes = new Set(state.pagamentos.map(p => p.nome).filter(Boolean));
+      state.historico.forEach(r => {
+        if (r.formaPagamento) nomes.add(r.formaPagamento);
+      });
+      sel.innerHTML = `<option value="todos">Todas as Formas de Pagamento</option>` +
+        Array.from(nomes).map(n => `<option value="${String(n).replace(/"/g, "&quot;")}">${n}</option>`).join("");
+      if (Array.from(sel.options).some(o => o.value === atual)) sel.value = atual;
+    }
+
+    function dentroDoPeriodo(dataBr, periodo) {
+      if (!periodo || periodo === "todos") return true;
+      const iso = dataBrParaISO(dataBr);
+      if (!iso) return true;
+      const partes = iso.split("-");
+      if (partes.length !== 3) return true;
+      const d = new Date(Number(partes[0]), Number(partes[1]) - 1, Number(partes[2]));
+      const hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
+      d.setHours(0, 0, 0, 0);
+      const diffDias = Math.round((hoje - d) / (1000 * 60 * 60 * 24));
+      if (periodo === "hoje") return diffDias === 0;
+      if (periodo === "7d") return diffDias >= 0 && diffDias <= 7;
+      if (periodo === "30d") return diffDias >= 0 && diffDias <= 30;
+      return true;
+    }
+
+    function desenharGraficoBarras(canvasId, labels, values, colors) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      ctx.fillStyle = "#07090d";
+      ctx.fillRect(0, 0, w, h);
+
+      const maxVal = Math.max(1, ...values.map(v => Number(v || 0)));
+      const padLeft = 46;
+      const padRight = 24;
+      const padTop = 26;
+      const padBottom = 42;
+      const plotW = Math.max(60, w - padLeft - padRight);
+      const plotH = Math.max(50, h - padTop - padBottom);
+
+      ctx.strokeStyle = "#1e2534";
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const y = padTop + (plotH / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(padLeft, y);
+        ctx.lineTo(w - padRight, y);
+        ctx.stroke();
+
+        const valLabel = maxVal - (maxVal / 4) * i;
+        ctx.fillStyle = "#94a3b8";
+        ctx.font = "600 10px 'Plus Jakarta Sans', sans-serif";
+        ctx.textAlign = "right";
+        ctx.fillText(`R$${Math.round(valLabel)}`, padLeft - 6, y + 3);
+      }
+
+      if (!labels.length) {
+        ctx.fillStyle = "#94a3b8";
+        ctx.font = "600 13px 'Plus Jakarta Sans', sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("Sem dados financeiros para exibir no gráfico", w / 2, h / 2);
+        return;
+      }
+
+      const count = labels.length;
+      const gap = 16;
+      const barW = Math.max(24, Math.min(72, (plotW - gap * (count + 1)) / count));
+      const totalBarsSpan = count * barW + (count - 1) * gap;
+      const startX = padLeft + Math.max(0, (plotW - totalBarsSpan) / 2);
+
+      for (let i = 0; i < count; i++) {
+        const v = Number(values[i] || 0);
+        const barH = Math.max(2, (v / maxVal) * (plotH - 8));
+        const x = startX + i * (barW + gap);
+        const y = padTop + plotH - barH;
+
+        ctx.fillStyle = colors[i % colors.length] || "#f97316";
+        ctx.beginPath();
+        if (ctx.roundRect) {
+          ctx.roundRect(x, y, barW, barH, [6, 6, 0, 0]);
+        } else {
+          ctx.rect(x, y, barW, barH);
+        }
+        ctx.fill();
+
+        ctx.fillStyle = "#f8fafc";
+        ctx.font = "700 11px 'Plus Jakarta Sans', sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(fmtBRL(v), x + barW / 2, Math.max(14, y - 6));
+
+        ctx.fillStyle = "#cbd5e1";
+        ctx.font = "700 11px 'Plus Jakarta Sans', sans-serif";
+        ctx.textAlign = "center";
+        const lbl = String(labels[i] || "").slice(0, 14);
+        ctx.fillText(lbl, x + barW / 2, padTop + plotH + 18);
+      }
+    }
+
+    function renderizarFinanceiro() {
+      preencherFiltroPagamentosFinanceiro();
+      const periodo = document.getElementById("fin-filtro-periodo")?.value || "todos";
+      const pgtoFiltro = document.getElementById("fin-filtro-pagamento")?.value || "todos";
+      const busca = (document.getElementById("fin-busca")?.value || "").trim().toLowerCase();
+
+      const concluidos = state.historico.filter(r => {
+        if (r.status !== "CONCLUIDA" && !r.dataConclusao) return false;
+        const dataRef = r.dataConclusao || r.dataEntrada || "";
+        if (!dentroDoPeriodo(dataRef, periodo)) return false;
+        const pgto = r.formaPagamento || "Não informado";
+        if (pgtoFiltro !== "todos" && pgto !== pgtoFiltro) return false;
+        const txt = `${r.cliente || ""} ${r.modelo || ""} ${r.placa || ""} ${pgto}`.toLowerCase();
+        return !busca || txt.includes(busca);
+      });
+
+      const patioFiltrado = state.patio.filter(p => {
+        if (!dentroDoPeriodo(p.dataEntrada || "", periodo)) return false;
+        if (pgtoFiltro !== "todos") return false;
+        const txt = `${p.cliente || ""} ${p.modelo || ""} ${p.placa || ""}`.toLowerCase();
+        return !busca || txt.includes(busca);
+      });
+
+      let totalRecebido = 0;
+      let totalPecasRealizado = 0;
+      let totalMoRealizado = 0;
+      const porPagamento = {};
+
+      concluidos.forEach(r => {
+        const t = calcTotais(r);
+        totalRecebido += t.total;
+        totalPecasRealizado += t.somaPecas;
+        totalMoRealizado += t.mo;
+        const k = r.formaPagamento || "Não informado";
+        porPagamento[k] = (porPagamento[k] || 0) + t.total;
+      });
+
+      let previsaoPatio = 0;
+      let totalPecasPatio = 0;
+      let totalMoPatio = 0;
+      patioFiltrado.forEach(p => {
+        const t = calcTotais(p);
+        previsaoPatio += t.total;
+        totalPecasPatio += t.somaPecas;
+        totalMoPatio += t.mo;
+      });
+
+      const ticketMedio = concluidos.length ? totalRecebido / concluidos.length : 0;
+
+      document.getElementById("fin-total-recebido").textContent = fmtBRL(totalRecebido);
+      document.getElementById("fin-previsao-patio").textContent = fmtBRL(previsaoPatio);
+      document.getElementById("fin-pecas-mo").textContent = `${fmtBRL(totalPecasRealizado + totalPecasPatio)} / ${fmtBRL(totalMoRealizado + totalMoPatio)}`;
+      document.getElementById("fin-ticket-medio").textContent = fmtBRL(ticketMedio);
+
+      const resumoFiltroEl = document.getElementById("fin-resumo-filtro");
+      if (resumoFiltroEl) {
+        resumoFiltroEl.textContent = `${concluidos.length} saída(s) concluída(s) • ${patioFiltrado.length} no pátio`;
+      }
+
+      const pgtoKeys = Object.keys(porPagamento);
+      const pgtoVals = pgtoKeys.map(k => porPagamento[k]);
+      desenharGraficoBarras(
+        "chart-pagamento",
+        pgtoKeys,
+        pgtoVals,
+        ["#10b981", "#f97316", "#3b82f6", "#eab308", "#8b5cf6"]
+      );
+
+      desenharGraficoBarras(
+        "chart-status-receita",
+        ["Recebido (Saídas)", "Previsão (Pátio)"],
+        [totalRecebido, previsaoPatio],
+        ["#10b981", "#eab308"]
+      );
+
+      desenharGraficoBarras(
+        "chart-composicao",
+        ["Peças / Itens", "Mão de Obra"],
+        [totalPecasRealizado + totalPecasPatio, totalMoRealizado + totalMoPatio],
+        [state.corSistema || "#f97316", "#60a5fa"]
+      );
+
+      const extratoBox = document.getElementById("fin-lista-extrato");
+      if (!extratoBox) return;
+
+      const linhas = [
+        ...concluidos.map(r => ({
+          tipo: "SAIDA",
+          data: `${r.dataConclusao || "-"} ${r.horaBaixa || ""}`,
+          cliente: r.cliente || "Cliente",
+          veiculo: `${fmtVeiculo(r)} (${(r.placa || "-").toUpperCase()})`,
+          pagamento: r.formaPagamento || "-",
+          valor: calcTotais(r).total
+        })),
+        ...patioFiltrado.map(p => ({
+          tipo: "PATIO",
+          data: `${p.dataEntrada || "-"} ${p.horaEntrada || ""}`,
+          cliente: p.cliente || "Cliente",
+          veiculo: `${fmtVeiculo(p)} (${(p.placa || "-").toUpperCase()})`,
+          pagamento: "Aguardando Baixa",
+          valor: calcTotais(p).total
+        }))
+      ];
+
+      if (!linhas.length) {
+        extratoBox.innerHTML = `<div class="empty-state">Nenhuma movimentação financeira encontrada no filtro selecionado.</div>`;
+        return;
+      }
+
+      extratoBox.innerHTML = linhas.map(l => `
+        <div class="os-card" style="padding:14px 18px;margin-bottom:10px;">
+          <div>
+            <div class="os-main-title">
+              <span>${l.cliente} — ${l.veiculo}</span>
+              <span class="${l.tipo === "SAIDA" ? "tag green" : "tag amber"}">${l.tipo === "SAIDA" ? "Recebido" : "Previsão Pátio"}</span>
+              <span class="tag">${l.pagamento}</span>
+            </div>
+            <div class="os-meta">Data / Hora: <b>${l.data}</b></div>
+          </div>
+          <div class="fin-kpi-value ${l.tipo === "SAIDA" ? "green" : "amber"}">${fmtBRL(l.valor)}</div>
+        </div>
+      `).join("");
     }
 
     /* ==================== HISTÓRICO GERAL DE PASSAGENS ==================== */
@@ -2500,7 +2765,7 @@
           <div class="grid-item-add">
             <input type="text" id="edit-orc-novo-nome" placeholder="Serviço ou peça" oninput="atualizarBlocoOleoEditModal()" />
             <input type="number" id="edit-orc-novo-qtd" value="1" min="1" />
-            <input type="text" id="edit-orc-novo-valor" placeholder="Valor (R$)" />
+            <input type="text" id="edit-orc-novo-valor" placeholder="Valor item" />
           </div>
 
           <div id="bloco-oleo-edit-modal" class="oleo-box" style="display:none;">
@@ -2533,11 +2798,11 @@
 
         <div class="grid-2" style="margin-top:14px;">
           <div class="field">
-            <label>Mão de Obra (R$)</label>
+            <label>Mão de Obra</label>
             <input type="text" id="edit-orc-mo" value="${parseBRL(registro.maoDeObraGeral).toFixed(2)}" oninput="recalcularTotalEditOrc()" />
           </div>
           <div class="field">
-            <label>Total (R$)</label>
+            <label>Total OS</label>
             <input type="text" id="edit-orc-total" value="${calcTotais(registro).total.toFixed(2)}" />
           </div>
         </div>
@@ -2722,11 +2987,11 @@
       } else if (tipo === "orcamento") {
         const orc = state.orcamentos[idx];
         if (!orc) return;
-        montarFormEdicaoOS(orc, "Editar Orçamento", "Altere dados, garantias, valores/quantidades ou adicione novos serviços e peças.");
+        montarFormEdicaoOS(orc, "Editar Orçamento", "Altere dados, garantias, quantidades ou adicione novos serviços e peças.");
       } else if (tipo === "patio") {
         const item = state.patio[idx];
         if (!item) return;
-        montarFormEdicaoOS(item, "Editar Veículo / OS no Pátio", "Adicione serviços/peças, altere garantias/valores ou registre aviso para o cliente.");
+        montarFormEdicaoOS(item, "Editar Veículo / OS no Pátio", "Adicione serviços/peças, altere garantias ou registre aviso para o cliente.");
       } else if (tipo === "historico") {
         const reg = state.historico[idx];
         if (!reg) return;
@@ -2960,6 +3225,7 @@
         saveState();
         renderizarOrcamentosGerados();
         renderizarHistorico();
+        renderizarFinanceiro();
         fecharTelaEdicao();
       } else if (tipo === "patio") {
         const item = state.patio[idx];
@@ -2973,6 +3239,7 @@
         renderizarPatio();
         renderizarMonitoramentoPreventivas();
         renderizarHistorico();
+        renderizarFinanceiro();
         fecharTelaEdicao();
       } else if (tipo === "historico") {
         const reg = state.historico[idx];
@@ -2980,11 +3247,12 @@
         state.historico[idx] = coletarDadosEditOS(reg);
         saveState();
         renderizarHistorico();
+        renderizarFinanceiro();
         fecharTelaEdicao();
       }
     }
 
-    /* PÁTIO DETALHADO */
+    /* PÁTIO DETALHADO (SEM VALORES FINANCEIROS FORA DO FINANCEIRO) */
     function renderizarPatio() {
       const q = (document.getElementById("busca-patio").value || "").trim().toLowerCase();
       const box = document.getElementById("lista-patio");
@@ -3004,15 +3272,13 @@
       }
 
       box.innerHTML = filtrados.map(({ item, idx }) => {
-        const t = calcTotais(item);
         const itens = Array.isArray(item.servicosAtuais) ? item.servicosAtuais : [];
         const itensHtml = itens.length
           ? itens.map((s, i) => {
               const qtd = Math.max(1, parseInt(s.qtdPeca || 1, 10) || 1);
-              const val = parseBRL(s.valorPeca);
               const diasGar = Math.max(0, parseInt(s.garantiaDias ?? 90, 10) || 0);
               const oleoTxt = formatarResumoOleo(s);
-              return `<div>• <b>${i + 1}. ${s.nome || "Serviço"}</b>${oleoTxt ? ` [${oleoTxt}]` : ""} — Qtd: <b>${qtd}</b> • Unitário: <b>${fmtBRL(val)}</b> • Subtotal: <b>${fmtBRL(qtd * val)}</b>${diasGar > 0 ? ` • Garantia: <b>${diasGar} dias</b>` : ""}${s.detalhes ? ` • Obs: <i>${s.detalhes}</i>` : ""}</div>`;
+              return `<div>• <b>${i + 1}. ${s.nome || "Serviço"}</b>${oleoTxt ? ` [${oleoTxt}]` : ""} — Qtd: <b>${qtd}</b>${diasGar > 0 ? ` • Garantia: <b>${diasGar} dias</b>` : ""}${s.detalhes ? ` • Obs: <i>${s.detalhes}</i>` : ""}</div>`;
             }).join("")
           : `<div>• Nenhum serviço ou peça adicionado ainda</div>`;
 
@@ -3027,7 +3293,6 @@
                 <span>${item.modelo || "Veículo"}</span>
                 ${item.ano ? `<span class="tag">Ano ${item.ano}</span>` : ""}
                 ${item.placa ? `<span class="tag">Placa ${item.placa.toUpperCase()}</span>` : ""}
-                <span class="tag green">Total: ${fmtBRL(t.total)}</span>
               </div>
               <div class="os-detail-grid">
                 <div><b>Cliente:</b> ${item.cliente || "-"}</div>
@@ -3038,11 +3303,6 @@
               <div class="os-detail-list">
                 <div style="margin-bottom:4px;"><b>Serviços e Peças:</b></div>
                 ${itensHtml}
-                <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border-soft);display:flex;gap:18px;flex-wrap:wrap;">
-                  <span>Peças/Itens: <b>${fmtBRL(t.somaPecas)}</b></span>
-                  <span>Mão de Obra: <b>${fmtBRL(t.mo)}</b></span>
-                  <span>Valor Total: <b>${fmtBRL(t.total)}</b></span>
-                </div>
               </div>
               ${obsHtml}
             </div>
@@ -3061,6 +3321,7 @@
       state.patio.splice(idx, 1);
       saveState();
       renderizarPatio();
+      renderizarFinanceiro();
     }
 
     /* NOVA OS — CLIENTES SALVOS E SERVIÇOS */
@@ -3148,20 +3409,6 @@
       atualizarBlocoOleoNovaOS();
     }
 
-    function atualizarCalculoTelaOS() {
-      const somaPecas = servicosTemp.reduce((a, s) => a + (Math.max(1, parseInt(s.qtdPeca || 1, 10) || 1) * parseBRL(s.valorPeca)), 0);
-      const mo = parseBRL(document.getElementById("os-mo")?.value);
-      const total = somaPecas + mo;
-
-      const elPecas = document.getElementById("os-calc-pecas");
-      const elMo = document.getElementById("os-calc-mo");
-      const elTotal = document.getElementById("os-calc-total");
-
-      if (elPecas) elPecas.textContent = fmtBRL(somaPecas);
-      if (elMo) elMo.textContent = fmtBRL(mo);
-      if (elTotal) elTotal.textContent = fmtBRL(total);
-    }
-
     function adicionarServicoTemp() {
       const nome = document.getElementById("serv-nome").value.trim();
       if (!nome) return alert("Informe o nome do serviço ou peça.");
@@ -3199,13 +3446,12 @@
           const oleoTxt = formatarResumoOleo(s);
           return `
             <div class="item-line">
-              <span>${i + 1}. <b>${s.nome}</b>${oleoTxt ? ` [${oleoTxt}]` : ""} (${s.qtdPeca}x ${fmtBRL(s.valorPeca)} = <b>${fmtBRL(s.qtdPeca * s.valorPeca)}</b>) • Garantia: <b>${s.garantiaDias ?? 90} dias</b>${s.detalhes ? " — " + s.detalhes : ""}</span>
+              <span>${i + 1}. <b>${s.nome}</b>${oleoTxt ? ` [${oleoTxt}]` : ""} (Qtd: <b>${s.qtdPeca}</b>) • Garantia: <b>${s.garantiaDias ?? 90} dias</b>${s.detalhes ? " — " + s.detalhes : ""}</span>
               <button type="button" class="btn btn-danger" style="padding:5px 10px;" onclick="removerServicoTemp(${i})">Remover</button>
             </div>
           `;
         }).join("");
       }
-      atualizarCalculoTelaOS();
     }
 
     function coletarOS() {
@@ -3364,15 +3610,13 @@
       }
 
       box.innerHTML = state.orcamentos.map((orc, idx) => {
-        const t = calcTotais(orc);
         const itens = Array.isArray(orc.servicosAtuais) ? orc.servicosAtuais : [];
         const itensHtml = itens.length
           ? itens.map((s, i) => {
               const qtd = Math.max(1, parseInt(s.qtdPeca || 1, 10) || 1);
-              const val = parseBRL(s.valorPeca);
               const diasGar = Math.max(0, parseInt(s.garantiaDias ?? 90, 10) || 0);
               const oleoTxt = formatarResumoOleo(s);
-              return `<div>• <b>${i + 1}. ${s.nome || "Serviço"}</b>${oleoTxt ? ` [${oleoTxt}]` : ""} — Qtd: <b>${qtd}</b> • Unitário: <b>${fmtBRL(val)}</b> • Subtotal: <b>${fmtBRL(qtd * val)}</b>${diasGar > 0 ? ` • Garantia: <b>${diasGar} dias</b>` : ""}${s.detalhes ? ` • Obs: <i>${s.detalhes}</i>` : ""}</div>`;
+              return `<div>• <b>${i + 1}. ${s.nome || "Serviço"}</b>${oleoTxt ? ` [${oleoTxt}]` : ""} — Qtd: <b>${qtd}</b>${diasGar > 0 ? ` • Garantia: <b>${diasGar} dias</b>` : ""}${s.detalhes ? ` • Obs: <i>${s.detalhes}</i>` : ""}</div>`;
             }).join("")
           : `<div>• Nenhum item ou peça discriminado</div>`;
 
@@ -3387,7 +3631,6 @@
                 <span>${orc.modelo || "Veículo"}</span>
                 ${orc.ano ? `<span class="tag">Ano ${orc.ano}</span>` : ""}
                 ${orc.placa ? `<span class="tag">Placa ${orc.placa.toUpperCase()}</span>` : ""}
-                <span class="tag green">Total: ${fmtBRL(t.total)}</span>
               </div>
               <div class="os-detail-grid">
                 <div><b>Cliente:</b> ${orc.cliente || "-"}</div>
@@ -3398,11 +3641,6 @@
               <div class="os-detail-list">
                 <div style="margin-bottom:4px;"><b>Serviços e Peças:</b></div>
                 ${itensHtml}
-                <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border-soft);display:flex;gap:18px;flex-wrap:wrap;">
-                  <span>Peças/Itens: <b>${fmtBRL(t.somaPecas)}</b></span>
-                  <span>Mão de Obra: <b>${fmtBRL(t.mo)}</b></span>
-                  <span>Valor Total: <b>${fmtBRL(t.total)}</b></span>
-                </div>
               </div>
               ${obsHtml}
             </div>
@@ -3542,7 +3780,6 @@
       baixaCtx = { idx, item, t };
       document.getElementById("modal-info").innerHTML =
         `Cliente: <b>${item.cliente || "-"}</b><br/>Veículo: <b>${fmtVeiculo(item)}</b> • Placa: <b>${(item.placa || "-").toUpperCase()}</b>`;
-      document.getElementById("modal-total").textContent = `Total a Receber: ${fmtBRL(t.total)}`;
       document.getElementById("modal-baixa").classList.add("open");
     }
 
@@ -3809,59 +4046,10 @@
       renderizarPatio();
       renderizarHistorico();
       renderizarMonitoramentoPreventivas();
+      renderizarFinanceiro();
 
       gerarPdfNaPastaSaidas(reg);
       abrirWhatsAppCliente(reg);
-    }
-
-    function imprimir(reg) {
-      const itens = Array.isArray(reg.servicosAtuais) ? reg.servicosAtuais : [];
-      const rows = itens.length
-        ? itens.map((s, i) => {
-            const qtd = Math.max(1, parseInt(s.qtdPeca || 1, 10) || 1);
-            const unit = parseBRL(s.valorPeca);
-            const gar = avaliarGarantiaItem(s, reg);
-            const oleoTxt = formatarResumoOleo(s);
-            return `<tr>
-              <td style="padding:6px;border-bottom:1px solid #ddd;">${i + 1}. ${s.nome || "Serviço"} ${oleoTxt ? "(" + oleoTxt + ")" : ""} ${gar.diasGarantia > 0 ? "(Garantia: " + gar.diasGarantia + "d até " + fmtDataISO(gar.validadeISO) + ")" : ""} ${s.detalhes ? "(" + s.detalhes + ")" : ""}</td>
-              <td style="padding:6px;border-bottom:1px solid #ddd;text-align:center;">${qtd}</td>
-              <td style="padding:6px;border-bottom:1px solid #ddd;text-align:right;">${fmtBRL(qtd * unit)}</td>
-            </tr>`;
-          }).join("")
-        : `<tr><td colspan="3" style="padding:6px;">Nenhum item listado.</td></tr>`;
-
-      const logoHtml = state.config.logoDataUrl
-        ? `<img src="${state.config.logoDataUrl}" style="max-height:56px;max-width:140px;object-fit:contain;margin-bottom:8px;" />`
-        : "";
-
-      const obsPrint = reg.obsMecanico
-        ? `<p style="margin-bottom:12px;"><b>Aviso do Mecânico ao Cliente:</b> ${reg.obsMecanico}</p>`
-        : "";
-
-      document.getElementById("print-area").innerHTML = `
-        ${logoHtml}
-        <h2>${state.config.oficinaNome || "NEXUS OFICINA"}</h2>
-        <p style="font-size:12px;color:#444;">${state.config.oficinaFone || ""} ${state.config.oficinaEndereco ? "• " + state.config.oficinaEndereco : ""}</p>
-        <p style="font-size:13px;margin:8px 0 12px;">Comprovante de Saída (${PASTA_SAIDAS_ALVO}) • Entrada: ${reg.dataEntrada || "-"} ${reg.horaEntrada || ""} • Saída: ${reg.dataConclusao || ""} ${reg.horaBaixa || ""}</p>
-        <hr style="margin-bottom:12px;"/>
-        <p><b>Cliente:</b> ${reg.cliente || "-"} &nbsp;|&nbsp; <b>WhatsApp:</b> ${reg.whatsapp || "-"}</p>
-        <p><b>Veículo:</b> ${fmtVeiculo(reg)} &nbsp;|&nbsp; <b>Placa:</b> ${(reg.placa || "-").toUpperCase()} &nbsp;|&nbsp; <b>KM:</b> ${reg.km || "-"}</p>
-        <p style="margin-bottom:10px;"><b>Pagamento:</b> ${reg.formaPagamento || "-"}</p>
-        ${obsPrint}
-        <table style="width:100%;border-collapse:collapse;margin-bottom:12px;">
-          <thead>
-            <tr>
-              <th style="text-align:left;border-bottom:2px solid #333;padding:6px;">Serviço / Peça</th>
-              <th style="text-align:center;border-bottom:2px solid #333;padding:6px;">Qtd</th>
-              <th style="text-align:right;border-bottom:2px solid #333;padding:6px;">Subtotal</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-        <p style="text-align:right;"><b>Mão de Obra:</b> ${fmtBRL(parseBRL(reg.maoDeObraGeral))}</p>
-        <h3 style="text-align:right;margin-top:6px;">TOTAL PAGO: ${fmtBRL(parseBRL(reg.total))}</h3>
-      `;
-      window.print();
     }
 
     function renderizarHistorico() {
@@ -3896,9 +4084,7 @@
         return true;
       });
 
-      const totalRecebido = state.historico.reduce((a, r) => a + parseBRL(r.total), 0);
-      resumoEl.textContent =
-        `Exibindo ${filtrados.length} de ${state.historico.length} passagem(ns) • Recebido em Saídas: ${fmtBRL(totalRecebido)}`;
+      resumoEl.textContent = `Exibindo ${filtrados.length} de ${state.historico.length} passagem(ns)`;
 
       if (!filtrados.length) {
         box.innerHTML = `<div class="empty-state">Nenhum registro encontrado no histórico para este filtro.</div>`;
@@ -3906,7 +4092,6 @@
       }
 
       box.innerHTML = filtrados.map(({ reg, idx, garantiasItens, temNaGarantia, temForaGarantia }) => {
-        const t = calcTotais(reg);
         let statusGarBadge = `<span class="tag">Sem Garantia Cadastrada</span>`;
         if (temNaGarantia && temForaGarantia) {
           statusGarBadge = `<span class="tag amber">Misto: Possui Item NA GARANTIA e Item FORA</span>`;
@@ -3919,12 +4104,11 @@
         const itensHtml = garantiasItens.length
           ? garantiasItens.map(({ item, gar }, i) => {
               const qtd = Math.max(1, parseInt(item.qtdPeca || 1, 10) || 1);
-              const unit = parseBRL(item.valorPeca);
               const oleoTxt = formatarResumoOleo(item);
               return `
                 <div class="garantia-item-box">
                   <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
-                    <span><b>${i + 1}. ${item.nome || "Serviço"}</b>${oleoTxt ? ` [${oleoTxt}]` : ""} — Qtd: <b>${qtd}</b> • Unitário: <b>${fmtBRL(unit)}</b> • Subtotal: <b>${fmtBRL(qtd * unit)}</b></span>
+                    <span><b>${i + 1}. ${item.nome || "Serviço"}</b>${oleoTxt ? ` [${oleoTxt}]` : ""} — Qtd: <b>${qtd}</b></span>
                     <span class="${gar.tagClass}">${gar.label}</span>
                   </div>
                   <div class="os-meta" style="margin-top:4px;">
@@ -3971,7 +4155,6 @@
                 <span class="tag">${(reg.placa || "-").toUpperCase()}</span>
                 <span class="tag">${reg.origemEvento || reg.status || "Passagem"}</span>
                 ${statusGarBadge}
-                <span class="tag green">${fmtBRL(t.total)}</span>
               </div>
 
               <div class="os-detail-grid">
@@ -3986,11 +4169,6 @@
               <div class="os-detail-list">
                 <div style="margin-bottom:4px;"><b>Serviços, Peças e Situação da Garantia:</b></div>
                 ${itensHtml}
-                <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border-soft);display:flex;gap:18px;flex-wrap:wrap;">
-                  <span>Peças/Itens: <b>${fmtBRL(t.somaPecas)}</b></span>
-                  <span>Mão de Obra: <b>${fmtBRL(t.mo)}</b></span>
-                  <span>Valor Total: <b>${fmtBRL(t.total)}</b></span>
-                </div>
               </div>
 
               ${prevHtml}
@@ -4240,6 +4418,7 @@
       document.getElementById("nova-forma-pagamento").value = "";
       saveState();
       renderizarPagamentos();
+      preencherFiltroPagamentosFinanceiro();
     }
 
     function alternarPagamento(idx) {
