@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Nexus Oficina — Motorsport Telemetry</title>
+  <title>Nexus Oficina — Motorsport Telemetry (v1.0.0)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -60,6 +60,36 @@
 
     body {
       display: flex;
+    }
+
+    /* ==================== BANNER DE ATUALIZAÇÃO ==================== */
+    .update-banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 12px 18px;
+      margin-bottom: 18px;
+      background: linear-gradient(90deg, rgba(249, 115, 22, 0.22), rgba(23, 27, 36, 0.96));
+      border: 1px solid var(--primary);
+      border-radius: 10px;
+    }
+
+    .update-banner.show {
+      display: flex;
+    }
+
+    .update-banner-text {
+      font-size: 13.5px;
+      color: #f8fafc;
+      line-height: 1.45;
+    }
+
+    .update-banner-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     /* ==================== MENU LATERAL & ABAS PREMIUM ==================== */
@@ -1094,7 +1124,7 @@
         </div>
         <div class="brand-texts">
           <strong id="sidebar-oficina-nome">NEXUS OFICINA</strong>
-          <span>Motorsport Telemetry</span>
+          <span id="sidebar-versao-tag">v1.0.0 • Telemetry</span>
         </div>
       </div>
 
@@ -1175,7 +1205,7 @@
 
     <div class="sidebar-footer">
       <div class="sidebar-footer-info">
-        <span class="dot-online"></span>Telemetria Online
+        <span class="dot-online"></span>Telemetria Online • v1.0.0
       </div>
     </div>
   </aside>
@@ -1201,6 +1231,15 @@
     </header>
 
     <main class="content">
+      <!-- BANNER DE NOVA VERSÃO DISPONÍVEL -->
+      <div id="update-banner" class="update-banner">
+        <div id="update-banner-text" class="update-banner-text"></div>
+        <div class="update-banner-actions">
+          <button type="button" class="btn btn-success" onclick="aplicarAtualizacaoVersao()">Atualizar Agora</button>
+          <button type="button" class="btn btn-secondary" onclick="adiarAtualizacaoVersao()">Depois</button>
+        </div>
+      </div>
+
       <!-- 1. PÁTIO E BAIXA -->
       <section id="screen-patio" class="screen active">
         <div class="panel">
@@ -1270,7 +1309,6 @@
             <input type="text" id="serv-valor" placeholder="Valor Peça" />
           </div>
 
-          <!-- BLOCO TROCA DE ÓLEO: TIPO E MARCA + BOTÃO PARA EDITAR / ACRESCENTAR -->
           <div id="bloco-oleo-nova-os" class="oleo-box" style="display:none;">
             <div class="oleo-box-header">
               <span class="oleo-box-title">Detalhes da Troca de Óleo</span>
@@ -1311,7 +1349,7 @@
         </div>
       </section>
 
-      <!-- 3. MENU DE ORÇAMENTOS (APENAS ORÇAMENTOS GERADOS) -->
+      <!-- 3. MENU DE ORÇAMENTOS -->
       <section id="screen-orcamentos" class="screen">
         <div class="panel">
           <div class="panel-header">
@@ -1339,7 +1377,7 @@
         </div>
       </section>
 
-      <!-- 5. CLIENTES E VEÍCULOS (CADASTRO COMPLETO) -->
+      <!-- 5. CLIENTES E VEÍCULOS -->
       <section id="screen-clientes" class="screen">
         <div class="panel">
           <div class="panel-header">
@@ -1419,7 +1457,7 @@
         </div>
       </section>
 
-      <!-- 6. HISTÓRICO COMPLETO (PASSAGENS, DATAS, SERVIÇOS, PREVENTIVAS E GARANTIA) -->
+      <!-- 6. HISTÓRICO COMPLETO -->
       <section id="screen-historico" class="screen">
         <div class="panel">
           <div class="panel-header">
@@ -1671,6 +1709,10 @@
   <div id="print-area"></div>
 
   <script>
+    const VERSAO_ATUAL = "1.0.0";
+    const URL_VERSAO_JSON = "https://raw.githubusercontent.com/SEU_USUARIO/SEU_REPO/main/version.json";
+    const KEY_VERSAO_ADIADA = "nexus_oficina_versao_adiada_v1";
+
     const STORAGE_KEY = "nexus_oficina_pro_v24";
     const PASTA_SAIDAS_ALVO = "C:\\Users\\15121\\Desktop\\PROJETO MECANICA\\SAIDAS";
     const IDB_NAME = "nexus_oficina_fs_db";
@@ -1688,6 +1730,64 @@
     let editOleoTiposTemp = [];
     let editOleoMarcasTemp = [];
     let baixaCtx = null;
+    let versaoPendenteInfo = null;
+
+    function compararVersoes(vA, vB) {
+      const pA = String(vA || "0").split(".").map(n => parseInt(n, 10) || 0);
+      const pB = String(vB || "0").split(".").map(n => parseInt(n, 10) || 0);
+      const len = Math.max(pA.length, pB.length);
+      for (let i = 0; i < len; i++) {
+        const a = pA[i] || 0;
+        const b = pB[i] || 0;
+        if (a > b) return 1;
+        if (a < b) return -1;
+      }
+      return 0;
+    }
+
+    async function checarAtualizacaoVersao() {
+      if (!URL_VERSAO_JSON || URL_VERSAO_JSON.includes("SEU_USUARIO")) return;
+      try {
+        const resp = await fetch(`${URL_VERSAO_JSON}?t=${Date.now()}`, { cache: "no-store" });
+        if (!resp.ok) return;
+        const dados = await resp.json();
+        const novaVersao = String(dados?.version || "").trim();
+        if (!novaVersao) return;
+
+        if (compararVersoes(novaVersao, VERSAO_ATUAL) > 0) {
+          const adiada = localStorage.getItem(KEY_VERSAO_ADIADA);
+          if (adiada === novaVersao) return;
+          versaoPendenteInfo = { version: novaVersao, notes: dados.notes || "" };
+          const banner = document.getElementById("update-banner");
+          const texto = document.getElementById("update-banner-text");
+          if (banner && texto) {
+            texto.innerHTML = `<b>Nova versão v${novaVersao} disponível</b> (você está na v${VERSAO_ATUAL})${dados.notes ? ` — ${dados.notes}` : ""}. Deseja atualizar agora?`;
+            banner.classList.add("show");
+          }
+        }
+      } catch {
+        // Sem internet ou bloqueio momentâneo: segue o sistema normalmente
+      }
+    }
+
+    function aplicarAtualizacaoVersao() {
+      try {
+        localStorage.removeItem(KEY_VERSAO_ADIADA);
+      } catch {}
+      const url = new URL(window.location.href);
+      url.searchParams.set("v_update", String(Date.now()));
+      window.location.replace(url.toString());
+    }
+
+    function adiarAtualizacaoVersao() {
+      if (versaoPendenteInfo && versaoPendenteInfo.version) {
+        try {
+          localStorage.setItem(KEY_VERSAO_ADIADA, versaoPendenteInfo.version);
+        } catch {}
+      }
+      const banner = document.getElementById("update-banner");
+      if (banner) banner.classList.remove("show");
+    }
 
     function defaultState() {
       return {
@@ -1885,7 +1985,7 @@
       document.documentElement.style.setProperty("--primary", state.corSistema || "#f97316");
       const nome = state.config.oficinaNome || "NEXUS OFICINA";
       document.getElementById("sidebar-oficina-nome").textContent = nome;
-      document.title = `${nome} — Gestão Automotiva`;
+      document.title = `${nome} — v${VERSAO_ATUAL}`;
 
       const logoBox = document.getElementById("sidebar-logo-box");
       if (state.config.logoDataUrl) {
@@ -3654,7 +3754,7 @@
       }).join("");
     }
 
-    /* CLIENTES E VEÍCULOS (CADASTRO COMPLETO) */
+    /* CLIENTES E VEÍCULOS */
     function limparFormCliente() {
       ["cad-cliente", "cad-wa", "cad-cpf", "cad-email", "cad-endereco", "cad-modelo", "cad-placa", "cad-ano", "cad-cor", "cad-km", "cad-obs"]
         .forEach(id => {
@@ -4510,6 +4610,7 @@
 
     aplicarIdentidadeVisual();
     atualizarPainel();
+    window.addEventListener("DOMContentLoaded", checarAtualizacaoVersao);
   </script>
 </body>
 </html>
