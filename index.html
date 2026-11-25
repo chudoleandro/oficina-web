@@ -8,6 +8,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <style>
     :root {
       --bg: #050608;
@@ -60,6 +63,90 @@
 
     body {
       display: flex;
+    }
+
+    /* ==================== TELA DE LOGIN ==================== */
+    .login-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background:
+        radial-gradient(circle at 50% 15%, var(--primary-glow), transparent 45%),
+        var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      overflow-y: auto;
+    }
+
+    .login-screen.hidden {
+      display: none;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--primary);
+      border-radius: 12px;
+      padding: 26px 22px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.85);
+    }
+
+    .login-card h2 {
+      font-size: 22px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .login-card p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+
+    .login-links {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .link-btn {
+      background: transparent;
+      border: none;
+      color: var(--primary);
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 2px 0;
+    }
+
+    .link-btn:hover {
+      filter: brightness(1.15);
+    }
+
+    .login-error {
+      margin-top: 12px;
+      font-size: 13px;
+      color: #fda4af;
+      min-height: 18px;
+      line-height: 1.4;
+    }
+
+    .login-success {
+      margin-top: 12px;
+      font-size: 13px;
+      color: #6ee7b7;
+      min-height: 18px;
+      line-height: 1.4;
     }
 
     /* ==================== BANNER DE ATUALIZAÇÃO ==================== */
@@ -440,6 +527,7 @@
       align-items: center;
       gap: 8px;
       flex-shrink: 0;
+      flex-wrap: wrap;
     }
 
     .content {
@@ -880,6 +968,7 @@
     }
 
     .btn:hover { filter: brightness(1.08); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
     .btn-success { background: var(--success); }
     .btn-success:hover { background: var(--success-dark); }
     .btn-secondary { background: #1e2430; border-color: var(--border); color: #e2e8f0; }
@@ -990,7 +1079,7 @@
       align-items: center;
       justify-content: center;
       padding: 12px;
-      z-index: 100;
+      z-index: 250;
     }
 
     .modal-backdrop.open { display: flex; }
@@ -1111,6 +1200,75 @@
   </style>
 </head>
 <body>
+  <!-- TELA DE LOGIN -->
+  <div id="login-screen" class="login-screen">
+    <form id="login-form" class="login-card" onsubmit="efetuarLoginOficina(event)">
+      <h2>Acesso da Oficina</h2>
+      <p>Entre com o e-mail e a senha cadastrados para carregar os dados da sua oficina com segurança.</p>
+
+      <div class="field" style="margin-bottom:12px;">
+        <label for="login-email">E-mail</label>
+        <input type="email" id="login-email" required placeholder="oficina1@teste.com" autocomplete="username" />
+      </div>
+
+      <div class="field" style="margin-bottom:16px;">
+        <label for="login-senha">Senha</label>
+        <input type="password" id="login-senha" required placeholder="••••••••" autocomplete="current-password" />
+      </div>
+
+      <button type="submit" id="btn-login-submit" class="btn btn-success" style="width:100%;">
+        Entrar na Oficina
+      </button>
+
+      <div class="login-links">
+        <button type="button" class="link-btn" onclick="abrirModalAlterarSenhaLogin()">
+          Alterar minha senha de acesso
+        </button>
+        <button type="button" class="link-btn" onclick="enviarRecuperacaoSenhaLogin()">
+          Esqueci / redefinir por e-mail
+        </button>
+      </div>
+
+      <div id="login-error" class="login-error"></div>
+      <div id="login-success" class="login-success"></div>
+    </form>
+  </div>
+
+  <!-- MODAL ALTERAR SENHA NA TELA DE LOGIN -->
+  <div id="modal-alterar-senha-login" class="modal-backdrop">
+    <form id="form-alterar-senha-login" class="modal-card" style="max-width:440px;" onsubmit="confirmarAlteracaoSenhaLogin(event)">
+      <h3>Alterar Senha de Acesso</h3>
+      <p class="modal-sub">Informe seu e-mail, sua senha atual e a nova senha desejada para atualizar seu acesso imediatamente.</p>
+
+      <div class="field" style="margin-bottom:12px;">
+        <label for="alt-senha-email">Seu E-mail</label>
+        <input type="email" id="alt-senha-email" required placeholder="cliente@oficina.com" autocomplete="email" />
+      </div>
+
+      <div class="field" style="margin-bottom:12px;">
+        <label for="alt-senha-atual">Senha Atual</label>
+        <input type="password" id="alt-senha-atual" required placeholder="Digite sua senha atual" autocomplete="current-password" />
+      </div>
+
+      <div class="field" style="margin-bottom:12px;">
+        <label for="alt-senha-nova">Nova Senha (mín. 6 caracteres)</label>
+        <input type="password" id="alt-senha-nova" required minlength="6" placeholder="Digite a nova senha" autocomplete="new-password" />
+      </div>
+
+      <div class="field" style="margin-bottom:12px;">
+        <label for="alt-senha-confirma">Confirmar Nova Senha</label>
+        <input type="password" id="alt-senha-confirma" required minlength="6" placeholder="Repita a nova senha" autocomplete="new-password" />
+      </div>
+
+      <div id="alt-senha-msg" class="login-error" style="margin-bottom:10px;"></div>
+
+      <div class="btn-row" style="justify-content:flex-end;margin-top:8px;">
+        <button type="button" class="btn btn-secondary" onclick="fecharModalAlterarSenhaLogin()">Cancelar</button>
+        <button type="submit" id="btn-salvar-nova-senha" class="btn btn-success">Salvar Nova Senha</button>
+      </div>
+    </form>
+  </div>
+
   <div id="drawer-backdrop" class="drawer-backdrop" onclick="fecharDrawerMobile()"></div>
 
   <!-- MENU LATERAL -->
@@ -1205,7 +1363,7 @@
 
     <div class="sidebar-footer">
       <div class="sidebar-footer-info">
-        <span class="dot-online"></span>Telemetria Online • v1.1.0
+        <span class="dot-online"></span><span id="sidebar-status-oficina">Telemetria Online • v1.1.0</span>
       </div>
     </div>
   </aside>
@@ -1226,7 +1384,8 @@
 
       <div class="topbar-actions">
         <button type="button" class="btn btn-secondary" onclick="criarOsTeste()">OS de Teste</button>
-        <button type="button" class="btn" onclick="atualizarPainel()">Atualizar</button>
+        <button type="button" class="btn" onclick="atualizarPainel(true)">Atualizar</button>
+        <button type="button" class="btn btn-danger" onclick="sairDaOficina()">Sair</button>
       </div>
     </header>
 
@@ -1665,7 +1824,7 @@
               <h3>Resetar Dados</h3>
             </div>
             <p class="os-meta" style="margin-bottom:14px;">
-              Apaga todos os dados salvos localmente (pátio, orçamentos, histórico, preventivas, clientes, serviços, pagamentos e configurações).
+              Apaga todos os dados salvos da oficina atual (pátio, orçamentos, histórico, preventivas, clientes, serviços, pagamentos e configurações).
             </p>
             <button type="button" class="btn btn-danger" onclick="resetarTodosDados()">Resetar Dados</button>
           </div>
@@ -1709,11 +1868,32 @@
   <div id="print-area"></div>
 
   <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDD1_6L0rhJstGZtH6urRLtFnkfJaAV3NY",
+      authDomain: "oficina-sistema-18376.firebaseapp.com",
+      projectId: "oficina-sistema-18376",
+      storageBucket: "oficina-sistema-18376.firebasestorage.app",
+      messagingSenderId: "278020430040",
+      appId: "1:278020430040:web:d519a009dc55168fcfdfad"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    window.sessaoOficina = {
+      uid: null,
+      email: null,
+      idOficina: null,
+      nomeOficina: null,
+      ativa: false
+    };
+
     const VERSAO_ATUAL = "1.1.0";
     const URL_VERSAO_JSON = "https://raw.githubusercontent.com/SEU_USUARIO/SEU_REPO/main/version.json";
     const KEY_VERSAO_ADIADA = "nexus_oficina_versao_adiada_v1";
 
-    const STORAGE_KEY = "nexus_oficina_pro_v24";
+    const STORAGE_KEY_BASE = "nexus_oficina_pro_v24";
     const PASTA_SAIDAS_ALVO = "C:\\Users\\15121\\Desktop\\PROJETO MECANICA\\SAIDAS";
     const IDB_NAME = "nexus_oficina_fs_db";
     const IDB_STORE = "handles";
@@ -1722,7 +1902,7 @@
     const TIPOS_OLEO_PADRAO = ["0W20", "5W30", "5W40", "10W20", "10W40", "15W40", "20W50"];
     const MARCAS_OLEO_PADRAO = ["MOBIL", "CASTROL", "SHELL", "PETRONAS", "MOTUL", "LUBRAX", "IPIRANGA", "IDMITSU", "VALVOLINE", "BARDAHL"];
 
-    let state = loadState();
+    let state = defaultState();
     let servicosTemp = [];
     let novoServicoPrecisaPreventiva = false;
     let editContext = null;
@@ -1731,6 +1911,350 @@
     let editOleoMarcasTemp = [];
     let baixaCtx = null;
     let versaoPendenteInfo = null;
+    let salvarNuvemTimer = null;
+
+    function obterChaveStorageOficina(idOficina = window.sessaoOficina.idOficina) {
+      return idOficina ? `${STORAGE_KEY_BASE}_${idOficina}` : STORAGE_KEY_BASE;
+    }
+
+    function mostrarLogin(msg = "", sucesso = "") {
+      const screen = document.getElementById("login-screen");
+      const errEl = document.getElementById("login-error");
+      const okEl = document.getElementById("login-success");
+      if (errEl) errEl.textContent = msg;
+      if (okEl) okEl.textContent = sucesso;
+      if (screen) screen.classList.remove("hidden");
+    }
+
+    function esconderLogin() {
+      const screen = document.getElementById("login-screen");
+      const errEl = document.getElementById("login-error");
+      const okEl = document.getElementById("login-success");
+      if (errEl) errEl.textContent = "";
+      if (okEl) okEl.textContent = "";
+      if (screen) screen.classList.add("hidden");
+    }
+
+    async function efetuarLoginOficina(event) {
+      event.preventDefault();
+      const email = (document.getElementById("login-email")?.value || "").trim();
+      const senha = document.getElementById("login-senha")?.value || "";
+      const btn = document.getElementById("btn-login-submit");
+      const errEl = document.getElementById("login-error");
+      const okEl = document.getElementById("login-success");
+
+      if (!email || !senha) return;
+      if (errEl) errEl.textContent = "";
+      if (okEl) okEl.textContent = "";
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Verificando...";
+      }
+
+      try {
+        await auth.signInWithEmailAndPassword(email, senha);
+      } catch (err) {
+        if (errEl) {
+          errEl.textContent = "E-mail ou senha inválidos. Verifique suas credenciais.";
+        }
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = "Entrar na Oficina";
+        }
+      }
+    }
+
+    function abrirModalAlterarSenhaLogin() {
+      const emailLogin = (document.getElementById("login-email")?.value || "").trim();
+      const inpEmail = document.getElementById("alt-senha-email");
+      const inpAtual = document.getElementById("alt-senha-atual");
+      const inpNova = document.getElementById("alt-senha-nova");
+      const inpConf = document.getElementById("alt-senha-confirma");
+      const msgEl = document.getElementById("alt-senha-msg");
+
+      if (inpEmail && emailLogin) inpEmail.value = emailLogin;
+      if (inpAtual) inpAtual.value = "";
+      if (inpNova) inpNova.value = "";
+      if (inpConf) inpConf.value = "";
+      if (msgEl) {
+        msgEl.className = "login-error";
+        msgEl.textContent = "";
+      }
+      document.getElementById("modal-alterar-senha-login")?.classList.add("open");
+    }
+
+    function fecharModalAlterarSenhaLogin() {
+      document.getElementById("modal-alterar-senha-login")?.classList.remove("open");
+    }
+
+    async function confirmarAlteracaoSenhaLogin(event) {
+      event.preventDefault();
+      const email = (document.getElementById("alt-senha-email")?.value || "").trim();
+      const senhaAtual = document.getElementById("alt-senha-atual")?.value || "";
+      const novaSenha = document.getElementById("alt-senha-nova")?.value || "";
+      const confirmaSenha = document.getElementById("alt-senha-confirma")?.value || "";
+      const btn = document.getElementById("btn-salvar-nova-senha");
+      const msgEl = document.getElementById("alt-senha-msg");
+
+      if (!email || !senhaAtual || !novaSenha || !confirmaSenha) return;
+
+      if (novaSenha.length < 6) {
+        if (msgEl) {
+          msgEl.className = "login-error";
+          msgEl.textContent = "A nova senha deve ter pelo menos 6 caracteres.";
+        }
+        return;
+      }
+
+      if (novaSenha !== confirmaSenha) {
+        if (msgEl) {
+          msgEl.className = "login-error";
+          msgEl.textContent = "A confirmação da nova senha não confere.";
+        }
+        return;
+      }
+
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Alterando...";
+      }
+      if (msgEl) {
+        msgEl.className = "login-error";
+        msgEl.textContent = "";
+      }
+
+      try {
+        const cred = await auth.signInWithEmailAndPassword(email, senhaAtual);
+        await cred.user.updatePassword(novaSenha);
+        try {
+          await db.collection("usuarios").doc(cred.user.uid).set({
+            senhaAtualizadaEm: new Date().toISOString()
+          }, { merge: true });
+        } catch {}
+
+        await auth.signOut();
+        fecharModalAlterarSenhaLogin();
+
+        const loginEmailEl = document.getElementById("login-email");
+        const loginSenhaEl = document.getElementById("login-senha");
+        if (loginEmailEl) loginEmailEl.value = email;
+        if (loginSenhaEl) loginSenhaEl.value = "";
+
+        mostrarLogin("", "Senha alterada com sucesso! Entre agora usando a nova senha.");
+      } catch (err) {
+        let textoErro = "Não foi possível alterar a senha. Verifique seu e-mail e sua senha atual.";
+        if (err && (err.code === "auth/wrong-password" || err.code === "auth/invalid-credential")) {
+          textoErro = "E-mail ou senha atual incorretos.";
+        } else if (err && err.code === "auth/weak-password") {
+          textoErro = "A nova senha é muito fraca (use pelo menos 6 caracteres).";
+        }
+        if (msgEl) {
+          msgEl.className = "login-error";
+          msgEl.textContent = textoErro;
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = "Salvar Nova Senha";
+        }
+      }
+    }
+
+    async function enviarRecuperacaoSenhaLogin() {
+      const email = (document.getElementById("login-email")?.value || "").trim();
+      const errEl = document.getElementById("login-error");
+      const okEl = document.getElementById("login-success");
+      if (errEl) errEl.textContent = "";
+      if (okEl) okEl.textContent = "";
+
+      if (!email) {
+        if (errEl) errEl.textContent = "Digite o e-mail no campo acima para receber o link de redefinição.";
+        return;
+      }
+
+      try {
+        await auth.sendPasswordResetEmail(email);
+        if (okEl) okEl.textContent = `E-mail de redefinição enviado para ${email}. Verifique sua caixa de entrada e spam.`;
+      } catch (err) {
+        if (errEl) errEl.textContent = "Não foi possível enviar o e-mail de redefinição. Confira o endereço digitado.";
+      }
+    }
+
+    async function sairDaOficina() {
+      if (salvarNuvemTimer) {
+        clearTimeout(salvarNuvemTimer);
+        salvarNuvemTimer = null;
+      }
+      const idAnterior = window.sessaoOficina.idOficina;
+      if (idAnterior) {
+        try {
+          localStorage.removeItem(obterChaveStorageOficina(idAnterior));
+        } catch {}
+      }
+      window.sessaoOficina = {
+        uid: null,
+        email: null,
+        idOficina: null,
+        nomeOficina: null,
+        ativa: false
+      };
+      state = defaultState();
+      servicosTemp = [];
+      atualizarPainel(false);
+      try {
+        await auth.signOut();
+      } catch {}
+      mostrarLogin("");
+    }
+
+    function normalizarEstadoBruto(p, nomePadraoOficina = "NEXUS OFICINA") {
+      const def = defaultState(nomePadraoOficina);
+      if (!p || typeof p !== "object") return def;
+
+      const servicosNorm = Array.isArray(p.servicos)
+        ? p.servicos.map(s => ({
+            nome: s.nome || "Serviço",
+            preventiva: Boolean(s.preventiva),
+            intervaloKm: Math.max(0, parseInt(s.intervaloKm ?? 10000, 10) || 0),
+            intervaloDias: Math.max(0, parseInt(s.intervaloDias ?? 180, 10) || 0)
+          }))
+        : def.servicos;
+
+      return {
+        ...def,
+        ...p,
+        patio: Array.isArray(p.patio) ? p.patio : [],
+        orcamentos: Array.isArray(p.orcamentos) ? p.orcamentos : [],
+        historico: Array.isArray(p.historico) ? p.historico : [],
+        preventivasMonitoramento: Array.isArray(p.preventivasMonitoramento) ? p.preventivasMonitoramento : [],
+        clientes: Array.isArray(p.clientes) ? p.clientes : [],
+        tiposOleo: Array.isArray(p.tiposOleo) && p.tiposOleo.length ? p.tiposOleo : [...TIPOS_OLEO_PADRAO],
+        marcasOleo: Array.isArray(p.marcasOleo) && p.marcasOleo.length ? p.marcasOleo : [...MARCAS_OLEO_PADRAO],
+        servicos: servicosNorm,
+        pagamentos: Array.isArray(p.pagamentos) && p.pagamentos.length ? p.pagamentos : def.pagamentos,
+        config: { ...def.config, ...(p.config || {}), pastaSaidas: PASTA_SAIDAS_ALVO }
+      };
+    }
+
+    async function salvarEstadoNaNuvem(estadoAtual) {
+      const idOficina = window.sessaoOficina.idOficina;
+      if (!idOficina || !window.sessaoOficina.ativa) return;
+      try {
+        await db
+          .collection("oficinas")
+          .doc(idOficina)
+          .collection("sistema")
+          .doc("estado")
+          .set({
+            idOficina,
+            atualizadoPorUid: window.sessaoOficina.uid,
+            atualizadoEm: new Date().toISOString(),
+            dados: estadoAtual
+          });
+      } catch (err) {
+        console.error("Erro ao salvar estado no Firestore:", err);
+      }
+    }
+
+    async function carregarEstadoDaOficina(sessao) {
+      const idOficina = sessao.idOficina;
+      const nomeOficina = sessao.nomeOficina || "NEXUS OFICINA";
+      let estadoCarregado = defaultState(nomeOficina);
+
+      try {
+        const snap = await db
+          .collection("oficinas")
+          .doc(idOficina)
+          .collection("sistema")
+          .doc("estado")
+          .get();
+
+        if (snap.exists && snap.data()?.dados) {
+          estadoCarregado = normalizarEstadoBruto(snap.data().dados, nomeOficina);
+        } else {
+          const localRaw = localStorage.getItem(obterChaveStorageOficina(idOficina));
+          if (localRaw) {
+            estadoCarregado = normalizarEstadoBruto(JSON.parse(localRaw), nomeOficina);
+          }
+        }
+      } catch (err) {
+        console.error("Erro ao buscar dados da oficina no Firestore:", err);
+        const localRaw = localStorage.getItem(obterChaveStorageOficina(idOficina));
+        if (localRaw) {
+          try {
+            estadoCarregado = normalizarEstadoBruto(JSON.parse(localRaw), nomeOficina);
+          } catch {}
+        }
+      }
+
+      if (!estadoCarregado.config.oficinaNome || estadoCarregado.config.oficinaNome === "NEXUS OFICINA") {
+        estadoCarregado.config.oficinaNome = nomeOficina;
+      }
+
+      state = estadoCarregado;
+      try {
+        localStorage.setItem(obterChaveStorageOficina(idOficina), JSON.stringify(state));
+      } catch {}
+
+      const statusSidebar = document.getElementById("sidebar-status-oficina");
+      if (statusSidebar) {
+        statusSidebar.textContent = `${nomeOficina} • Online`;
+      }
+
+      aplicarIdentidadeVisual();
+      await atualizarPainel(false);
+    }
+
+    auth.onAuthStateChanged(async (user) => {
+      const btn = document.getElementById("btn-login-submit");
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "Entrar na Oficina";
+      }
+
+      if (!user) {
+        window.sessaoOficina = {
+          uid: null,
+          email: null,
+          idOficina: null,
+          nomeOficina: null,
+          ativa: false
+        };
+        mostrarLogin("");
+        return;
+      }
+
+      try {
+        const docUsuario = await db.collection("usuarios").doc(user.uid).get();
+        if (!docUsuario.exists) {
+          await auth.signOut();
+          mostrarLogin("Este usuário não está vinculado a nenhuma oficina.");
+          return;
+        }
+
+        const dadosUsuario = docUsuario.data() || {};
+        if (dadosUsuario.ativa !== true || !dadosUsuario.idOficina) {
+          await auth.signOut();
+          mostrarLogin("Acesso bloqueado ou pendente. Fale com o suporte.");
+          return;
+        }
+
+        window.sessaoOficina = {
+          uid: user.uid,
+          email: user.email || "",
+          idOficina: String(dadosUsuario.idOficina).trim(),
+          nomeOficina: String(dadosUsuario.nomeOficina || dadosUsuario.idOficina).trim(),
+          ativa: true
+        };
+
+        esconderLogin();
+        await carregarEstadoDaOficina(window.sessaoOficina);
+      } catch (err) {
+        console.error("Erro ao validar permissão da oficina:", err);
+        await auth.signOut();
+        mostrarLogin("Erro ao validar a oficina. Tente novamente.");
+      }
+    });
 
     function compararVersoes(vA, vB) {
       const pA = String(vA || "0").split(".").map(n => parseInt(n, 10) || 0);
@@ -1765,9 +2289,7 @@
             banner.classList.add("show");
           }
         }
-      } catch {
-        // Sem internet ou bloqueio momentâneo: segue o sistema normalmente
-      }
+      } catch {}
     }
 
     function aplicarAtualizacaoVersao() {
@@ -1789,7 +2311,7 @@
       if (banner) banner.classList.remove("show");
     }
 
-    function defaultState() {
+    function defaultState(nomeOficinaPadrao = "NEXUS OFICINA") {
       return {
         patio: [],
         orcamentos: [],
@@ -1813,7 +2335,7 @@
         ],
         corSistema: "#f97316",
         config: {
-          oficinaNome: "NEXUS OFICINA",
+          oficinaNome: nomeOficinaPadrao,
           oficinaFone: "",
           oficinaEndereco: "",
           logoDataUrl: "",
@@ -1822,44 +2344,25 @@
       };
     }
 
-    function loadState() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return defaultState();
-        const p = JSON.parse(raw);
-        const def = defaultState();
-        const servicosNorm = Array.isArray(p.servicos)
-          ? p.servicos.map(s => ({
-              nome: s.nome || "Serviço",
-              preventiva: Boolean(s.preventiva),
-              intervaloKm: Math.max(0, parseInt(s.intervaloKm ?? 10000, 10) || 0),
-              intervaloDias: Math.max(0, parseInt(s.intervaloDias ?? 180, 10) || 0)
-            }))
-          : def.servicos;
-        return {
-          ...def,
-          ...p,
-          orcamentos: Array.isArray(p.orcamentos) ? p.orcamentos : [],
-          preventivasMonitoramento: Array.isArray(p.preventivasMonitoramento) ? p.preventivasMonitoramento : [],
-          tiposOleo: Array.isArray(p.tiposOleo) && p.tiposOleo.length ? p.tiposOleo : [...TIPOS_OLEO_PADRAO],
-          marcasOleo: Array.isArray(p.marcasOleo) && p.marcasOleo.length ? p.marcasOleo : [...MARCAS_OLEO_PADRAO],
-          servicos: servicosNorm,
-          pagamentos: Array.isArray(p.pagamentos) && p.pagamentos.length ? p.pagamentos : def.pagamentos,
-          config: { ...def.config, ...(p.config || {}), pastaSaidas: PASTA_SAIDAS_ALVO }
-        };
-      } catch {
-        return defaultState();
-      }
-    }
-
     function saveState() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      } catch (err) {
-        console.warn("Aviso ao salvar no localStorage:", err);
+      const idOficina = window.sessaoOficina.idOficina;
+      if (idOficina) {
+        try {
+          localStorage.setItem(obterChaveStorageOficina(idOficina), JSON.stringify(state));
+        } catch (err) {
+          console.warn("Aviso ao salvar no localStorage:", err);
+        }
       }
       aplicarIdentidadeVisual();
       atualizarKPIs();
+
+      if (idOficina && window.sessaoOficina.ativa) {
+        if (salvarNuvemTimer) clearTimeout(salvarNuvemTimer);
+        const snapshot = JSON.parse(JSON.stringify(state));
+        salvarNuvemTimer = setTimeout(() => {
+          salvarEstadoNaNuvem(snapshot);
+        }, 250);
+      }
     }
 
     function ehServicoTrocaOleo(nomeServico) {
@@ -1939,9 +2442,9 @@
 
     async function lerHandlePasta() {
       try {
-        const db = await abrirIdb();
-        if (!db) return null;
-        const tx = db.transaction(IDB_STORE, "readonly");
+        const dbIdb = await abrirIdb();
+        if (!dbIdb) return null;
+        const tx = dbIdb.transaction(IDB_STORE, "readonly");
         const req = tx.objectStore(IDB_STORE).get(IDB_KEY);
         return await new Promise((res) => {
           req.onsuccess = () => res(req.result || null);
@@ -1982,7 +2485,7 @@
 
     function aplicarIdentidadeVisual() {
       document.documentElement.style.setProperty("--primary", state.corSistema || "#f97316");
-      const nome = state.config.oficinaNome || "NEXUS OFICINA";
+      const nome = state.config.oficinaNome || window.sessaoOficina.nomeOficina || "NEXUS OFICINA";
       document.getElementById("sidebar-oficina-nome").textContent = nome;
       document.title = `${nome} — v${VERSAO_ATUAL}`;
 
@@ -2193,10 +2696,15 @@
         fecharDrawerMobile();
         fecharTelaEdicao();
         fecharModalBaixa();
+        fecharModalAlterarSenhaLogin();
       }
     });
 
-    function atualizarPainel() {
+    async function atualizarPainel(sincronizarNuvem = false) {
+      if (sincronizarNuvem && window.sessaoOficina.idOficina && window.sessaoOficina.ativa) {
+        await carregarEstadoDaOficina(window.sessaoOficina);
+        return;
+      }
       renderizarPatio();
       renderizarOrcamentosGerados();
       renderizarMonitoramentoPreventivas();
@@ -3236,7 +3744,7 @@
         preencherSelectsOleo("edit-oleo-tipo", "edit-oleo-marca");
         fecharTelaEdicao();
       } else if (tipo === "oficina") {
-        const nome = document.getElementById("edit-oficina-nome").value.trim() || "NEXUS OFICINA";
+        const nome = document.getElementById("edit-oficina-nome").value.trim() || window.sessaoOficina.nomeOficina || "NEXUS OFICINA";
         const fone = document.getElementById("edit-oficina-fone").value.trim();
         const end = document.getElementById("edit-oficina-end").value.trim();
         const fileInput = document.getElementById("edit-oficina-logo");
@@ -4046,7 +4554,7 @@
         : "• Serviços gerais realizados";
 
       const obsTexto = reg.obsMecanico
-        ? `\n\n*Aviso do Mecânico:* ${reg.obsMecanico}`
+        ? `\n*Aviso do Mecânico:* ${reg.obsMecanico}`
         : "";
 
       return [
@@ -4381,7 +4889,7 @@
     function salvarConfiguracoesOficina() {
       state.config = {
         ...state.config,
-        oficinaNome: document.getElementById("cfg-nome").value.trim() || "NEXUS OFICINA",
+        oficinaNome: document.getElementById("cfg-nome").value.trim() || window.sessaoOficina.nomeOficina || "NEXUS OFICINA",
         oficinaFone: document.getElementById("cfg-fone").value.trim(),
         oficinaEndereco: document.getElementById("cfg-endereco").value.trim(),
         pastaSaidas: PASTA_SAIDAS_ALVO
@@ -4411,12 +4919,12 @@
     }
 
     function resetarTodosDados() {
-      if (!confirm("Deseja realmente resetar e apagar todos os dados salvos do sistema?")) return;
-      state = defaultState();
+      if (!confirm("Deseja realmente resetar e apagar todos os dados salvos da oficina atual?")) return;
+      state = defaultState(window.sessaoOficina.nomeOficina || "NEXUS OFICINA");
       saveState();
       preencherConfigForm();
-      atualizarPainel();
-      alert("Dados resetados com sucesso.");
+      atualizarPainel(false);
+      alert("Dados da oficina resetados com sucesso.");
     }
 
     function atualizarBotaoPreventivaNovoServico() {
@@ -4524,10 +5032,13 @@
       box.innerHTML = state.pagamentos.map((p, idx) => `
         <div class="os-card">
           <div>
-            <div class="os-main-title">${p.nome} ${p.ativo ? '<span class="tag green">Ativado</span>' : '<span class="tag">Desativado</span>'}</div>
+            <div class="os-main-title">
+              <span>${p.nome}</span>
+              <span class="${p.ativo ? "tag green" : "tag amber"}">${p.ativo ? "Ativo na Baixa" : "Desativado"}</span>
+            </div>
           </div>
           <div class="card-actions">
-            <button type="button" class="btn ${p.ativo ? "btn-secondary" : "btn-success"}" onclick="alternarPagamento(${idx})">
+            <button type="button" class="btn ${p.ativo ? "btn-danger" : "btn-success"}" onclick="alternarPagamento(${idx})">
               ${p.ativo ? "Desativar" : "Ativar"}
             </button>
           </div>
@@ -4535,10 +5046,26 @@
       `).join("");
     }
 
-    function alternarPreventiva(idx) {
+    function salvarPreventivaDireto(idx) {
       const s = state.servicos[idx];
       if (!s) return;
-      s.preventiva = !s.preventiva;
+      const kmInput = document.getElementById(`prev-km-${idx}`);
+      const diasInput = document.getElementById(`prev-dias-${idx}`);
+      const km = Math.max(0, parseInt(kmInput?.value || "0", 10) || 0);
+      const dias = Math.max(0, parseInt(diasInput?.value || "0", 10) || 0);
+      s.preventiva = true;
+      s.intervaloKm = km;
+      s.intervaloDias = dias;
+      saveState();
+      renderizarPreventivas();
+      renderizarServicos();
+      alert(`Preventiva de "${s.nome}" salva: ${km.toLocaleString("pt-BR")} km e ${dias} dias.`);
+    }
+
+    function removerPreventiva(idx) {
+      const s = state.servicos[idx];
+      if (!s) return;
+      s.preventiva = false;
       saveState();
       renderizarPreventivas();
       renderizarServicos();
@@ -4546,61 +5073,73 @@
 
     function renderizarPreventivas() {
       const box = document.getElementById("lista-preventivas");
-      if (!state.servicos.length) {
-        box.innerHTML = `<div class="empty-state">Cadastre serviços no submenu <b>Serviços</b> para configurar preventivas.</div>`;
+      const itens = state.servicos.map((s, idx) => ({ s, idx })).filter(({ s }) => s.preventiva);
+
+      if (!itens.length) {
+        box.innerHTML = `<div class="empty-state">Nenhum serviço lançado em Preventivas. Vá no submenu <b>Serviços</b> e marque um serviço para lançar aqui.</div>`;
         return;
       }
-      box.innerHTML = state.servicos.map((s, idx) => {
-        const kmTxt = `${Number(s.intervaloKm || 0).toLocaleString("pt-BR")} km`;
-        const diasTxt = `${Number(s.intervaloDias || 0)} dias`;
-        return `
-          <div class="os-card">
-            <div>
-              <div class="os-main-title">${s.nome} ${s.preventiva ? '<span class="tag green">Precisa de Preventiva</span>' : '<span class="tag amber">Não Precisa</span>'}</div>
-              <div class="os-meta">Precisa a cada: <b>${kmTxt}</b> e <b>${diasTxt}</b></div>
+
+      box.innerHTML = itens.map(({ s, idx }) => `
+        <div class="os-card">
+          <div style="flex:1;min-width:240px;">
+            <div class="os-main-title">
+              <span>${s.nome}</span>
+              <span class="tag green">${Number(s.intervaloKm || 0).toLocaleString("pt-BR")} km • ${Number(s.intervaloDias || 0)} dias</span>
             </div>
-            <div class="card-actions">
-              <button type="button" class="btn btn-secondary" onclick="abrirTelaEdicao('preventiva', ${idx})">Editar Dados</button>
-              <button type="button" class="btn ${s.preventiva ? "btn-secondary" : "btn-success"}" onclick="alternarPreventiva(${idx})">
-                ${s.preventiva ? "Marcar: Não Precisa" : "Marcar: Precisa"}
-              </button>
+            <div class="grid-2" style="margin-top:10px;">
+              <div class="field">
+                <label>Intervalo em KMs</label>
+                <input type="number" id="prev-km-${idx}" value="${s.intervaloKm ?? 10000}" min="0" />
+              </div>
+              <div class="field">
+                <label>Intervalo em Dias</label>
+                <input type="number" id="prev-dias-${idx}" value="${s.intervaloDias ?? 180}" min="0" />
+              </div>
             </div>
           </div>
-        `;
-      }).join("");
+          <div class="card-actions">
+            <button type="button" class="btn btn-success" onclick="salvarPreventivaDireto(${idx})">Salvar KMs e Dias</button>
+            <button type="button" class="btn btn-danger" onclick="removerPreventiva(${idx})">Remover</button>
+          </div>
+        </div>
+      `).join("");
     }
 
     function criarOsTeste() {
       const agora = new Date();
-      const osObj = {
-        id: "TESTE_" + agora.getTime(),
-        cliente: "Leandro Teste",
-        whatsapp: "19999999999",
+      const osTeste = {
+        id: "OS_TESTE_" + agora.getTime(),
+        cliente: "Carlos Eduardo",
+        whatsapp: "(19) 99888-7766",
         modelo: "Renault Clio 1.0 16V",
         ano: "2016",
         placa: "ABC1D23",
         km: "85400",
-        obsMecanico: "Verificada suspensão; cliente avisado sobre buchas da bandeja.",
-        servicosAtuais: [
-          { nome: "Troca de Óleo e Filtro", qtdPeca: 1, valorPeca: 140, garantiaDias: 90, dataBaseGarantiaISO: hojeISO(), oleoTipo: "5W30", oleoMarca: "MOBIL", detalhes: "Sintético" }
-        ],
+        obsMecanico: "Mecânico observou que o pneu dianteiro direito está gasto por dentro.",
         maoDeObraGeral: 90,
-        total: 230,
+        servicosAtuais: [
+          { nome: "Troca de Óleo e Filtro", qtdPeca: 1, valorPeca: 145, garantiaDias: 180, dataBaseGarantiaISO: hojeISO(), oleoTipo: "10W40", oleoMarca: "MOBIL", detalhes: "Óleo + filtro" }
+        ],
+        total: 235,
         status: "NO_PATIO",
         dataEntrada: agora.toLocaleDateString("pt-BR"),
         horaEntrada: agora.toLocaleTimeString("pt-BR")
       };
-      state.patio.unshift(osObj);
-      upsertCliente(osObj);
-      registrarMonitoramentoPreventivo(osObj);
-      sincronizarPassagemHistorico(osObj, "Entrada no Pátio / OS");
+      state.patio.push(osTeste);
+      upsertCliente(osTeste);
+      registrarMonitoramentoPreventivo(osTeste);
+      sincronizarPassagemHistorico(osTeste, "Entrada no Pátio (OS Teste)");
       saveState();
       navegar("patio");
     }
 
-    aplicarIdentidadeVisual();
-    atualizarPainel();
-    window.addEventListener("DOMContentLoaded", checarAtualizacaoVersao);
+    document.addEventListener("DOMContentLoaded", () => {
+      aplicarIdentidadeVisual();
+      preencherConfigForm();
+      atualizarPainel(false);
+      checarAtualizacaoVersao();
+    });
   </script>
 </body>
 </html>
