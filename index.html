@@ -2549,28 +2549,32 @@ function adiarAtualizacaoConfirmada() {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       if (barEl) {
-        barEl.style.transition = "width 1.85s cubic-bezier(0.22, 1, 0.36, 1)";
+        // Acompanha quase todo o tempo de 3,5s com suavidade
+        barEl.style.transition = "width 3.25s cubic-bezier(0.22, 1, 0.36, 1)";
         barEl.classList.add("active");
       }
     });
   });
 
+  // 2ª etapa (em 1,1s)
   setTimeout(() => {
     if (titleEl) titleEl.textContent = "Quase lá! Sincronizando tela...";
     if (subEl) subEl.textContent = "Aplicando melhorias e mantendo tudo salvo.";
-  }, 700);
+  }, 1100);
 
+  // 3ª etapa final (em 2,2s — fica visível por ~1,3s antes de recarregar)
   setTimeout(() => {
     if (titleEl) titleEl.textContent = "Restaurando sistema...";
     if (subEl) subEl.textContent = "Obrigado por aguardar! Abrindo a nova versão.";
-  }, 1400);
+  }, 2200);
 
   const url = new URL(window.location.href);
   url.searchParams.set("v_update", String(Date.now()));
 
+  // Tempo total antes de recarregar (3500ms = 3,5 segundos)
   setTimeout(() => {
     window.location.replace(url.toString());
-  }, 2000);
+  }, 3500);
 }
 
     function adiarAtualizacaoVersao() {
