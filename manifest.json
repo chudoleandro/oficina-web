@@ -7,7 +7,7 @@
   "theme_color": "#10b981",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/1995/1995470.png",
+      "src": "./icone-carro.png",
       "sizes": "512x512",
       "type": "image/png"
     }
