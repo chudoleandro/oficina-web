@@ -86,122 +86,119 @@
   display: none;
 }
 
-.login-bg-backdrop {
+.login-bg-layer {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .login-bg-grid {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 36px 36px;
-  mask-image: radial-gradient(circle at center, #000 30%, transparent 85%);
-  -webkit-mask-image: radial-gradient(circle at center, #000 30%, transparent 85%);
+  mask-image: radial-gradient(circle at center, #000 35%, transparent 88%);
+  -webkit-mask-image: radial-gradient(circle at center, #000 35%, transparent 88%);
 }
 
 .login-bg-glow {
   position: absolute;
-  width: 460px;
-  height: 460px;
+  width: min(560px, 85vw);
+  height: min(560px, 85vw);
   border-radius: 50%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   background: radial-gradient(circle, var(--primary-glow), transparent 70%);
-  filter: blur(36px);
-  animation: loginCenterPulse 6s ease-in-out infinite alternate;
+  filter: blur(34px);
+  animation: loginGlowPulse 6.5s ease-in-out infinite alternate;
 }
 
-/* Palco central que mantém a proporção da moldura e o formulário no meio */
-.login-stage {
+/* Imagem ocupando a tela inteira sem cortar o conjunto */
+.login-full-art {
   position: relative;
-  z-index: 1;
-  margin: auto;
-  width: 100%;
-  max-width: 720px;
-  aspect-ratio: 1 / 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  max-width: 980px;
+  max-height: 98vh;
+  object-fit: contain;
+  user-select: none;
+  filter: drop-shadow(0 24px 50px rgba(0, 0, 0, 0.85)) contrast(1.04);
+  animation: loginArtFloat 10s ease-in-out infinite alternate;
 }
 
-.login-frame-art {
+/* Película leve nas bordas para o fundo e o card se integrarem bem */
+.login-bg-vignette {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  pointer-events: none;
-  user-select: none;
-  filter: drop-shadow(0 22px 45px rgba(0, 0, 0, 0.85));
-  animation: loginFrameBreath 9s ease-in-out infinite alternate;
+  background:
+    radial-gradient(circle at 50% 48%, rgba(7, 11, 20, 0.12) 0%, rgba(7, 11, 20, 0.65) 100%);
 }
 
-/* Card compacto posicionado no miolo livre da moldura */
-.login-card.login-card--centered {
+/* Card posicionado bem no vão entre as duas chaves */
+.login-card.login-card--between-keys {
   position: relative;
   z-index: 2;
+  margin: auto;
   width: 100%;
-  max-width: 340px;
-  background: rgba(12, 17, 29, 0.88);
+  max-width: 320px;
+  transform: translateY(-6px);
+  background: rgba(11, 16, 28, 0.86);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-top: 3px solid var(--primary);
-  border-radius: 14px;
-  padding: 18px 18px 16px;
-  margin-top: 22px; /* Leve ajuste para centralizar dentro do vão circular/central */
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.9), 0 0 24px var(--primary-glow);
-  animation: loginCardPop 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  border-radius: 12px;
+  padding: 16px 16px 14px;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.88), 0 0 22px var(--primary-glow);
+  animation: loginCardEnter 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.login-card--centered .login-card-badge {
+.login-card--between-keys .login-card-badge {
   display: inline-block;
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--primary);
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border);
-  padding: 3px 9px;
+  padding: 3px 8px;
   border-radius: 999px;
   margin-bottom: 6px;
 }
 
-.login-card--centered h2 {
-  font-size: 18px;
+.login-card--between-keys h2 {
+  font-size: 17px;
   font-weight: 700;
   text-transform: uppercase;
   margin-bottom: 4px;
 }
 
-.login-card--centered p {
-  font-size: 11.5px;
+.login-card--between-keys p {
+  font-size: 11px;
   color: var(--muted);
   line-height: 1.35;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
-.login-card--centered .field label {
-  font-size: 12px;
-  margin-bottom: 4px;
+.login-card--between-keys .field label {
+  font-size: 11.5px;
+  margin-bottom: 3px;
 }
 
-.login-card--centered .field input {
-  padding: 8px 10px;
-  font-size: 13px;
+.login-card--between-keys .field input {
+  padding: 7px 10px;
+  font-size: 12.5px;
 }
 
-.login-card--centered .btn {
-  padding: 9px 12px;
-  font-size: 13px;
+.login-card--between-keys .btn {
+  padding: 8px 12px;
+  font-size: 12.5px;
 }
 
 .login-links {
@@ -209,7 +206,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 8px;
-  margin-top: 10px;
+  margin-top: 8px;
   flex-wrap: wrap;
 }
 
@@ -217,7 +214,7 @@
   background: transparent;
   border: none;
   color: var(--primary);
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 700;
   cursor: pointer;
   text-decoration: underline;
@@ -230,91 +227,93 @@
 
 .login-error {
   margin-top: 8px;
-  font-size: 12px;
+  font-size: 11.5px;
   color: #fda4af;
   min-height: 0;
-  line-height: 1.35;
+  line-height: 1.3;
 }
 
 .login-success {
   margin-top: 8px;
-  font-size: 12px;
+  font-size: 11.5px;
   color: #6ee7b7;
   min-height: 0;
-  line-height: 1.35;
+  line-height: 1.3;
 }
 
-@keyframes loginFrameBreath {
+@keyframes loginArtFloat {
   0% {
-    transform: scale(0.985);
+    transform: scale(0.985) translateY(0px);
   }
   100% {
-    transform: scale(1.015);
+    transform: scale(1.015) translateY(-6px);
   }
 }
 
-@keyframes loginCenterPulse {
+@keyframes loginGlowPulse {
   0% {
-    transform: translate(-50%, -50%) scale(0.92);
+    transform: scale(0.92);
     opacity: 0.55;
   }
   100% {
-    transform: translate(-50%, -50%) scale(1.12);
+    transform: scale(1.12);
     opacity: 0.95;
   }
 }
 
-@keyframes loginCardPop {
+@keyframes loginCardEnter {
   0% {
     opacity: 0;
-    transform: translateY(12px) scale(0.96);
+    transform: translateY(8px) scale(0.96);
   }
   100% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(-6px) scale(1);
   }
 }
 
-/* Em telas menores, reduz o palco para manter a moldura inteira visível */
+/* Ajuste no celular para o card ficar bem encaixado entre as chaves sem cobrir o carro ou a base */
 @media (max-width: 640px) {
-  .login-stage {
-    max-width: 96vw;
+  .login-full-art {
+    width: 100vw;
+    height: auto;
+    max-height: 82vh;
   }
 
-  .login-card.login-card--centered {
-    max-width: 245px;
-    padding: 12px 12px 10px;
-    margin-top: 14px;
+  .login-card.login-card--between-keys {
+    max-width: 225px;
+    padding: 11px 11px 10px;
+    transform: translateY(-10px);
     border-radius: 10px;
   }
 
-  .login-card--centered p,
-  .login-card--centered .login-card-badge {
+  .login-card--between-keys p,
+  .login-card--between-keys .login-card-badge {
     display: none;
   }
 
-  .login-card--centered h2 {
-    font-size: 14px;
-    margin-bottom: 8px;
+  .login-card--between-keys h2 {
+    font-size: 13.5px;
+    margin-bottom: 6px;
   }
 
-  .login-card--centered .field {
+  .login-card--between-keys .field {
     margin-bottom: 6px !important;
   }
 
-  .login-card--centered .field label {
-    font-size: 10.5px;
+  .login-card--between-keys .field label {
+    font-size: 10px;
     margin-bottom: 2px;
   }
 
-  .login-card--centered .field input {
-    padding: 6px 8px;
-    font-size: 12px;
+  .login-card--between-keys .field input {
+    padding: 5px 8px;
+    font-size: 11.5px;
   }
 
-  .login-card--centered .btn {
-    padding: 7px 10px;
-    font-size: 12px;
+  .login-card--between-keys .btn {
+    padding: 6px 10px;
+    font-size: 11.5px;
   }
 
   .login-links {
@@ -323,7 +322,7 @@
   }
 
   .link-btn {
-    font-size: 10.5px;
+    font-size: 10px;
   }
 }
     /* ==================== BANNER DE ATUALIZAÇÃO ==================== */
@@ -1538,51 +1537,48 @@
 <body>
   <!-- TELA DE LOGIN -->
 <div id="login-screen" class="login-screen">
-  <div class="login-bg-backdrop" aria-hidden="true">
+  <div class="login-bg-layer" aria-hidden="true">
     <div class="login-bg-grid"></div>
     <div class="login-bg-glow"></div>
-  </div>
-
-  <div class="login-stage">
     <img
       src="Oficina Mecânica em Engrenagens e Aço.png"
       alt=""
-      aria-hidden="true"
-      class="login-frame-art"
+      class="login-full-art"
     />
-
-    <form id="login-form" class="login-card login-card--centered" onsubmit="efetuarLoginOficina(event)">
-      <div class="login-card-badge">ACESSO OFICINA WEB</div>
-      <h2>Acesso da Oficina</h2>
-      <p>Entre com o e-mail e a senha cadastrados para carregar os dados da sua oficina com segurança.</p>
-
-      <div class="field" style="margin-bottom:10px;">
-        <label for="login-email">E-mail</label>
-        <input type="email" id="login-email" required placeholder="oficina1@teste.com" autocomplete="username" />
-      </div>
-
-      <div class="field" style="margin-bottom:14px;">
-        <label for="login-senha">Senha</label>
-        <input type="password" id="login-senha" required placeholder="••••••••" autocomplete="current-password" />
-      </div>
-
-      <button type="submit" id="btn-login-submit" class="btn btn-success" style="width:100%;">
-        Entrar na Oficina
-      </button>
-
-      <div class="login-links">
-        <button type="button" class="link-btn" onclick="abrirModalAlterarSenhaLogin()">
-          Alterar senha
-        </button>
-        <button type="button" class="link-btn" onclick="enviarRecuperacaoSenhaLogin()">
-          Esqueci / redefinir
-        </button>
-      </div>
-
-      <div id="login-error" class="login-error"></div>
-      <div id="login-success" class="login-success"></div>
-    </form>
+    <div class="login-bg-vignette"></div>
   </div>
+
+  <form id="login-form" class="login-card login-card--between-keys" onsubmit="efetuarLoginOficina(event)">
+    <div class="login-card-badge">ACESSO OFICINA WEB</div>
+    <h2>Acesso da Oficina</h2>
+    <p>Entre com o e-mail e a senha cadastrados para carregar os dados da sua oficina com segurança.</p>
+
+    <div class="field" style="margin-bottom:8px;">
+      <label for="login-email">E-mail</label>
+      <input type="email" id="login-email" required placeholder="oficina1@teste.com" autocomplete="username" />
+    </div>
+
+    <div class="field" style="margin-bottom:12px;">
+      <label for="login-senha">Senha</label>
+      <input type="password" id="login-senha" required placeholder="••••••••" autocomplete="current-password" />
+    </div>
+
+    <button type="submit" id="btn-login-submit" class="btn btn-success" style="width:100%;">
+      Entrar na Oficina
+    </button>
+
+    <div class="login-links">
+      <button type="button" class="link-btn" onclick="abrirModalAlterarSenhaLogin()">
+        Alterar senha
+      </button>
+      <button type="button" class="link-btn" onclick="enviarRecuperacaoSenhaLogin()">
+        Esqueci / redefinir
+      </button>
+    </div>
+
+    <div id="login-error" class="login-error"></div>
+    <div id="login-success" class="login-success"></div>
+  </form>
 </div>
 
   <!-- MODAL ALTERAR SENHA NA TELA DE LOGIN -->
