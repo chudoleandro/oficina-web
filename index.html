@@ -188,6 +188,61 @@
       flex-wrap: wrap;
     }
 
+    .update-loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(9, 13, 22, 0.92);
+  backdrop-filter: blur(4px);
+  padding: 20px;
+}
+
+.update-loading-overlay.show {
+  display: flex;
+}
+
+.update-loading-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  max-width: 360px;
+  padding: 28px 24px;
+  border-radius: 12px;
+  background: #121826;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.update-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.18);
+  border-top-color: #10b981;
+  border-radius: 50%;
+  animation: updateSpin 0.8s linear infinite;
+}
+
+.update-loading-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.update-loading-sub {
+  font-size: 0.88rem;
+  opacity: 0.8;
+}
+
+@keyframes updateSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
     /* ==================== MENU LATERAL & ABAS PREMIUM ==================== */
     .sidebar {
       width: var(--sidebar-w);
@@ -1408,6 +1463,14 @@
         </div>
       </div>
 
+      <div id="update-loading-overlay" class="update-loading-overlay" aria-live="polite" aria-hidden="true">
+  <div class="update-loading-box">
+    <div class="update-spinner"></div>
+    <div class="update-loading-title">Atualizando o sistema...</div>
+    <div class="update-loading-sub">Aplicando a nova versão e preservando seus dados.</div>
+  </div>
+</div>
+
       <!-- 1. PÁTIO E BAIXA -->
       <section id="screen-patio" class="screen active">
         <div class="panel">
@@ -2347,13 +2410,23 @@ function adiarAtualizacaoConfirmada() {
     }
 
     function aplicarAtualizacaoVersao() {
-      try {
-        localStorage.removeItem(KEY_VERSAO_ADIADA);
-      } catch {}
-      const url = new URL(window.location.href);
-      url.searchParams.set("v_update", String(Date.now()));
-      window.location.replace(url.toString());
-    }
+  try {
+    localStorage.removeItem(KEY_VERSAO_ADIADA);
+  } catch {}
+
+  const overlay = document.getElementById("update-loading-overlay");
+  if (overlay) {
+    overlay.classList.add("show");
+    overlay.setAttribute("aria-hidden", "false");
+  }
+
+  const url = new URL(window.location.href);
+  url.searchParams.set("v_update", String(Date.now()));
+
+  setTimeout(() => {
+    window.location.replace(url.toString());
+  }, 250);
+}
 
     function adiarAtualizacaoVersao() {
       if (versaoPendenteInfo && versaoPendenteInfo.version) {
