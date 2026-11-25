@@ -154,6 +154,12 @@
     /* ==================== BANNER DE ATUALIZAÇÃO ==================== */
     .update-banner {
       display: none;
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(94%, 760px);
+      z-index: 9999;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
@@ -163,6 +169,7 @@
       background: linear-gradient(90deg, rgba(249, 115, 22, 0.22), rgba(23, 27, 36, 0.96));
       border: 1px solid var(--primary);
       border-radius: 10px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
     }
 
     .update-banner.show {
@@ -1914,6 +1921,51 @@
     let baixaCtx = null;
     let versaoPendenteInfo = null;
     let salvarNuvemTimer = null;
+
+    async function checarAtualizacaoNexus() {
+  try {
+    const resp = await fetch(`${URL_VERSAO_JSON}?t=${Date.now()}`, { cache: "no-store" });
+    if (!resp.ok) return;
+
+    const dados = await resp.json();
+    const versaoRemota = dados && dados.version;
+    if (!versaoRemota) return;
+
+    const adiada = localStorage.getItem(KEY_VERSAO_ADIADA);
+    if (compararVersoes(versaoRemota, VERSAO_ATUAL) <= 0 || adiada === versaoRemota) {
+      return;
+    }
+
+    versaoPendenteInfo = dados;
+    abrirModalAtualizacao(versaoPendenteInfo); // Sua função que exibe o modal na tela
+  } catch (_) {
+    // Sem internet ou falha no GitHub: mantém o sistema funcionando sem travar
+  }
+}
+
+async function aplicarAtualizacaoConfirmada() {
+  if (!versaoPendenteInfo || !versaoPendenteInfo.version) return;
+  const novaVersao = versaoPendenteInfo.version;
+  localStorage.removeItem(KEY_VERSAO_ADIADA);
+
+  if ("caches" in window) {
+    try {
+      const nomes = await caches.keys();
+      await Promise.all(nomes.map((n) => caches.delete(n)));
+    } catch (_) {}
+  }
+
+  const url = new URL(window.location.href);
+  url.searchParams.set("v", novaVersao);
+  window.location.replace(url.toString());
+}
+
+function adiarAtualizacaoConfirmada() {
+  if (versaoPendenteInfo && versaoPendenteInfo.version) {
+    localStorage.setItem(KEY_VERSAO_ADIADA, versaoPendenteInfo.version);
+  }
+  fecharModalAtualizacao(); // Sua função que fecha o modal mantendo o sistema como está
+}
 
     function obterChaveStorageOficina(idOficina = window.sessaoOficina.idOficina) {
       return idOficina ? `${STORAGE_KEY_BASE}_${idOficina}` : STORAGE_KEY_BASE;
