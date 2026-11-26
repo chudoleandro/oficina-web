@@ -3416,90 +3416,198 @@ function adiarAtualizacaoConfirmada() {
       `).join("");
     }
 
-    function sincronizarPassagemHistorico(dados, origemEvento = "PASSAGEM") {
-      if (!dados) return;
-      const clienteLimpo = (dados.cliente || "").trim();
-      const modeloLimpo = (dados.modelo || "").trim();
-      const placaLimpa = (dados.placa || "").trim().toUpperCase();
-      const temItens = Array.isArray(dados.servicosAtuais) && dados.servicosAtuais.length > 0;
+    function normalizarPlacaHist(placa) {
+  return String(placa || "").toUpperCase().replace(/[^A-Z0-9]/g, "").trim();
+}
 
-      if (!clienteLimpo && !modeloLimpo && !placaLimpa && !temItens) return;
+function normalizarPlacaHist(placa) {
+  return String(placa || "").toUpperCase().replace(/[^A-Z0-9]/g, "").trim();
+}
 
-      const agora = new Date();
-      const dataHojeBr = agora.toLocaleDateString("pt-BR");
-      const horaHojeBr = agora.toLocaleTimeString("pt-BR");
-      const dataEntradaBr = dados.dataEntrada || dataHojeBr;
-      const horaEntradaBr = dados.horaEntrada || horaHojeBr;
+function normalizarTelefoneHist(fone) {
+  return String(fone || "").replace(/\D/g, "").trim();
+}
 
-      const itensNormalizados = (Array.isArray(dados.servicosAtuais) ? dados.servicosAtuais : []).map(s => ({
-        nome: s.nome || "Serviço",
-        qtdPeca: Math.max(1, parseInt(s.qtdPeca || 1, 10) || 1),
-        valorPeca: parseBRL(s.valorPeca),
-        garantiaDias: Math.max(0, parseInt(s.garantiaDias ?? 90, 10) || 0),
-        dataBaseGarantiaISO: s.dataBaseGarantiaISO || dataBrParaISO(dados.dataConclusao || dataEntradaBr) || hojeISO(),
-        oleoTipo: s.oleoTipo || "",
-        oleoMarca: s.oleoMarca || "",
-        detalhes: s.detalhes || ""
-      }));
+function obterChaveVeiculoHistorico(obj) {
+  const placa = normalizarPlacaHist(obj?.placa);
+  if (placa && placa !== "-") return `PLACA:${placa}`;
 
-      const preventivasVinculadas = encontrarServicosPreventivosNaOS({ ...dados, servicosAtuais: itensNormalizados }).map(det => {
-        const kmBase = parseKmNum(dados.km);
-        const intKm = Math.max(0, parseInt(det.intervaloKm || 0, 10) || 0);
-        const intDias = Math.max(0, parseInt(det.intervaloDias || 0, 10) || 0);
-        return {
-          servico: det.servicoNome,
-          intervaloKm: intKm,
-          proximoKm: intKm > 0 ? kmBase + intKm : 0,
-          intervaloDias: intDias,
-          proximaDataISO: intDias > 0 ? adicionarDiasISO(intDias) : ""
-        };
-      });
+  const fone = normalizarTelefoneHist(obj?.whatsapp);
+  if (fone) return `FONE:${fone}`;
 
-      const idxExistente = state.historico.findIndex(h =>
-        (dados.id && h.id === dados.id) ||
-        (dados.historicoRefId && h.id === dados.historicoRefId) ||
-        (placaLimpa && (h.placa || "").toUpperCase() === placaLimpa && (h.dataEntrada || "") === dataEntradaBr && (h.horaEntrada || "") === horaEntradaBr)
-      );
+  const cliente = String(obj?.cliente || "").trim().toLowerCase();
+  const modelo = String(obj?.modelo || "").trim().toLowerCase();
+  if (cliente || modelo) return `VEICULO:${cliente}|${modelo}`;
 
-      const anterior = idxExistente >= 0 ? state.historico[idxExistente] : {};
+  return "";
+}
 
-      const registroHistorico = {
-        ...anterior,
-        id: dados.historicoRefId || anterior.id || dados.id || ("HIST_" + agora.getTime() + "_" + Math.random().toString(36).slice(2, 6)),
-        origemEvento: dados.status === "CONCLUIDA" ? "Saída / Baixa Concluída" : (origemEvento || anterior.origemEvento || "Passagem no Sistema"),
-        status: dados.status || anterior.status || "REGISTRADA",
-        cliente: clienteLimpo || anterior.cliente || "Cliente",
-        whatsapp: dados.whatsapp || anterior.whatsapp || "",
-        modelo: modeloLimpo || anterior.modelo || "Veículo",
-        ano: dados.ano || anterior.ano || "",
-        placa: placaLimpa || anterior.placa || "-",
-        km: dados.km || anterior.km || "-",
-        dataEntrada: dataEntradaBr,
-        horaEntrada: horaEntradaBr,
-        dataGeracao: dados.dataGeracao || anterior.dataGeracao || "",
-        horaGeracao: dados.horaGeracao || anterior.horaGeracao || "",
-        dataConclusao: dados.dataConclusao || anterior.dataConclusao || "",
-        horaBaixa: dados.horaBaixa || anterior.horaBaixa || "",
-        formaPagamento: dados.formaPagamento || dados.pagamento || anterior.formaPagamento || "",
-        obsMecanico: dados.obsMecanico !== undefined ? dados.obsMecanico : (anterior.obsMecanico || ""),
-        maoDeObraGeral: dados.maoDeObraGeral !== undefined ? parseBRL(dados.maoDeObraGeral) : parseBRL(anterior.maoDeObraGeral),
-        servicosAtuais: itensNormalizados.length ? itensNormalizados : (anterior.servicosAtuais || []),
-        preventivasSnapshot: preventivasVinculadas.length ? preventivasVinculadas : (anterior.preventivasSnapshot || []),
-        total: dados.total !== undefined ? parseBRL(dados.total) : calcTotais({ ...dados, servicosAtuais: itensNormalizados }).total,
-        arquivoPdfSaidas: dados.arquivoPdfSaidas || anterior.arquivoPdfSaidas || ""
-      };
+function montarSnapshotPassagem(dados, origemEvento, dataHojeBr, horaHojeBr, itensNormalizados, preventivasVinculadas, totalCalculado) {
+  const dataEntradaBr = dados.dataEntrada || dataHojeBr;
+  const horaEntradaBr = dados.horaEntrada || horaHojeBr;
+  const statusAtual = dados.status || "REGISTRADA";
 
-      if (dados.id && !dados.historicoRefId) {
-        dados.historicoRefId = registroHistorico.id;
-      }
+  return {
+    passagemId: dados.id || ("PASS_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6)),
+    origemEvento: statusAtual === "CONCLUIDA" ? "Saída / Baixa Concluída" : (origemEvento || "Passagem no Sistema"),
+    status: statusAtual,
+    km: dados.km || "-",
+    dataEntrada: dataEntradaBr,
+    horaEntrada: horaEntradaBr,
+    dataGeracao: dados.dataGeracao || "",
+    horaGeracao: dados.horaGeracao || "",
+    dataConclusao: dados.dataConclusao || "",
+    horaBaixa: dados.horaBaixa || "",
+    formaPagamento: dados.formaPagamento || dados.pagamento || "",
+    obsMecanico: dados.obsMecanico !== undefined ? dados.obsMecanico : "",
+    maoDeObraGeral: dados.maoDeObraGeral !== undefined ? parseBRL(dados.maoDeObraGeral) : 0,
+    servicosAtuais: itensNormalizados,
+    preventivasSnapshot: preventivasVinculadas,
+    total: totalCalculado,
+    arquivoPdfSaidas: dados.arquivoPdfSaidas || "",
+    atualizadoEm: `${dataHojeBr} ${horaHojeBr}`
+  };
+}
 
-      if (idxExistente >= 0) {
-        state.historico[idxExistente] = registroHistorico;
-      } else {
-        state.historico.unshift(registroHistorico);
-      }
+function sincronizarPassagemHistorico(dados, origemEvento = "PASSAGEM") {
+  if (!dados) return;
+
+  const clienteLimpo = (dados.cliente || "").trim();
+  const modeloLimpo = (dados.modelo || "").trim();
+  const placaLimpa = (dados.placa || "").trim().toUpperCase();
+  const temItens = Array.isArray(dados.servicosAtuais) && dados.servicosAtuais.length > 0;
+
+  if (!clienteLimpo && !modeloLimpo && !placaLimpa && !temItens) return;
+
+  if (!Array.isArray(state.historico)) {
+    state.historico = [];
+  }
+
+  const agora = new Date();
+  const dataHojeBr = agora.toLocaleDateString("pt-BR");
+  const horaHojeBr = agora.toLocaleTimeString("pt-BR");
+  const dataEntradaBr = dados.dataEntrada || dataHojeBr;
+  const horaEntradaBr = dados.horaEntrada || horaHojeBr;
+
+  const itensNormalizados = (Array.isArray(dados.servicosAtuais) ? dados.servicosAtuais : []).map(s => ({
+    nome: s.nome || "Serviço",
+    qtdPeca: Math.max(1, parseInt(s.qtdPeca || 1, 10) || 1),
+    valorPeca: parseBRL(s.valorPeca),
+    garantiaDias: Math.max(0, parseInt(s.garantiaDias ?? 90, 10) || 0),
+    dataBaseGarantiaISO: s.dataBaseGarantiaISO || dataBrParaISO(dados.dataConclusao || dataEntradaBr) || hojeISO(),
+    oleoTipo: s.oleoTipo || "",
+    oleoMarca: s.oleoMarca || "",
+    detalhes: s.detalhes || ""
+  }));
+
+  const preventivasVinculadas = encontrarServicosPreventivosNaOS({ ...dados, servicosAtuais: itensNormalizados }).map(det => {
+    const kmBase = parseKmNum(dados.km);
+    const intKm = Math.max(0, parseInt(det.intervaloKm || 0, 10) || 0);
+    const intDias = Math.max(0, parseInt(det.intervaloDias || 0, 10) || 0);
+    return {
+      servico: det.servicoNome,
+      intervaloKm: intKm,
+      proximoKm: intKm > 0 ? kmBase + intKm : 0,
+      intervaloDias: intDias,
+      proximaDataISO: intDias > 0 ? adicionarDiasISO(intDias) : ""
+    };
+  });
+
+  const totalCalculado = dados.total !== undefined
+    ? parseBRL(dados.total)
+    : calcTotais({ ...dados, servicosAtuais: itensNormalizados }).total;
+
+  const chaveAlvo = obterChaveVeiculoHistorico({
+    placa: placaLimpa,
+    whatsapp: dados.whatsapp,
+    cliente: clienteLimpo,
+    modelo: modeloLimpo
+  });
+
+  const idxExistente = state.historico.findIndex(h => {
+    if (dados.historicoRefId && h.id === dados.historicoRefId) return true;
+    if (chaveAlvo && obterChaveVeiculoHistorico(h) === chaveAlvo) return true;
+    if (dados.id && (h.id === dados.id || (Array.isArray(h.passagens) && h.passagens.some(p => p.passagemId === dados.id)))) {
+      return true;
     }
+    return false;
+  });
 
+  const anterior = idxExistente >= 0 ? state.historico[idxExistente] : {};
+  const passagensAnteriores = Array.isArray(anterior.passagens) ? [...anterior.passagens] : [];
+
+  const snapshotAtual = montarSnapshotPassagem(
+    dados,
+    origemEvento,
+    dataHojeBr,
+    horaHojeBr,
+    itensNormalizados.length ? itensNormalizados : (anterior.servicosAtuais || []),
+    preventivasVinculadas.length ? preventivasVinculadas : (anterior.preventivasSnapshot || []),
+    totalCalculado
+  );
+
+  // Evita duplicar a mesma OS/passagem ao editar valores ou dar baixa
+  const idxPassagem = passagensAnteriores.findIndex(p =>
+    (snapshotAtual.passagemId && p.passagemId === snapshotAtual.passagemId) ||
+    (
+      p.dataEntrada === snapshotAtual.dataEntrada &&
+      p.horaEntrada === snapshotAtual.horaEntrada &&
+      String(p.km) === String(snapshotAtual.km)
+    )
+  );
+
+  if (idxPassagem >= 0) {
+    passagensAnteriores[idxPassagem] = {
+      ...passagensAnteriores[idxPassagem],
+      ...snapshotAtual,
+      passagemId: passagensAnteriores[idxPassagem].passagemId || snapshotAtual.passagemId
+    };
+  } else {
+    passagensAnteriores.unshift(snapshotAtual);
+  }
+
+  const registroHistorico = {
+    ...anterior,
+    id: anterior.id || dados.historicoRefId || ("HIST_VEIC_" + (normalizarPlacaHist(placaLimpa) || agora.getTime())),
+    chaveVeiculo: chaveAlvo || anterior.chaveVeiculo || "",
+    totalPassagens: passagensAnteriores.length,
+    ultimaPassagemEm: `${dataHojeBr} ${horaHojeBr}`,
+    passagens: passagensAnteriores,
+
+    // Dados mais recentes do veículo / última passagem para exibição rápida na tabela
+    origemEvento: snapshotAtual.origemEvento,
+    status: snapshotAtual.status,
+    cliente: clienteLimpo || anterior.cliente || "Cliente",
+    whatsapp: dados.whatsapp || anterior.whatsapp || "",
+    modelo: modeloLimpo || anterior.modelo || "Veículo",
+    ano: dados.ano || anterior.ano || "",
+    placa: placaLimpa || anterior.placa || "-",
+    km: dados.km || anterior.km || "-",
+    dataEntrada: dataEntradaBr,
+    horaEntrada: horaEntradaBr,
+    dataGeracao: dados.dataGeracao || anterior.dataGeracao || "",
+    horaGeracao: dados.horaGeracao || anterior.horaGeracao || "",
+    dataConclusao: dados.dataConclusao || anterior.dataConclusao || "",
+    horaBaixa: dados.horaBaixa || anterior.horaBaixa || "",
+    formaPagamento: dados.formaPagamento || dados.pagamento || anterior.formaPagamento || "",
+    obsMecanico: dados.obsMecanico !== undefined ? dados.obsMecanico : (anterior.obsMecanico || ""),
+    maoDeObraGeral: dados.maoDeObraGeral !== undefined ? parseBRL(dados.maoDeObraGeral) : parseBRL(anterior.maoDeObraGeral),
+    servicosAtuais: itensNormalizados.length ? itensNormalizados : (anterior.servicosAtuais || []),
+    preventivasSnapshot: preventivasVinculadas.length ? preventivasVinculadas : (anterior.preventivasSnapshot || []),
+    total: totalCalculado,
+    arquivoPdfSaidas: dados.arquivoPdfSaidas || anterior.arquivoPdfSaidas || ""
+  };
+
+  if (dados.id) {
+    dados.historicoRefId = registroHistorico.id;
+  }
+
+  if (idxExistente >= 0) {
+    state.historico[idxExistente] = registroHistorico;
+  } else {
+    state.historico.unshift(registroHistorico);
+  }
+}
     function encontrarServicosPreventivosNaOS(dadosOS) {
       const itens = Array.isArray(dadosOS.servicosAtuais) ? dadosOS.servicosAtuais : [];
       const servicosPrevAtivos = state.servicos.filter(s => s.preventiva);
@@ -5113,139 +5221,299 @@ function adiarAtualizacaoConfirmada() {
       abrirWhatsAppCliente(reg);
     }
 
-    function renderizarHistorico() {
-      const box = document.getElementById("lista-historico");
-      const resumoEl = document.getElementById("resumo-historico");
-      if (!box || !resumoEl) return;
+    function parseDataLocalHist(valor) {
+  if (!valor) return null;
+  if (valor instanceof Date) {
+    return Number.isNaN(valor.getTime()) ? null : new Date(valor.getFullYear(), valor.getMonth(), valor.getDate());
+  }
 
-      const q = (document.getElementById("busca-historico")?.value || "").trim().toLowerCase();
-      const filtroGar = document.getElementById("filtro-garantia-historico")?.value || "todos";
+  const str = String(valor).trim();
 
-      const avaliados = state.historico.map((reg, idx) => {
-        const itens = Array.isArray(reg.servicosAtuais) ? reg.servicosAtuais : [];
-        const garantiasItens = itens.map(s => ({ item: s, gar: avaliarGarantiaItem(s, reg) }));
-        const temNaGarantia = garantiasItens.some(x => x.gar.status === "na_garantia");
-        const temForaGarantia = garantiasItens.some(x => x.gar.status === "fora_garantia");
-        return { reg, idx, garantiasItens, temNaGarantia, temForaGarantia };
+  const matchISO = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (matchISO) {
+    const ano = parseInt(matchISO[1], 10);
+    const mes = parseInt(matchISO[2], 10) - 1;
+    const dia = parseInt(matchISO[3], 10);
+    return new Date(ano, mes, dia);
+  }
+
+  const matchBR = str.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+  if (matchBR) {
+    const dia = parseInt(matchBR[1], 10);
+    const mes = parseInt(matchBR[2], 10) - 1;
+    const ano = parseInt(matchBR[3], 10);
+    return new Date(ano, mes, dia);
+  }
+
+  const d = new Date(str);
+  if (Number.isNaN(d.getTime())) return null;
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+function avaliarGarantiaServicoHist(servico, itemBase) {
+  const diasGarantia = Math.max(0, parseInt(servico?.garantiaDias ?? 90, 10) || 0);
+  if (diasGarantia <= 0) {
+    return {
+      status: "sem_garantia",
+      label: "SEM GARANTIA",
+      detalhe: "0 dias configurados"
+    };
+  }
+
+  const baseRaw =
+    servico?.dataBaseGarantiaISO ||
+    (typeof dataBrParaISO === "function" ? dataBrParaISO(itemBase?.dataConclusao || itemBase?.dataEntrada || "") : "") ||
+    itemBase?.dataConclusao ||
+    itemBase?.dataEntrada ||
+    (typeof hojeISO === "function" ? hojeISO() : "");
+
+  const inicio = parseDataLocalHist(baseRaw);
+  if (!inicio) {
+    return {
+      status: "fora_garantia",
+      label: "CONFERIR DATA",
+      detalhe: `${diasGarantia} dias de garantia`
+    };
+  }
+
+  const vencimento = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate() + diasGarantia);
+  const agora = new Date();
+  const hoje = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
+
+  const diffDias = Math.round((vencimento.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24));
+  const dataVencBr = vencimento.toLocaleDateString("pt-BR");
+
+  if (diffDias >= 0) {
+    return {
+      status: "na_garantia",
+      label: `ESTÁ NA GARANTIA (${diffDias}d restantes)`,
+      detalhe: `Válida até ${dataVencBr} (${diasGarantia}d)`
+    };
+  }
+
+  return {
+    status: "fora_garantia",
+    label: `PASSOU DA GARANTIA (há ${Math.abs(diffDias)}d)`,
+    detalhe: `Venceu em ${dataVencBr} (${diasGarantia}d)`
+  };
+}
+
+function obterPassagensOrdenadasHist(registro) {
+  if (Array.isArray(registro?.passagens) && registro.passagens.length > 0) {
+    return registro.passagens;
+  }
+  return registro ? [registro] : [];
+}
+
+function renderizarHistorico() {
+  const listaEl = document.getElementById("lista-historico");
+  const resumoEl = document.getElementById("resumo-historico");
+  const buscaEl = document.getElementById("busca-historico");
+  const filtroGarantiaEl = document.getElementById("filtro-garantia-historico");
+
+  if (!listaEl) return;
+
+  const termo = String(buscaEl?.value || "").trim().toLowerCase();
+  const filtroGarantia = String(filtroGarantiaEl?.value || "todos");
+  const registros = Array.isArray(state?.historico) ? state.historico : [];
+
+  const avaliados = registros.map(reg => {
+    const passagens = obterPassagensOrdenadasHist(reg);
+
+    const servicosComContexto = [];
+    passagens.forEach((p, idxPassagem) => {
+      const listaServ = Array.isArray(p?.servicosAtuais) ? p.servicosAtuais : [];
+      const numeroPassagem = passagens.length - idxPassagem;
+      listaServ.forEach(s => {
+        servicosComContexto.push({
+          ...s,
+          _garantia: avaliarGarantiaServicoHist(s, p),
+          _dataPassagem: p?.dataConclusao || p?.dataEntrada || reg.dataConclusao || reg.dataEntrada || "",
+          _numeroPassagem: numeroPassagem
+        });
       });
+    });
 
-      const filtrados = avaliados.filter(({ reg, garantiasItens, temNaGarantia, temForaGarantia }) => {
-        const itensTxt = garantiasItens
-          .map(({ item, gar }) => `${item.nome || ""} ${item.oleoTipo || ""} ${item.oleoMarca || ""} ${item.detalhes || ""} ${gar.label} ${fmtDataISO(gar.validadeISO)}`)
-          .join(" ");
-        const prevTxt = (Array.isArray(reg.preventivasSnapshot) ? reg.preventivasSnapshot : [])
-          .map(p => `${p.servico || ""} ${p.intervaloKm || ""} ${p.proximoKm || ""} ${p.intervaloDias || ""} ${fmtDataISO(p.proximaDataISO)}`)
-          .join(" ");
-        const baseTxt = `${reg.cliente || ""} ${reg.whatsapp || ""} ${reg.modelo || ""} ${reg.ano || ""} ${reg.placa || ""} ${reg.km || ""} ${reg.origemEvento || ""} ${reg.formaPagamento || ""} ${reg.dataEntrada || ""} ${reg.dataConclusao || ""} ${reg.dataGeracao || ""} ${reg.obsMecanico || ""} ${itensTxt} ${prevTxt}`.toLowerCase();
+    const qtdNaGarantia = servicosComContexto.filter(s => s._garantia.status === "na_garantia").length;
+    const qtdPassouGarantia = servicosComContexto.filter(s => s._garantia.status === "fora_garantia").length;
+    const temNaGarantia = qtdNaGarantia > 0;
+    const temPassouGarantia = qtdPassouGarantia > 0;
 
-        const matchBusca = !q || baseTxt.includes(q);
-        if (!matchBusca) return false;
-        if (filtroGar === "na_garantia") return temNaGarantia;
-        if (filtroGar === "fora_garantia") return temForaGarantia;
-        return true;
-      });
+    const preventivas = Array.isArray(reg.preventivasSnapshot) && reg.preventivasSnapshot.length > 0
+      ? reg.preventivasSnapshot
+      : (Array.isArray(passagens[0]?.preventivasSnapshot) ? passagens[0].preventivasSnapshot : []);
 
-      resumoEl.textContent = `Exibindo ${filtrados.length} de ${state.historico.length} passagem(ns)`;
+    const totalAcumulado = passagens.reduce((acc, p) => acc + Number(p?.total || 0), 0);
 
-      if (!filtrados.length) {
-        box.innerHTML = `<div class="empty-state">Nenhum registro encontrado no histórico para este filtro.</div>`;
-        return;
-      }
+    return {
+      reg,
+      passagens,
+      servicosComContexto,
+      preventivas,
+      qtdNaGarantia,
+      qtdPassouGarantia,
+      temNaGarantia,
+      temPassouGarantia,
+      totalAcumulado
+    };
+  });
 
-      box.innerHTML = filtrados.map(({ reg, idx, garantiasItens, temNaGarantia, temForaGarantia }) => {
-        let statusGarBadge = `<span class="tag">Sem Garantia Cadastrada</span>`;
-        if (temNaGarantia && temForaGarantia) {
-          statusGarBadge = `<span class="tag amber">Misto: Possui Item NA GARANTIA e Item FORA</span>`;
-        } else if (temNaGarantia) {
-          statusGarBadge = `<span class="tag green">ESTÁ NA GARANTIA</span>`;
-        } else if (temForaGarantia) {
-          statusGarBadge = `<span class="tag red">PASSOU DA GARANTIA</span>`;
-        }
+  const filtrados = avaliados.filter(entry => {
+    const { reg, passagens, servicosComContexto, preventivas, temNaGarantia, temPassouGarantia } = entry;
 
-        const itensHtml = garantiasItens.length
-          ? garantiasItens.map(({ item, gar }, i) => {
-              const qtd = Math.max(1, parseInt(item.qtdPeca || 1, 10) || 1);
-              const oleoTxt = formatarResumoOleo(item);
+    if (filtroGarantia === "na_garantia" && !temNaGarantia) return false;
+    if (filtroGarantia === "fora_garantia" && !temPassouGarantia) return false;
+
+    if (!termo) return true;
+
+    const textoServicos = servicosComContexto
+      .map(s => `${s.nome || ""} ${s.detalhes || ""} ${s.oleoMarca || ""} ${s.oleoTipo || ""}`)
+      .join(" ");
+    const textoPreventivas = preventivas
+      .map(pv => `${pv.servico || ""} ${pv.proximoKm || ""} ${pv.proximaDataISO || ""}`)
+      .join(" ");
+    const textoPassagens = passagens
+      .map(p => `${p.dataEntrada || ""} ${p.dataConclusao || ""} ${p.km || ""} ${p.obsMecanico || ""} ${p.formaPagamento || ""}`)
+      .join(" ");
+
+    const alvo = `${reg.cliente || ""} ${reg.placa || ""} ${reg.modelo || ""} ${reg.ano || ""} ${reg.whatsapp || ""} ${textoServicos} ${textoPreventivas} ${textoPassagens}`.toLowerCase();
+    return alvo.includes(termo);
+  });
+
+  if (resumoEl) {
+    const totalPassagensVisiveis = filtrados.reduce((acc, e) => acc + e.passagens.length, 0);
+    resumoEl.textContent = `${filtrados.length} veículo(s) • ${totalPassagensVisiveis} passagem(ns)`;
+  }
+
+  if (!filtrados.length) {
+    listaEl.innerHTML = `
+      <div style="padding:18px; border-radius:10px; border:1px solid var(--border); text-align:center; color:var(--muted);">
+        Nenhum registro encontrado no histórico com os filtros atuais.
+      </div>
+    `;
+    return;
+  }
+
+  const moed = v => (typeof formatBRL === "function"
+    ? formatBRL(v)
+    : Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }));
+  const esc = t => (typeof escapeHtml === "function"
+    ? escapeHtml(String(t ?? ""))
+    : String(t ?? ""));
+
+  listaEl.innerHTML = filtrados.map(entry => {
+    const { reg, passagens, servicosComContexto, preventivas, qtdNaGarantia, qtdPassouGarantia, totalAcumulado } = entry;
+    const qtdPassagens = passagens.length;
+
+    const servicosFiltradosParaExibir = filtroGarantia === "na_garantia"
+      ? servicosComContexto.filter(s => s._garantia.status === "na_garantia")
+      : (filtroGarantia === "fora_garantia"
+        ? servicosComContexto.filter(s => s._garantia.status === "fora_garantia")
+        : servicosComContexto);
+
+    const servicosHtml = servicosFiltradosParaExibir.length
+      ? `
+        <div style="margin-top:10px;">
+          <div style="font-size:12px; font-weight:700; margin-bottom:6px;">Serviços, Peças e Garantias:</div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            ${servicosFiltradosParaExibir.map(s => {
+              const corGarantia = s._garantia.status === "na_garantia"
+                ? "#34d399"
+                : (s._garantia.status === "fora_garantia" ? "#fda4af" : "#cbd5e1");
               return `
-                <div class="garantia-item-box">
-                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
-                    <span><b>${i + 1}. ${item.nome || "Serviço"}</b>${oleoTxt ? ` [${oleoTxt}]` : ""} — Qtd: <b>${qtd}</b></span>
-                    <span class="${gar.tagClass}">${gar.label}</span>
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; padding:8px 10px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px solid var(--border); font-size:12.5px;">
+                  <div>
+                    <strong>${esc(s.nome || "Serviço")}</strong>
+                    <span style="color:var(--muted);">— Qtd: ${esc(s.qtdPeca || 1)} • ${moed(s.valorPeca || 0)}</span>
+                    ${s._numeroPassagem ? `<span style="color:var(--muted);">• Passagem #${esc(s._numeroPassagem)}</span>` : ""}
+                    ${s._dataPassagem ? `<span style="color:var(--muted);">(${esc(s._dataPassagem)})</span>` : ""}
                   </div>
-                  <div class="os-meta" style="margin-top:4px;">
-                    Garantia: <b>${gar.diasGarantia > 0 ? gar.diasGarantia + " dia(s)" : "Não informada"}</b> •
-                    Início: <b>${fmtDataISO(gar.dataBaseISO)}</b> •
-                    Validade: <b>${gar.validadeISO ? fmtDataISO(gar.validadeISO) : "-"}</b>
-                    ${item.detalhes ? ` • Obs: <i>${item.detalhes}</i>` : ""}
+                  <div style="text-align:right;">
+                    <span style="font-weight:700; color:${corGarantia}; font-size:11.5px;">${esc(s._garantia.label)}</span>
+                    <div style="font-size:11px; color:var(--muted);">${esc(s._garantia.detalhe)}</div>
                   </div>
                 </div>
               `;
-            }).join("")
-          : `<div class="os-meta">Nenhum serviço ou peça discriminado nesta passagem.</div>`;
+            }).join("")}
+          </div>
+        </div>
+      `
+      : `<div style="margin-top:8px; font-size:12px; color:var(--muted);">Nenhum serviço correspondente ao filtro selecionado.</div>`;
 
-        const prevsLista = Array.isArray(reg.preventivasSnapshot) && reg.preventivasSnapshot.length
-          ? reg.preventivasSnapshot
-          : state.preventivasMonitoramento.filter(m =>
-              ((reg.placa && reg.placa !== "-" && (m.placa || "").toUpperCase() === reg.placa.toUpperCase()) ||
-              ((m.cliente || "").toLowerCase() === (reg.cliente || "").toLowerCase() && (m.modelo || "").toLowerCase() === (reg.modelo || "").toLowerCase()))
-            );
+    const preventivasHtml = preventivas.length
+      ? `
+        <div style="margin-top:10px;">
+          <div style="font-size:12px; font-weight:700; margin-bottom:6px;">Preventivas (KM e Dias):</div>
+          <div style="display:flex; flex-wrap:wrap; gap:8px;">
+            ${preventivas.map(pv => {
+              const dataPrevBr = pv.proximaDataISO && typeof dataISOParaBr === "function"
+                ? dataISOParaBr(pv.proximaDataISO)
+                : (pv.proximaDataISO || "-");
+              return `
+                <div style="padding:6px 10px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px solid var(--border); font-size:12px;">
+                  <strong>${esc(pv.servico || "Preventiva")}</strong>:
+                  ${pv.proximoKm ? `Próx. KM <strong>${esc(pv.proximoKm)}</strong>` : ""}
+                  ${pv.proximoKm && pv.proximaDataISO ? " • " : ""}
+                  ${pv.proximaDataISO ? `Próx. Data <strong>${esc(dataPrevBr)}</strong>` : ""}
+                </div>
+              `;
+            }).join("")}
+          </div>
+        </div>
+      `
+      : "";
 
-        const prevHtml = prevsLista.length
-          ? `<div class="os-detail-list">
-              <div style="margin-bottom:4px;"><b>Preventivas Vinculadas (KM e Dias):</b></div>
-              ${prevsLista.map(p => {
-                const kmTxt = Number(p.proximoKm || 0) > 0 ? `Próximo KM: <b>${Number(p.proximoKm).toLocaleString("pt-BR")} km</b>` : "";
-                const intKmTxt = Number(p.intervaloKm || 0) > 0 ? `(${Number(p.intervaloKm).toLocaleString("pt-BR")} km)` : "";
-                const dataTxt = p.proximaDataISO ? `Próxima Data: <b>${fmtDataISO(p.proximaDataISO)}</b>` : "";
-                const intDiasTxt = Number(p.intervaloDias || 0) > 0 ? `(${Number(p.intervaloDias)} dias)` : "";
-                const partes = [kmTxt, intKmTxt, dataTxt, intDiasTxt].filter(Boolean).join(" ");
-                return `<div>• <b>${p.servico || "Preventiva"}</b> — ${partes || "Monitorada"}</div>`;
-              }).join("")}
-            </div>`
-          : `<div class="os-detail-list" style="color:var(--muted);"><b>Preventivas:</b> Nenhuma preventiva vinculada a este atendimento.</div>`;
+    const dataEntrada = reg.dataEntrada || "-";
+    const horaEntrada = reg.horaEntrada ? ` às ${reg.horaEntrada}` : "";
+    const dataSaida = reg.dataConclusao
+      ? `${reg.dataConclusao}${reg.horaBaixa ? ` às ${reg.horaBaixa}` : ""}`
+      : "Em andamento / Não concluída";
 
-        const obsHtml = reg.obsMecanico
-          ? `<div class="obs-aviso-box"><b>Observação do Mecânico:</b> ${reg.obsMecanico}</div>`
-          : "";
-
-        return `
-          <div class="os-card">
-            <div style="flex:1;min-width:260px;">
-              <div class="os-main-title">
-                <span>${reg.cliente || "Cliente"} — ${fmtVeiculo(reg)}</span>
-                <span class="tag">${(reg.placa || "-").toUpperCase()}</span>
-                <span class="tag">${reg.origemEvento || reg.status || "Passagem"}</span>
-                ${statusGarBadge}
-              </div>
-
-              <div class="os-detail-grid">
-                <div><b>Data / Hora Entrada:</b> ${reg.dataEntrada || "-"} ${reg.horaEntrada || ""}</div>
-                <div><b>Data / Hora Saída (Baixa):</b> ${reg.dataConclusao ? `${reg.dataConclusao} ${reg.horaBaixa || ""}` : "Ainda não saiu / em aberto"}</div>
-                <div><b>Data Orçamento:</b> ${reg.dataGeracao ? `${reg.dataGeracao} ${reg.horaGeracao || ""}` : "-"}</div>
-                <div><b>KM Registrado:</b> ${reg.km || "-"}</div>
-                <div><b>WhatsApp:</b> ${reg.whatsapp || "-"}</div>
-                <div><b>Pagamento:</b> ${reg.formaPagamento || "-"}</div>
-              </div>
-
-              <div class="os-detail-list">
-                <div style="margin-bottom:4px;"><b>Serviços, Peças e Situação da Garantia:</b></div>
-                ${itensHtml}
-              </div>
-
-              ${prevHtml}
-              ${obsHtml}
-              ${reg.arquivoPdfSaidas ? `<div class="os-meta" style="margin-top:8px;">Comprovante PDF: <b>${reg.arquivoPdfSaidas}</b></div>` : ""}
+    return `
+      <div class="panel" style="margin-bottom:12px; padding:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
+          <div>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <strong style="font-size:15px;">${esc(reg.placa || "-")} — ${esc(reg.modelo || "Veículo")}</strong>
+              <span style="padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700; background:rgba(255,255,255,0.07); border:1px solid var(--border);">
+                ${qtdPassagens} ${qtdPassagens === 1 ? "passagem" : "passagens"} no veículo
+              </span>
+              ${qtdNaGarantia > 0 ? `<span style="padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700; color:#34d399; background:rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.25);">${qtdNaGarantia} na garantia</span>` : ""}
+              ${qtdPassouGarantia > 0 ? `<span style="padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700; color:#fda4af; background:rgba(253,164,175,0.1); border:1px solid rgba(253,164,175,0.25);">${qtdPassouGarantia} vencida(s)</span>` : ""}
             </div>
-
-            <div class="card-actions">
-              <button type="button" class="btn btn-secondary" onclick="abrirTelaEdicao('historico', ${idx})">Editar / Garantia</button>
-              <button type="button" class="btn btn-secondary" onclick="abrirWhatsAppCliente(state.historico[${idx}])">WhatsApp</button>
-              <button type="button" class="btn" onclick="gerarPdfNaPastaSaidas(state.historico[${idx}])">Baixar PDF</button>
+            <div style="font-size:12.5px; color:var(--muted); margin-top:3px;">
+              Cliente: <strong>${esc(reg.cliente || "Cliente")}</strong>
+              ${reg.whatsapp ? ` • WhatsApp: ${esc(reg.whatsapp)}` : ""}
+              ${reg.ano ? ` • Ano: ${esc(reg.ano)}` : ""}
             </div>
           </div>
-        `;
-      }).join("");
-    }
+
+          <div style="text-align:right;">
+            <div style="font-size:12px; color:var(--muted);">Última OS / Total Acumulado</div>
+            <strong style="font-size:15px; color:var(--primary);">${moed(reg.total || 0)}</strong>
+            ${qtdPassagens > 1 ? `<div style="font-size:11.5px; color:var(--muted);">Acumulado: ${moed(totalAcumulado)}</div>` : ""}
+          </div>
+        </div>
+
+        <div style="display:flex; flex-wrap:wrap; gap:14px; font-size:12px; color:var(--muted); margin-top:10px; padding-top:10px; border-top:1px solid var(--border);">
+          <span><strong>Entrada:</strong> ${esc(dataEntrada + horaEntrada)}</span>
+          <span><strong>Saída:</strong> ${esc(dataSaida)}</span>
+          <span><strong>KM Atual:</strong> ${esc(reg.km || "-")}</span>
+          ${reg.formaPagamento ? `<span><strong>Pagamento:</strong> ${esc(reg.formaPagamento)}</span>` : ""}
+        </div>
+
+        ${servicosHtml}
+        ${preventivasHtml}
+
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:12px;">
+          <button type="button" class="btn btn-primary" style="padding:6px 12px; font-size:12px;" onclick="abrirModalHistoricoVeiculo('${esc(reg.id)}')">
+            Ver Todas as ${qtdPassagens} ${qtdPassagens === 1 ? "Passagem" : "Passagens"}
+          </button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
 
     function abrirSubmenuConfig(sub) {
       document.querySelectorAll(".sub-btn").forEach(b => b.classList.toggle("active", b.dataset.sub === sub));
